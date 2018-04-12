@@ -203,4 +203,11 @@ function display_my_widget() {
     }
 }
 
+add_action( 'wp_enqueue_scripts', 'custom_load_bootstrap' );
+/**
+ * Enqueue Bootstrap.
+ */
+function custom_load_bootstrap() {
+    wp_enqueue_style( 'bootstrap-css', '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css' );
 
+    wp_enqueue_script( 'bootstrap-js', '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js', array( 'jquery' ), CHILD_THEME_VERSION, true );
