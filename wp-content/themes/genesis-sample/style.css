@@ -516,15 +516,27 @@ tbody {
 td,
 th {
 	text-align: left;
+	font-size: .8em;
 }
 
+.specs {
+	min-width: 225px;
+}
+
+.detects {
+	min-width: 150px;
+}
+
+.units {
+	min-width: 75px;
+}
 td {
 	border-top: 1px solid #eee;
 	padding: 6px;
 }
 
 th {
-	font-weight: 400;
+	font-weight: 800;
 	padding: 0 6px;
 }
 
