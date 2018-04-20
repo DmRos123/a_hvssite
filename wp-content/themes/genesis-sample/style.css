@@ -48,6 +48,7 @@
 - Plugins
 	- Genesis eNews Extended
 	- Jetpack
+	- Ninja Forms
 - Skip Links
 - Site Header
 	- Title Area
@@ -1043,6 +1044,20 @@ img.alignright,
 
 #wpstats {
 	display: none;
+}
+
+/* ## Ninja Forms
+--------------------------------------------- */
+
+#nf-field-13-container {
+	width: 47%;
+	float: left;
+	margin-bottom: -95px;
+}
+
+#nf-field-14-container {
+	width: 47%;
+	float: right;
 }
 
 
