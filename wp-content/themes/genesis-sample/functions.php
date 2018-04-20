@@ -113,7 +113,10 @@ add_theme_support( 'genesis-after-entry-widget-area' );
 add_theme_support( 'genesis-footer-widgets', 3 );
 
 // Add Image Sizes.
+add_theme_support( 'post-thumbnails' );
 add_image_size( 'featured-image', 720, 400, TRUE );
+add_image_size( 'product-image', 150, 150, TRUE );
+add_image_size( 'dmr-full-bleed', 2000, 1200, true );
 
 // Rename primary and secondary navigation menus.
 add_theme_support( 'genesis-menus', array( 'primary' => __( 'After Header Menu', 'genesis-sample' ), 'secondary' => __( 'Footer Menu', 'genesis-sample' ) ) );
