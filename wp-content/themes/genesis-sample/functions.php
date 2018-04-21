@@ -197,13 +197,24 @@ genesis_register_sidebar( array(
 ) );
 
 // Display post widget.
-add_action( 'genesis_entry_header', 'display_my_widget' );
+add_action( 'genesis_after_entry', 'display_my_widget' );
 function display_my_widget() {
     
-    if ( is_single() && is_active_sidebar( 'my-widget' )  ) {
+    if ( is_page('contact-us') && is_active_sidebar( 'my-widget' )  ) {
 	genesis_widget_area( 'my-widget', array(
 		'before' => '<div class="my-widget"><div class="wrap">',
 		'after'  => '</div></div>',
 	) );
     }
 }
+
+//ACF Google Map api
+function my_acf_google_map_api( $api ){
+	
+	$api['key'] = 'AIzaSyDIkKLzeNHeiBNoQQoVtyF-Trs88OuyBSg';
+	
+	return $api;
+	
+}
+
+add_filter('acf/fields/google_map/api', 'my_acf_google_map_api');
