@@ -1570,7 +1570,8 @@ p.entry-meta {
 ---------------------------------------------------------------------------------------------------- */
 
 .footer-widgets {
-	background-color: #fff;
+	background-color: #ebebeb;
+	border-top: 1px solid #cbcbd8;
 	clear: both;
 	font-size: 18px;
 	font-size: 1.8rem;
@@ -1579,8 +1580,9 @@ p.entry-meta {
 
 .footer-widgets-1,
 .footer-widgets-2,
-.footer-widgets-3 {
-	width: 380px;
+.footer-widgets-3,
+.footer-widgets-4{
+	width: 20%;
 }
 
 .footer-widgets-1 {
@@ -1588,12 +1590,13 @@ p.entry-meta {
 }
 
 .footer-widgets-1,
-.footer-widgets-2 {
+.footer-widgets-2,
+.footer-widgets-3 {
 	float: left;
 }
 
-.footer-widgets-3 {
-	float: right;
+.footer-widgets-4 {
+	float: left;
 }
 
 

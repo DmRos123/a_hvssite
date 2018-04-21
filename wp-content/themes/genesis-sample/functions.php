@@ -110,7 +110,7 @@ add_theme_support( 'custom-background' );
 add_theme_support( 'genesis-after-entry-widget-area' );
 
 // Add support for 3-column footer widgets.
-add_theme_support( 'genesis-footer-widgets', 3 );
+add_theme_support( 'genesis-footer-widgets', 4 );
 
 // Add Image Sizes.
 add_theme_support( 'post-thumbnails' );
