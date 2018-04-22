@@ -2091,3 +2091,11 @@ p.entry-meta {
 	}
 
 }
+
+.dashicons-admin-plugins:before { 
+content: "\f497";
+display: inline-block;
+color: #1EC9B3;
+-webkit-font-smoothing: antialiased;
+font: normal 20px/1 'dashicons';
+}
