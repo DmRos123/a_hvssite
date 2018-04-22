@@ -2099,3 +2099,8 @@ color: #1EC9B3;
 -webkit-font-smoothing: antialiased;
 font: normal 20px/1 'dashicons';
 }
+
+.dashicons-media-document {
+	 float: left;
+  margin-right: 5px;
+}
