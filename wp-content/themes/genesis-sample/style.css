@@ -74,6 +74,7 @@
 	- Max-width: 1023px
 	- Max-width: 860px
 - Print Styles
+- Dashicons
 */
 
 
@@ -1624,6 +1625,7 @@ p.entry-meta {
 
 @media only screen and (max-width: 1340px) {
 
+	.info-box,
 	.site-inner,
 	.wrap {
 		max-width: 1140px;
@@ -1634,7 +1636,8 @@ p.entry-meta {
 	.sidebar-sidebar-content .content-sidebar-wrap {
 		width: 920px;
 	}
-
+	
+	
 	.content,
 	.site-header .widget-area {
 		width: 800px;
@@ -1665,17 +1668,20 @@ p.entry-meta {
 
 @media only screen and (max-width: 1200px) {
 
+
 	.site-inner,
 	.wrap {
 		max-width: 960px;
 	}
 
+	.info-box,
 	.content-sidebar-sidebar .content-sidebar-wrap,
 	.sidebar-content-sidebar .content-sidebar-wrap,
 	.sidebar-sidebar-content .content-sidebar-wrap {
 		width: 740px;
 	}
 
+	
 	.content,
 	.site-header .widget-area {
 		width: 620px;
@@ -1701,11 +1707,13 @@ p.entry-meta {
 
 @media only screen and (max-width: 1023px) {
 
+	
 	.site-inner,
 	.wrap {
 		max-width: 800px;
 	}
 
+	.info-box,
 	.content,
 	.content-sidebar-sidebar .content,
 	.content-sidebar-sidebar .content-sidebar-wrap,
@@ -1897,6 +1905,7 @@ p.entry-meta {
 		font-size: 1.8rem;
 	}
 
+	
 	.site-inner {
 		padding: 5% 5% 0;
 	}
@@ -2091,6 +2100,10 @@ p.entry-meta {
 	}
 
 }
+
+
+/* # Dashicons 
+---------------------------------------------------------------------------------------------------- */
 
 .dashicons-admin-plugins:before { 
 content: "\f497";
