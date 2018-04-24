@@ -784,12 +784,14 @@ th:first-child {
 
 .search-form {
 	overflow: hidden;
+	
 }
 
 .entry-content .search-form,
 .site-header .search-form {
 	margin-bottom: 40px;
 	width: 50%;
+
 }
 
 .site-header .search-form {
@@ -811,6 +813,10 @@ th:first-child {
 	padding: 0;
 	position: absolute;
 	width: 1px;
+}
+
+input[type="search"] {
+	height: 30px;
 }
 
 /* ## Titles
@@ -920,7 +926,7 @@ img.alignright,
 ---------------------------------------------------------------------------------------------------- */
 
 .widget {
-	margin-bottom: 40px;
+	margin-bottom: 10px;
 	word-wrap: break-word;
 }
 
@@ -2116,4 +2122,9 @@ font: normal 20px/1 'dashicons';
 .dashicons-media-document {
 	 float: left;
   margin-right: 5px;
+}
+
+.dashicons-search {
+	font-size: 30px;
+	float: left;
 }
