@@ -22,15 +22,17 @@ function dmr_products_loop() {
          
           $posts = get_field('related_posts');
            
+
           
-     if( $posts ) {
+    if( $posts ) {
         echo '<section class=related-list>';
         echo '<h1>Additional Leak Detectors:</h1>';
         echo '<ul>';
+
         foreach( $posts as $post ):
             setup_postdata($post); 
             echo '<li><a href="' . get_the_permalink() . '">';
-            echo '<h3>' . get_the_title() . '</h3>';
+            echo '<h3>' . the_title() . '</h3>';
             the_post_thumbnail();
             the_excerpt();
             echo '</a></li>';
