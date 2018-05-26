@@ -53,9 +53,12 @@ function genesis_sample_enqueue_scripts_styles() {
 	wp_enqueue_style( 'dashicons' );
 	wp_enqueue_style( 'bootstrap-css', '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css' );
 
+	 wp_enqueue_style( 'font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
+
 	$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 	wp_enqueue_script( 'genesis-sample-responsive-menu', get_stylesheet_directory_uri() . "/js/responsive-menus{$suffix}.js", array( 'jquery' ), CHILD_THEME_VERSION, true );
-	 wp_enqueue_script( 'bootstrap-js', '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js', array( 'jquery' ), CHILD_THEME_VERSION, true );
+	wp_enqueue_script( 'bootstrap-js', '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js', array( 'jquery' ), CHILD_THEME_VERSION, true );
+
 	wp_localize_script(
 		'genesis-sample-responsive-menu',
 		'genesis_responsive_menu',
@@ -110,10 +113,13 @@ add_theme_support( 'custom-background' );
 add_theme_support( 'genesis-after-entry-widget-area' );
 
 // Add support for 3-column footer widgets.
-add_theme_support( 'genesis-footer-widgets', 3 );
+add_theme_support( 'genesis-footer-widgets', 4 );
 
 // Add Image Sizes.
+add_theme_support( 'post-thumbnails' );
 add_image_size( 'featured-image', 720, 400, TRUE );
+add_image_size( 'product-image', 150, 150, TRUE );
+add_image_size( 'dmr-full-bleed', 2000, 1200, true );
 
 // Rename primary and secondary navigation menus.
 add_theme_support( 'genesis-menus', array( 'primary' => __( 'After Header Menu', 'genesis-sample' ), 'secondary' => __( 'Footer Menu', 'genesis-sample' ) ) );
@@ -194,10 +200,10 @@ genesis_register_sidebar( array(
 ) );
 
 // Display post widget.
-add_action( 'genesis_entry_header', 'display_my_widget' );
+add_action( 'genesis_after_entry', 'display_my_widget' );
 function display_my_widget() {
     
-    if ( is_single() && is_active_sidebar( 'my-widget' )  ) {
+    if ( is_page('contact-us') && is_active_sidebar( 'my-widget' )  ) {
 	genesis_widget_area( 'my-widget', array(
 		'before' => '<div class="my-widget"><div class="wrap">',
 		'after'  => '</div></div>',
@@ -205,4 +211,13 @@ function display_my_widget() {
     }
 }
 
+//ACF Google Map api
+function my_acf_google_map_api( $api ){
+	
+	$api['key'] = 'AIzaSyDIkKLzeNHeiBNoQQoVtyF-Trs88OuyBSg';
+	
+	return $api;
+	
+}
 
+add_filter('acf/fields/google_map/api', 'my_acf_google_map_api');
