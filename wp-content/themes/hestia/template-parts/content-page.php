@@ -7,10 +7,12 @@
  * @package Hestia
  * @since Hestia 1.0
  */
-?>
 
-<?php
 $hestia_page_sidebar_layout = get_theme_mod( 'hestia_page_sidebar_layout', 'full-width' );
+$individual_layout          = get_post_meta( get_the_ID(), 'hestia_layout_select', true );
+if ( ! empty( $individual_layout ) && $individual_layout !== 'default' ) {
+	$hestia_page_sidebar_layout = $individual_layout;
+}
 
 $args         = array(
 	'sidebar-right' => 'col-md-9 page-content-wrap',
@@ -28,7 +30,14 @@ $class_to_add = hestia_get_content_classes( $hestia_page_sidebar_layout, 'sideba
 			}
 			?>
 			<div class="<?php echo esc_attr( $class_to_add ); ?>">
-				<?php the_content(); ?>
+				<?php
+				$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+				if ( ( $hestia_header_layout !== 'default' ) && ! ( hestia_woocommerce_check() && ( is_product() || is_cart() || is_checkout() ) ) ) {
+					hestia_show_header_content( 'page', $hestia_header_layout );
+				}
+
+				the_content();
+				?>
 			</div>
 			<?php
 			if ( $hestia_page_sidebar_layout === 'sidebar-right' ) {
@@ -39,26 +48,5 @@ $class_to_add = hestia_get_content_classes( $hestia_page_sidebar_layout, 'sideba
 	</article>
 <?php
 if ( is_paged() ) {
-	?>
-	<div class="section section-blog-info">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<div class="row">
-					<div class="col-md-12">
-						<?php
-						hestia_wp_link_pages(
-							array(
-								'before'      => '<div class="text-center"> <ul class="nav pagination pagination-primary">',
-								'after'       => '</ul> </div>',
-								'link_before' => '<li>',
-								'link_after'  => '</li>',
-							)
-						);
-						?>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<?php
+	hestia_single_pagination();
 }

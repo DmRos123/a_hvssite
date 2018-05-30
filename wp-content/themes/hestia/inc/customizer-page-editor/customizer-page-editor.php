@@ -23,123 +23,108 @@ function hestia_customize_editor() {
 			);
 			wp_editor( '', 'wpeditorwidget', $settings );
 			?>
-			<p><a href="javascript:WPEditorWidget.updateWidgetAndCloseEditor(true);" class="button button-primary"><?php _e( 'Save and close', 'hestia' ); ?></a></p>
 		</div>
 	</div>
 	<?php
 }
 add_action( 'customize_controls_print_footer_scripts', 'hestia_customize_editor', 1 );
 
-/**
- * Sync frontpage content with customizer control
- *
- * @param string $value New value.
- *
- * @return mixed
- */
-function hestia_sync_content_from_control( $value, $old_value = '' ) {
-	if ( ! is_customize_preview() ) {
-		return '';
-	}
-	$frontpage_id = get_option( 'page_on_front' );
-	if ( ! empty( $frontpage_id ) && ! empty( $value ) ) {
-		if ( ! wp_is_post_revision( $frontpage_id ) ) {
-
-			// update the post, which calls save_post again
-			$post = array(
-				'ID'           => $frontpage_id,
-				'post_content' => wp_kses_post( $value ),
-			);
-
-			wp_update_post( $post );
-
-		}
-	}
-
-	return $value;
-}
-add_filter( 'pre_set_theme_mod_hestia_page_editor', 'hestia_sync_content_from_control', 10, 2 );
-
 
 /**
- * Sync page thumbnail and content with customizer control
- */
-function hestia_sync_control_from_page() {
-
-	$need_update = get_option( 'hestia_sync_needed' );
-	if ( $need_update === false ) {
-		return;
-	}
-
-	$frontpage_id = get_option( 'page_on_front' );
-	if ( empty( $frontpage_id ) ) {
-		return;
-	}
-
-	$content = get_post_field( 'post_content', $frontpage_id );
-	set_theme_mod( 'hestia_page_editor', $content );
-
-	$hestia_frontpage_featured = '';
-	if ( has_post_thumbnail( $frontpage_id ) ) {
-		$hestia_frontpage_featured = get_the_post_thumbnail_url( $frontpage_id );
-	}
-	set_theme_mod( 'hestia_feature_thumbnail', $hestia_frontpage_featured );
-
-	update_option( 'hestia_sync_needed', false );
-
-}
-add_action( 'after_setup_theme', 'hestia_sync_control_from_page' );
-
-
-/**
- * Set flag to sync customizer control from page.
+ * When the frontpage is edited, we set a flag with 'sync_customizer' value to know that we should update
+ * hestia_page_editor and hestia_feature_thumbnail customizer controls.
  *
- * @param string $post_id Post id.
+ * @param int $post_id ID of the post that we need to update.
+ * @since 1.1.60
  */
-function hestia_trigger_sync( $post_id ) {
-	if ( wp_is_post_revision( $post_id ) ) {
-		return;
-	}
-
+function hestia_trigger_sync_from_page( $post_id ) {
 	$frontpage_id = get_option( 'page_on_front' );
 	if ( empty( $frontpage_id ) ) {
 		return;
 	}
 
 	if ( intval( $post_id ) === intval( $frontpage_id ) ) {
-		update_option( 'hestia_sync_needed', true );
+		update_option( 'hestia_sync_needed', 'sync_customizer' );
 	};
 }
-add_action( 'save_post', 'hestia_trigger_sync', 10 );
+add_action( 'save_post', 'hestia_trigger_sync_from_page', 10 );
 
 /**
- * Sync frontpage thumbnail with customizer control
+ * When customizer is saved, we set the flag to 'sync_page' value to know that we should update the frontpage content
+ * and feature image.
  *
- * @param string $value New value.
- * @param string $old_value Old value.
- *
- * @return mixed
+ * @since 1.1.60
  */
-function hestia_sync_thumbnail_from_control( $value, $old_value ) {
-
+function hestia_trigger_sync_from_customizer() {
 	$frontpage_id = get_option( 'page_on_front' );
 	if ( ! empty( $frontpage_id ) ) {
-		$thumbnail_id = attachment_url_to_postid( $value );
-		update_post_meta( $frontpage_id, '_thumbnail_id', $thumbnail_id );
+		update_option( 'hestia_sync_needed', 'sync_page' );
 	}
-
-	return $value;
 }
-add_filter( 'pre_set_theme_mod_hestia_feature_thumbnail', 'hestia_sync_thumbnail_from_control', 10, 2 );
+add_action( 'customize_save', 'hestia_trigger_sync_from_customizer', 10 );
 
+/**
+ * Here, based on 'hestia_sync_needed' option value, we update either page or customizer controls and then we update
+ * the flag as false to know that we don't need to update anything.
+ *
+ * @since 1.1.60
+ */
+function hestia_sync_controls() {
+	$should_sync = get_option( 'hestia_sync_needed' );
+	if ( $should_sync === false ) {
+		return;
+	}
+	$frontpage_id = get_option( 'page_on_front' );
+	if ( empty( $frontpage_id ) ) {
+		return;
+	}
+	switch ( $should_sync ) {
+		// Synchronize customizer controls with page content
+		case 'sync_customizer':
+			$content = get_post_field( 'post_content', $frontpage_id );
+			set_theme_mod( 'hestia_page_editor', $content );
+
+			$hestia_frontpage_featured = '';
+			if ( has_post_thumbnail( $frontpage_id ) ) {
+				$hestia_frontpage_featured = get_the_post_thumbnail_url( $frontpage_id );
+			} else {
+				$thumbnail = get_theme_mod( 'hestia_feature_thumbnail', get_template_directory_uri() . '/assets/img/contact.jpg' );
+				if ( $thumbnail === get_template_directory_uri() . '/assets/img/contact.jpg' ) {
+					$hestia_frontpage_featured = get_template_directory_uri() . '/assets/img/contact.jpg';
+				}
+			}
+			set_theme_mod( 'hestia_feature_thumbnail', $hestia_frontpage_featured );
+			break;
+		// Synchronize frontpage content with customizer values.
+		case 'sync_page':
+			$content = get_theme_mod( 'hestia_page_editor' );
+			if ( ! empty( $frontpage_id ) ) {
+				if ( ! wp_is_post_revision( $frontpage_id ) ) {
+
+					// update the post, which calls save_post again
+					$post = array(
+						'ID'           => $frontpage_id,
+						'post_content' => wp_kses_post( $content ),
+					);
+					wp_update_post( $post );
+				}
+			}
+			$thumbnail    = get_theme_mod( 'hestia_feature_thumbnail', get_template_directory_uri() . '/assets/img/contact.jpg' );
+			$thumbnail_id = attachment_url_to_postid( $thumbnail );
+			update_post_meta( $frontpage_id, '_thumbnail_id', $thumbnail_id );
+
+			break;
+	}
+	update_option( 'hestia_sync_needed', false );
+}
+add_action( 'after_setup_theme', 'hestia_sync_controls' );
 
 
 /**
- * Ajax call to sync page content and thumbnail when you switch to static frontpage
+ * This function updates controls from customizer (about content and featured background) when you change your frontpage.
  */
 function hestia_ajax_call() {
-	$pid = $_POST['pid'];
-
+	$pid          = $_POST['pid'];
 	$return_value = array();
 
 	$content = get_post_field( 'post_content', $pid );
@@ -148,7 +133,13 @@ function hestia_ajax_call() {
 	$hestia_frontpage_featured = '';
 	if ( has_post_thumbnail( $pid ) ) {
 		$hestia_frontpage_featured = get_the_post_thumbnail_url( $pid );
+	} else {
+		$thumbnail = get_theme_mod( 'hestia_feature_thumbnail', get_template_directory_uri() . '/assets/img/contact.jpg' );
+		if ( $thumbnail === get_template_directory_uri() . '/assets/img/contact.jpg' ) {
+			$hestia_frontpage_featured = get_template_directory_uri() . '/assets/img/contact.jpg';
+		}
 	}
+
 	set_theme_mod( 'hestia_feature_thumbnail', $hestia_frontpage_featured );
 
 	$return_value['post_content']   = $content;
@@ -175,8 +166,58 @@ function hestia_override_mce_options( $init_array ) {
 add_filter( 'tiny_mce_before_init', 'hestia_override_mce_options' );
 
 
+
 /**
- * Filters for text format
+ * Sync frontpage content with customizer control
+ *
+ * @param string $value New value.
+ *
+ * @return mixed
+ */
+function hestia_sync_content_from_control( $value, $old_value = '' ) {
+	if ( ! is_customize_preview() ) {
+		return '';
+	}
+	$frontpage_id = get_option( 'page_on_front' );
+	if ( ! empty( $frontpage_id ) && ! empty( $value ) ) {
+		if ( ! wp_is_post_revision( $frontpage_id ) ) {
+			// update the post, which calls save_post again
+			$post = array(
+				'ID'           => $frontpage_id,
+				'post_content' => wp_kses_post( $value ),
+			);
+			wp_update_post( $post );
+		}
+	}
+	return $value;
+}
+
+/**
+ * Change the default mode of the editor to html when using the tinyMce editor in customizer.
+ *
+ * @param string $editor_mode The current mode of the default editor.
+ *
+ * @return string The new mode (visual or html) of the editor, if we are in the customizer page.
+ */
+function hestia_change_editor_mode_to_html( $editor_mode ) {
+	if ( is_customize_preview() && function_exists( 'get_current_screen' ) ) {
+		$screen = get_current_screen();
+		if ( isset( $screen->id ) ) {
+			if ( $screen->id === 'customize' ) {
+				return 'tmce';
+			}
+		}
+	}
+	return $editor_mode;
+}
+add_filter( 'wp_default_editor', 'hestia_change_editor_mode_to_html' );
+
+/**
+ * This filter is used to filter the content of the post after it is retrieved from the database and before it is
+ * printed to the screen.
+ * Initial we've applied 'the_content' filter but that was wrong because it relies on the global $post being set.
+ * Otherwise, it can break plugins. See https://github.com/Codeinwp/hestia-pro/issues/309 for the issue.
+ * For more explanations check this link https://themehybrid.com/weblog/how-to-apply-content-filters
  */
 add_filter( 'hestia_text', 'wptexturize' );
 add_filter( 'hestia_text', 'convert_smilies' );

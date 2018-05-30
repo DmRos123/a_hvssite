@@ -18,27 +18,6 @@
 	</article>
 <?php
 if ( is_paged() ) {
-	?>
-	<div class="section section-blog-info">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<div class="row">
-					<div class="col-md-12">
-						<?php
-						hestia_wp_link_pages(
-							array(
-								'before'      => '<div class="text-center"> <ul class="nav pagination pagination-primary">',
-								'after'       => '</ul> </div>',
-								'link_before' => '<li>',
-								'link_after'  => '</li>',
-							)
-						);
-						?>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<?php
+	hestia_single_pagination();
 }
 

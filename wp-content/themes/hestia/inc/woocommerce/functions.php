@@ -104,13 +104,13 @@ function hestia_woocommerce_before_main_content() {
 				<div class="col-md-10 col-md-offset-1">
 						<h1 class="hestia-title"><?php woocommerce_page_title(); ?></h1>
 				</div>
-				<?php
+					<?php
 }
 
 				$enable_cart = apply_filters( 'hestia_enable_header_cart', '' );
 
 if ( ! empty( $enable_cart ) ) {
-?>
+	?>
 <div class="cart-contents-content"><a class="cart-contents btn btn-white pull-right" href="<?php echo esc_url( wc_get_cart_url() ); ?>" title="<?php esc_attr_e( 'View your shopping cart', 'hestia' ); ?>"><i class="fa fa-shopping-cart"></i></a></div>
 <?php } ?>
 			</div>
@@ -172,7 +172,7 @@ if ( ! empty( $enable_cart ) ) {
  */
 function hestia_woocommerce_after_main_content() {
 	$hestia_page_sidebar_layout = get_theme_mod( 'hestia_page_sidebar_layout', 'full-width' );
-						?>
+	?>
 						</div>
 						<?php
 						if ( $hestia_page_sidebar_layout === 'sidebar-right' ) {
@@ -208,7 +208,7 @@ function hestia_woocommerce_after_shop_loop_item() {
  * Change the layout of the thumbnail on single product listing
  */
 function hestia_woocommerce_template_loop_product_thumbnail() {
-	$thumbnail = get_the_post_thumbnail( null, 'hestia-shop' );
+	$thumbnail = function_exists( 'woocommerce_get_product_thumbnail' ) ? woocommerce_get_product_thumbnail() : '';
 	if ( empty( $thumbnail ) && function_exists( 'wc_placeholder_img' ) ) {
 		$thumbnail = wc_placeholder_img();
 	}
@@ -230,32 +230,68 @@ function hestia_woocommerce_template_loop_product_thumbnail() {
 function hestia_woocommerce_template_loop_product_title() {
 		global $post;
 		$current_product        = wc_get_product( get_the_ID() );
-		?>
+	?>
 		<div class="content">
 			<?php
 			$product_categories = get_the_terms( $post->ID, 'product_cat' );
 			$i                  = false;
 			if ( ! empty( $product_categories ) ) {
-				echo '<h6 class="category">';
-				foreach ( $product_categories as $product_category ) {
-					$product_cat_id   = $product_category->term_id;
-					$product_cat_name = $product_category->name;
-					if ( ! empty( $product_cat_id ) && ! empty( $product_cat_name ) ) {
-						if ( $i ) {
-							echo ' , ';
+				/**
+				 * Show only the first $nb_of_cat words. If the value is modified in hestia_shop_category_words filter with
+				 * something lower than 0 then it will display all categories.
+				 */
+				$categories_length = sizeof( $product_categories );
+				$nb_of_cat         = apply_filters( 'hestia_shop_category_words', 2 );
+				$nb_of_cat         = intval( $nb_of_cat );
+
+				$index = 0;
+
+				if ( $nb_of_cat !== 0 ) {
+					echo '<h6 class="category">';
+					foreach ( $product_categories as $product_category ) {
+						if ( $index < $nb_of_cat || $nb_of_cat < 0 ) {
+							$product_cat_id   = $product_category->term_id;
+							$product_cat_name = $product_category->name;
+							if ( ! empty( $product_cat_id ) && ! empty( $product_cat_name ) ) {
+								if ( $i ) {
+									echo ' , ';
+								}
+								echo '<a href="' . esc_url( get_term_link( $product_cat_id, 'product_cat' ) ) . '">' . esc_html( $product_cat_name ) . '</a>';
+								$i = true;
+							}
+							$index ++;
 						}
-						echo '<a href="' . esc_url( get_term_link( $product_cat_id, 'product_cat' ) ) . '">' . esc_html( $product_cat_name ) . '</a>';
-						$i = true;
 					}
+					echo '</h6>';
 				}
-				echo '</h6>';
 			}
 			?>
 			<h4 class="card-title">
-				<a class="shop-item-title-link" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php esc_html( the_title() ); ?></a>
+				<?php
+				/**
+				 * Explode title in words by ' ' separator and show only the first 6 words. If the value is modified to -1 or lower in
+				 * a function hooked at hestia_shop_title_words, then show the full title
+				 */
+				$title          = the_title( '', '', false );
+				$title_in_words = explode( ' ', $title );
+				$title_limit    = apply_filters( 'hestia_shop_title_words', -1 );
+				$title_limit    = intval( $title_limit );
+				$limited_title  = $title_limit > -1 ? hestia_limit_content( $title_in_words, $title_limit, ' ' ) : $title;
+				?>
+				<a class="shop-item-title-link" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php echo esc_html( $limited_title ); ?></a>
 			</h4>
-			<?php if ( $post->post_excerpt ) : ?>
-				<div class="card-description"><?php echo apply_filters( 'woocommerce_short_description', strip_tags( $post->post_excerpt ) ); ?></div>
+			<?php
+			if ( $post->post_excerpt ) :
+				/**
+				 * Explode the excerpt in words by ' ' separator and show only the first 60 words. If the value is modified to -1 or lower in
+				 * a function hooked at hestia_shop_excerpt_words, then use the normal behavior from woocommece ( show post excerpt )
+				 */
+				$excerpt_in_words = explode( ' ', $post->post_excerpt );
+				$excerpt_limit    = apply_filters( 'hestia_shop_excerpt_words', 60 );
+				$excerpt_limit    = intval( $excerpt_limit );
+				$limited_excerpt  = $excerpt_limit > -1 ? hestia_limit_content( $excerpt_in_words, $excerpt_limit, ' ' ) : $post->post_excerpt;
+				?>
+				<div class="card-description"><?php echo wp_kses_post( apply_filters( 'woocommerce_short_description', $limited_excerpt ) ); ?></div>
 			<?php endif; ?>
 			<div class="footer">
 					<?php
@@ -320,7 +356,7 @@ function hestia_shop_sidebar() {
 	}
 
 	if ( is_active_sidebar( 'sidebar-woocommerce' ) && ! is_singular( 'product' ) ) {
-	?>
+		?>
 		<div class="col-md-3 shop-sidebar-wrapper sidebar-toggle-container">
 			<div class="row-sidebar-toggle">
 				<span class="hestia-sidebar-close btn btn-border"><i class="fa fa-times" aria-hidden="true"></i></span>
@@ -436,3 +472,38 @@ function hestia_woocommerce_before_cart_totals() {
 function hestia_woocommerce_after_cart_totals() {
 	echo '</div></div>';
 }
+
+
+/**
+ * Add compatibility with WooCommerce Product Images customizer controls.
+ *
+ * Because there are no filters in WooCommerce to change the default values of those controls,
+ * we have to update those controls in order to have the same image size as it was until now.
+ * This function runs only once to update those controls.
+ *
+ * Even if there were filters, woocommerce does update_options in their plugin so if we change
+ * the defaults it's equal with 0.
+ */
+function hestia_woocommerce_product_images_compatibility() {
+	$execute = get_option( 'hestia_update_woocommerce_customizer_controls', false );
+	if ( $execute !== false ) {
+		return;
+	}
+
+	update_option( 'woocommerce_thumbnail_cropping', 'custom' );
+	update_option( 'woocommerce_thumbnail_cropping_custom_width', '23' );
+	update_option( 'woocommerce_thumbnail_cropping_custom_height', '35' );
+
+	if ( class_exists( 'WC_Regenerate_Images' ) ) {
+		$regenerate_obj = new WC_Regenerate_Images();
+		$regenerate_obj::init();
+		if ( method_exists( $regenerate_obj, 'maybe_regenerate_images' ) ) {
+			$regenerate_obj::maybe_regenerate_images();
+		} elseif ( method_exists( $regenerate_obj, 'maybe_regenerate_images_option_update' ) ) {
+			// Force woocommerce 3.3.1 to regenerate images
+			$regenerate_obj::maybe_regenerate_images_option_update( 1, 2, '' );
+		}
+	}
+	update_option( 'hestia_update_woocommerce_customizer_controls', true );
+}
+add_action( 'after_setup_theme', 'hestia_woocommerce_product_images_compatibility' );

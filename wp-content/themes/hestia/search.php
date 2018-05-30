@@ -31,7 +31,7 @@ $class_to_add = hestia_get_content_classes( $hestia_blog_sidebar_layout, 'sideba
 
 get_header();
 ?>
-	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small">
+	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small" data-parallax="active">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1 text-center">

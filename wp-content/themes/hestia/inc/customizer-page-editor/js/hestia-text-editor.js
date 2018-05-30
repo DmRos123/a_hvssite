@@ -15,7 +15,7 @@ var WPEditorWidget = {
 	 *
 	 * @var string Current content id.
 	 */
-	currentContentId: '',
+    contentId: '',
 
 	/**
 	 * Z index for Overlay
@@ -31,21 +31,33 @@ var WPEditorWidget = {
 	 */
 	isVisible: false,
 
+
+	init: function ( contentId ) {
+		this.contentId = contentId;
+		return this;
+    },
+
+	run: function ( editorWidget ) {
+        editorWidget.toggleEditor();
+        editorWidget.updateTinyMCE();
+        editorWidget.updateWPEditor();
+    },
+
 	/**
 	 * Show/Hide editor
 	 */
-	toggleEditor: function(contentId){
+	toggleEditor: function(){
 		if ( this.isVisible === true ) {
 			this.hideEditor();
 		} else {
-			this.showEditor( contentId );
+			this.showEditor( this.contentId );
 		}
 	},
 
 	/**
 	 * Show the editor
 	 *
-	 * @param string contentId
+	 * @param contentId
 	 */
 	showEditor: function(contentId) {
 		this.isVisible = true;
@@ -53,7 +65,6 @@ var WPEditorWidget = {
 
 		jQuery( 'body.wp-customizer #wp-editor-widget-container' ).fadeIn( 100 ).animate( {'bottom':'0'} );
 
-		this.currentContentId            = contentId;
 		this.wpFullOverlayOriginalZIndex = parseInt( overlay.css( 'zIndex' ) );
 		overlay.css( { zIndex: 49000 } );
 
@@ -73,7 +84,7 @@ var WPEditorWidget = {
 	 * Set editor content
 	 */
 	setEditorContent: function(contentId) {
-		var editor  = tinyMCE.EditorManager.get( 'wpeditorwidget' );
+		var editor  = tinyMCE.get( 'wpeditorwidget' );
 		var content = jQuery( '#' + contentId ).val();
 
 		if (typeof editor === 'object' && editor !== null) {
@@ -82,56 +93,83 @@ var WPEditorWidget = {
 		jQuery( '#wpeditorwidget' ).val( content );
 	},
 
-	/**
-	 * Update widget and close the editor
-	 */
-	updateWidgetAndCloseEditor: function() {
+    updateTinyMCE: function () {
+        var editor  = tinyMCE.get( 'wpeditorwidget' );
+		var th = this;
+		if( typeof editor !== 'undefined' && editor) {
+            editor.on('NodeChange KeyUp', function () {
+				th.doUpdate(editor);
+            });
+        }
+    },
 
-		jQuery( '#wpeditorwidget-tmce' ).trigger( 'click' );
-		var editor  = tinyMCE.EditorManager.get( 'wpeditorwidget' );
-		var content = editor.getContent();
+    updateWPEditor: function () {
+        var editorWidget = document.getElementById( 'wpeditorwidget' );
+        var th = this;
 
-		if (typeof editor === 'undefined' || editor === null || editor.isHidden()) {
-			content = jQuery( '#wpeditorwidget' ).val();
-		}
+        jQuery(editorWidget).on('keyup', function () {
+        	var newContent = this.value;
+            var contentField = jQuery( '#' + th.contentId );
+			contentField.val(newContent);
+			contentField.trigger('change');
+        });
+    },
 
-		var contentId = jQuery( '#' + this.currentContentId );
-		contentId.val( content );
-
-		if ( contentId.attr( 'class' ) === 'editorfield') {
-			var controlid = contentId.data( 'customize-setting-link' );
-			setTimeout(
-				function(){
-					wp.customize(
-						controlid, function(obj) {
-							obj.set( editor.getContent() );
-						}
-					);
-				}, 1000
-			);
-		}
-
-		this.hideEditor();
-	}
+	doUpdate: function ( editor ) {
+        var content = editor.getContent();
+        var contentField = jQuery( '#' + this.contentId );
+        contentField.val( content );
+        contentField.trigger('change');
+    }
 
 };
 
-jQuery( document ).ready(
-	function() {
-		jQuery( '.customize-section-back' ).on(
-			'click',function(){
-				WPEditorWidget.hideEditor();
-			}
-		);
+jQuery( window ).load(function () {
 
-		var customize = wp.customize;
-		customize.previewer.bind(
-			'trigger-close-editor', function( data ) {
-				if ( data === true ) {
-					WPEditorWidget.hideEditor();
-				}
-			}
-		);
+	var editor;
 
-	}
-);
+	/**
+	 * This handles the click form customizer control.
+	 */
+	jQuery(document).on('click','.edit-content-button',function (event) {
+		event.preventDefault();
+		var editorId = jQuery(this).data('editor-id');
+		if( typeof editorId !== 'undefined' ) {
+			editor = WPEditorWidget.init(editorId);
+			WPEditorWidget.run(editor);
+		}
+	});
+
+	/**
+	 * Toggle editor when the user clicks on customizer shortcut.
+	 */
+	var customize = wp.customize;
+	customize.previewer.bind(
+		'trigger-open-editor', function( data ) {
+            if( typeof data !== 'undefined'){
+				editor = WPEditorWidget.init(data);
+				WPEditorWidget.run(editor);
+            }
+		}
+	);
+
+	/**
+	 * Hide the editor if the user clicks on back button to exit about panel.
+	 */
+	jQuery( '.customize-section-back' ).on(
+		'click',function(){
+			if( typeof editor !== 'undefined' ){
+				editor.hideEditor();
+			}
+		}
+	);
+
+	/**
+	 * Focus menu when the user clicks on customizer shortcut of the menu.
+	 */
+	customize.previewer.bind(
+		'trigger-focus-menu', function() {
+			wp.customize.section( 'menu_locations' ).focus();
+		}
+	);
+});

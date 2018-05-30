@@ -17,155 +17,165 @@
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-if ( ! class_exists( 'WP_Customize_Control' ) ) {
-	return;
-}
-
 /**
- * Radio image customize control.
- *
- * @since  1.1.24
- * @access public
+ * Class Hestia_Customize_Control_Radio_Image
  */
 class Hestia_Customize_Control_Radio_Image extends WP_Customize_Control {
+
 	/**
 	 * The type of customize control being rendered.
 	 *
-	 * @since 1.1.24
-	 * @var   string
+	 * @since  1.0.0
+	 * @access public
+	 * @var    string
 	 */
 	public $type = 'radio-image';
+
 	/**
-	 * Displays the control content.
+	 * Flag to tell that this control is a tab
 	 *
-	 * @since  1.1.24
-	 * @access public
-	 * @return void
+	 * @since 1.1.72
+	 * @var   bool
 	 */
-	public function render_content() {
-		/* If no choices are provided, bail. */
-		if ( empty( $this->choices ) ) {
-			return;
-		} ?>
+	public $is_tab = false;
 
-		<?php if ( ! empty( $this->label ) ) : ?>
-			<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
-		<?php endif; ?>
-
-		<?php if ( ! empty( $this->description ) ) : ?>
-			<span class="description customize-control-description"><?php echo $this->description; ?></span>
-		<?php endif; ?>
-
-		<div id="<?php echo esc_attr( "input_{$this->id}" ); ?>">
-
-			<?php foreach ( $this->choices as $value => $args ) : ?>
-
-				<input type="radio" value="<?php echo esc_attr( $value ); ?>" name="<?php echo esc_attr( "_customize-radio-{$this->id}" ); ?>" id="<?php echo esc_attr( "{$this->id}-{$value}" ); ?>" <?php $this->link(); ?> <?php checked( $this->value(), $value ); ?> />
-
-				<label for="<?php echo esc_attr( "{$this->id}-{$value}" ); ?>">
-					<?php if ( ! empty( $args['label'] ) ) { ?>
-						<span class="screen-reader-text"><?php echo esc_html( $args['label'] ); ?></span>
-						<?php
-}
-?>
-					<img src="<?php echo esc_url( sprintf( $args['url'], get_template_directory_uri(), get_stylesheet_directory_uri() ) ); ?>" 
-											<?php
-											if ( ! empty( $args['label'] ) ) {
-												echo 'alt="' . esc_attr( $args['label'] ) . '"'; }
-?>
-	/>
-				</label>
-
-			<?php endforeach; ?>
-
-		</div><!-- .image -->
-
-		<script type="text/javascript">
-			jQuery( document ).ready( function() {
-				jQuery( '#<?php echo esc_attr( "input_{$this->id}" ); ?>' ).buttonset();
-			} );
-		</script>
-	<?php
-	}
 	/**
-	 * Loads the jQuery UI Button script and hooks our custom styles in.
+	 * Flag to tell that this control is a sub-tab in a tab
 	 *
-	 * @since  1.1.24
+	 * @since 1.1.72
+	 * @var   bool
+	 */
+	public $is_subtab = false;
+
+	/**
+	 * Controls in tabs.
+	 *
+	 * @since 1.1.72
+	 * @var   array
+	 */
+	public $controls;
+
+	/**
+	 * Control data (tabs, names, icons, images)
+	 *
+	 * @since 1.1.72
+	 * @var   array
+	 */
+	public $choices;
+
+	/**
+	 * Hestia_Customize_Control_Radio_Image constructor.
+	 *
+	 * @param WP_Customize_Manager $manager Customizer manager object.
+	 * @param string               $id Control id.
+	 * @param array                $args Control arguments.
+	 */
+	public function __construct( WP_Customize_Manager $manager, $id, array $args = array() ) {
+		parent::__construct( $manager, $id, apply_filters( $id . '_filter_args', $args ) );
+
+		if ( ! empty( $args['is_tab'] ) && $args['is_tab'] === true ) {
+			$this->is_tab = $args['is_tab'];
+			if ( ! empty( $args['is_subtab'] ) && $args['is_subtab'] === true ) {
+				$this->is_subtab = $args['is_subtab'];
+			}
+
+			if ( ! empty( $this->choices ) ) {
+				foreach ( $this->choices as $value => $args ) {
+					$this->controls[ $value ] = $args['controls'];
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Loads the jQuery UI Button script and custom scripts/styles.
+	 *
+	 * @since  1.0.0
 	 * @access public
 	 * @return void
 	 */
 	public function enqueue() {
 		wp_enqueue_script( 'jquery-ui-button' );
-		add_action( 'customize_controls_print_styles', array( $this, 'print_styles' ) );
+		wp_enqueue_script( 'jt-customize-controls', get_template_directory_uri() . '/inc/customizer-radio-image/js/customize-controls.js', array( 'jquery' ) );
+		wp_enqueue_style( 'jt-customize-controls', get_template_directory_uri() . '/inc/customizer-radio-image/css/customize-controls.css' );
 	}
+
 	/**
-	 * Outputs custom styles to give the selected image a visible border.
+	 * Add custom JSON parameters to use in the JS template.
 	 *
-	 * @since  1.1.24
+	 * @since  1.0.0
+	 * @access public
+	 * @return array
+	 */
+	public function json() {
+		$json = parent::json();
+
+		$json['is_tab']    = $this->is_tab;
+		$json['is_subtab'] = $this->is_subtab;
+		if ( $json['is_tab'] === true ) {
+			$json['controls'] = $this->controls;
+		}
+		// We need to make sure we have the correct image URL.
+		$json['choices'] = $this->choices;
+		$json['id']      = $this->id;
+		$json['link']    = $this->get_link();
+		$json['value']   = $this->value();
+
+		return $json;
+	}
+
+	/**
+	 * Underscore JS template to handle the control's output.
+	 *
+	 * @since  1.0.0
 	 * @access public
 	 * @return void
 	 */
-	public function print_styles() {
-	?>
+	public function content_template() {
+		?>
+		<#
+			if ( ! data.choices ) {
+				return;
+			}
+		#>
+		<# if( !data.is_tab) {#>
+			<# if ( data.label ) { #>
+				<span class="customize-control-title">{{ data.label }}</span>
+			<# } #>
 
-		<style type="text/css" id="hybrid-customize-radio-image-css">
-			.customize-control-radio-image .ui-buttonset {
-				text-align: center;
-			}
+			<# if ( data.description ) { #>
+				<span class="description customize-control-description">{{{ data.description }}}</span>
+			<# } #>
+		<#}#>
 
-			.customize-control-radio-image label {
-				display: inline-block;
-				max-width: 33.3%;
-				padding: 3px;
-				font-size: inherit;
-				line-height: inherit;
-				height: auto;
-				cursor: pointer;
-				border-width: 0;
-				-webkit-appearance: none;
-				-webkit-border-radius: 0;
-				border-radius: 0;
-				white-space: nowrap;
-				-webkit-box-sizing: border-box;
-				-moz-box-sizing: border-box;
-				box-sizing: border-box;
-				color: inherit;
-				background: none;
-				-webkit-box-shadow: none;
-				box-shadow: none;
-				vertical-align: inherit;
-			}
 
-			.customize-control-radio-image label:first-of-type {
-				float: left;
-			}
-			.customize-control-radio-image label:nth-of-type(n + 3){
-				float: right;
-			}
 
-			.customize-control-radio-image label:hover {
-				background: none;
-				border-color: inherit;
-				color: inherit;
-			}
+		<div class="buttonset <# if( data.is_tab) {#>customizer-tab <#}#> <# if( data.is_subtab) {#>customizer-subtab <#}#>">
 
-			.customize-control-radio-image label:active {
-				background: none;
-				border-color: inherit;
-				-webkit-box-shadow: none;
-				box-shadow: none;
-				-webkit-transform: none;
-				-ms-transform: none;
-				transform: none;
-			}
+			<# for ( key in data.choices ) { #>
 
-			.customize-control-radio-image img { border: 1px solid transparent; }
-			.customize-control-radio-image .ui-state-active img {
-				border-color: #5b9dd9;
-				-webkit-box-shadow: 0 0 3px rgba(0,115,170,.8);
-				box-shadow: 0 0 3px rgba(0,115,170,.8);
-			}
-		</style>
-	<?php
+				<input <# if( data.is_tab) {#>data-controls="{{data.controls[key]}}"<#}#> type="radio" value="{{ key }}" name="_customize-{{ data.type }}-{{ data.id }}" id="{{ data.id }}-{{ key }}" {{{ data.link }}} <# if ( key === data.value && ( !data.is_tab || data.is_subtab) ) { #> checked="checked" <# } #> />
+				<label for="{{ data.id }}-{{ key }}">
+					<# if( !data.is_tab) {#>
+						<span class="screen-reader-text">{{ data.choices[ key ]['label'] }}</span>
+						<img src="{{ data.choices[ key ]['url'] }}" alt="{{ data.choices[ key ]['label'] }}" />
+					<# } else { #>
+							<# if( data.choices[ key ]['icon'] ){ #>
+								<i class="fa fa-{{ data.choices[ key ]['icon'] }}"></i>
+							<# }
+								if( data.choices[ key ]['url'] ){
+							#>
+								<img src="{{ data.choices[ key ]['url'] }}" alt="{{ data.choices[ key ]['label'] }}" />
+							<# }
+								if(data.choices[ key ]['label']){ #>
+							<span class="tab-label">{{ data.choices[ key ]['label'] }}</span>
+							<# } #>
+					<# } #>
+				</label>
+			<# } #>
+
+		</div>
+		<?php
 	}
 }

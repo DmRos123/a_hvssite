@@ -1,4 +1,155 @@
 
+ ### v1.1.77 - 2018-05-24 
+ **Changes:** 
+ * Fixed compatibility with WP GDPR Compliance plugin
+* Fixed problem with the Big Title Background not being able to be removed
+* Fixed problem with default content added in the Very Top Bar section
+ 
+ ### v1.1.76 - 2018-05-18 
+ **Changes:** 
+ * Fixed problem with some redundant strings in the lite version
+ 
+ ### v1.1.75 - 2018-05-18 
+ **Changes:** 
+ * NEW Feature to allow a widget area in the Big Title/Slider section
+* [Hestia PRO] Fixed alignment for the Authors Section on the Blog page
+* Fix fatal error on lower PHP versions
+ 
+ ### v1.1.74 - 2018-05-10 
+ **Changes:** 
+ * [Hestia PRO] New Icon picker option in the Pricing section
+* Fixed problem with title meta in the Archive page header when the language is different than English
+* Fixed problem with duplicated titles when using the second header layout option
+* Fixed problem with the Big Title Second Button control not working in the Orfeo child theme
+* Fixed some layout issues with the WooCommerce filtering widgets in the Footer area
+ 
+ ### v1.1.73 - 2018-04-24 
+ **Changes:** 
+ * Improved Cart page layout on mobile
+* Fixed problem with the About and Contact sections editor not saving the input
+* Fixed problem with footer section on internal pages in IE11
+* Removed meta on the Archive pages - Doc to add them back https://docs.themeisle.com/article/793-how-to-add-back-category-tag-author-in-the-archive-title-in-hestia
+ 
+ ### v1.1.72 - 2018-04-17 
+ **Changes:** 
+ * Compatibility with Elementor Pro 2.0 theme location API header and footer
+* NEW extra options for the Big title/Slider area - Parallax effect 
+* UX Customize layout improvements
+* Fixed layout compatibility issues with the sidebar on bbpress and BuddyPress pages
+* Fixed layout of the Search products widget
+* Allow a shortcode for the Contact section
+* Improved compatibility with Pirate Forms Extended plugin
+* Fixed issue with sidebar position when the option for logged in users to be able to post comments is enabled
+* Fixed problem with footer sticking to the bottom of the page when to little content
+* Made reCaptcha button smaller on mobile devices to better accommodate the layout
+ 
+ ### v1.1.71 - 2018-03-14 
+ **Changes:** 
+ * Fixed problem with the preview images not showing anymore on the blog page
+* Fixed problem with the parallax effect on inner pages
+ 
+ ### v1.1.70 - 2018-03-08 
+ **Changes:** 
+ * Fixed alignment issues with the Featured posts area
+ 
+ ### v1.1.69 - 2018-03-08 
+ **Changes:** 
+ * Fixed alignment issue in the featured posts area
+ 
+ ### v1.1.68 - 2018-03-07 
+ **Changes:** 
+ * Fixed compatibility issues with WooCommerce 3.3 thumbnail cropping options
+ 
+ ### v1.1.67 - 2018-03-06 
+ **Changes:** 
+ * NEW Featured posts area section on the blog
+* Fixed compatibility issues with WooCommerce 3.3 thumbnail cropping options
+* Fixed compatibility issues with WeGlot plugin language switcher
+* Fixed problems with synchronization between the About section and the front page
+* Fixed compatibility with the Invisible reCaptcha plugin
+* [Hestia PRO] Removed constricted video dimensions
+* Made Social Sharing strings translatable
+* Fixed fatal error with PHP 5.2
+* Fixed issue with random images appearing on the blog page in child themes
+ 
+ ### v1.1.66 - 2018-02-19 
+ **Changes:** 
+ * Fixed responsive alignment on the shop page
+ 
+ ### v1.1.65 - 2018-02-16 
+ **Changes:**
+ * Fixed compatibility issues with Pirate Forms on mobile
+* Fixed warning appearing in the Blog section
+* [Hestia PRO] Fixed empty cart layout in navigation area
+* Fixed issues with the Header layout control
+ 
+ ### v1.1.63 - 2018-02-14 
+ **Changes:** 
+ * [Hestia PRO] Option to open portfolios in a lightbox
+* [Hestia PRO] Added animations for frontpage sections
+* [Hestia PRO] Fixed compatibility issues for the navigation cart with variable products
+* [Hestia PRO] Improved navigation cart layout on mobile devices
+* [Hestia PRO] Allowed some formatting tags in the Slider section buttons
+* New option for choosing the Header area layout
+* [Hestia PRO] Two new layouts for the Header area
+* Small fixes for WooCommerce widgets and product layouts
+* Made entire team member boxes clickable
+* Fixed problem with third level menu items getting hidden when parent menu item had description
+* Fixed alignment problem on IE11 for megamenu
+* Fixed problem with dropdown menu items on Firefox
+* Added styling for more widgets in the Subscribe section
+* Removed characters limitation for WooCommerce product's titles
+ 
+ ### v1.1.62 - 2018-01-31 
+ **Changes:** 
+ * Improved compatibility with WooCommerce 3.3
+* Fixed problem with container width control not working properly
+* Added missing about-contact.png image
+* Fixed warning: Implode function invalid arguments passed
+ 
+ ### v1.1.61 - 2018-01-30 
+ **Changes:** 
+ * Fixed problem with dismissable notification
+ 
+ ### v1.1.60 - 2018-01-29 
+ **Changes:** 
+ * [Hestia PRO] New option to disable the transparent state of the navigation bar
+* [Hestia PRO] New option for changing the color in the hover state of the navigation bar items
+* [Hestia PRO] New Category select option for the Blog frontpage section
+* [Hestia PRO] Fix video header overflowing body
+* New Font size controls for Frontpage sections
+* Improved migration function from the old font size controls
+* Added hooks for the Clients Bar and Ribbon sections
+* Fixed problems with navigation color options for drop-down menus
+* Basic enhancements to the editor area
+* Small layout fixes for WooCommerce pages
+* Fixed synchronization function for the About frontpage section image and content
+* Optimize theme for a smaller size archive
+* Improved compatibility with Pirate Forms plugin
+* Made footer stick to the bottom of the pages no matter the content size
+* Customizer selective refresh UX changes
+* Added a filter to allow using the product featured image as header image on product pages using this document http://docs.themeisle.com/article/814-how-to-display-the-product-image-in-the-header-of-the-single-product-page-in-hestia
+* Fixed problem with Yoast SEO meta title showing on the Blog page
+* Fixed front page sections problem with alt tags for attached images
+* New hook added to allow a title and subtitle in the Clients Bar section using this doc http://docs.themeisle.com/article/816-how-to-add-a-title-and-a-subtitle-in-the-clients-bar-section-in-hestia
+* Fixed mobile issue with the logo on iOS devices
+* Other small code improvements
+ 
+ ### v1.1.59 - 2018-01-11 
+ **Changes:** 
+ * NEW option to enable the main Header Image on all posts and pages, instead of the featured images
+* NEW option for selecting posts and pages individual layouts
+* Fixed problem with font sizes for paragraphs and headings not changing in Elementor
+* [Hestia PRO] Fixed compatibility issue with Elementor and the Full-screen menu Customize option
+* Improved font size migration function to better match the initial values
+* Replaced the featured image in the header with the category image for Single Product Pages
+* Added missing alt tag to the logo element
+* Improved selective refresh for all Customize options
+* [Hestia PRO] Improved the Blog Layout and Footer Layout controls
+* Fixed issue with About section background causing slow scrolling on iOS devices
+* Limit the number of categories, title and description's words for each WooCommerce Product box for a better layout across the site, using filters that can be further used in child themes
+* Two new filters to allow users changing the post meta data on single post pages and on the blog using this documentation http://docs.themeisle.com/article/807-how-to-change-post-meta-data-in-hestia
+ 
  ### v1.1.58 - 2017-12-29 
  **Changes:** 
  * Improved migration from old Font Size options to the new options

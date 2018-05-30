@@ -85,7 +85,7 @@ class Hestia_Select_Multiple extends WP_Customize_Control {
 	 * @return void
 	 */
 	public function content_template() {
-	?>
+		?>
 		<#
 		if ( ! data.choices ) {
 			return;

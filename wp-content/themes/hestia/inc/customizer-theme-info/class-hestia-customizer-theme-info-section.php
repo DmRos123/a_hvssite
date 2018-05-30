@@ -113,7 +113,7 @@ if ( $define_classs ) :
 		 * @return void
 		 */
 		protected function render_template() {
-		?>
+			?>
 			<div class="themeisle-upsell themeisle-boxed-section">
 				<# if ( data.options.length > 0 ) { #>
 					<ul class="themeisle-upsell-features">
@@ -138,7 +138,7 @@ if ( $define_classs ) :
 									</ul>
 									<# } #>
 			</div>
-		<?php
+			<?php
 		}
 	}
 endif;

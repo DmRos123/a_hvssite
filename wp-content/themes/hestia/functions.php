@@ -27,8 +27,24 @@
 if ( ! defined( 'ELEMENTOR_PARTNER_ID' ) ) {
 	define( 'ELEMENTOR_PARTNER_ID', 2112 );
 }
+/**
+ * Adds notice for PHP < 5.3 hosts.
+ */
+function hestia_no_support_5_2() {
+	$message = __( 'Hey, we\'ve noticed that you\'re running an outdated version of PHP which is no longer supported. Make sure your site is fast and secure, by upgrading PHP to the latest version.', 'hestia' );
 
-define( 'HESTIA_VERSION', '1.1.58' );
+	printf( '<div class="error"><p>%1$s</p></div>', esc_html( $message ) );
+}
+if ( version_compare( PHP_VERSION, '5.3.0' ) < 0 ) {
+	/**
+	 * Add notice for PHP upgrade.
+	 */
+	add_filter( 'template_include', '__return_null', 99 );
+	add_action( 'admin_notices', 'hestia_no_support_5_2' );
+	return;
+}
+
+define( 'HESTIA_VERSION', '1.1.77' );
 
 define( 'HESTIA_VENDOR_VERSION', '1.0.1' );
 
@@ -38,13 +54,19 @@ $vendor_file = trailingslashit( get_template_directory() ) . 'vendor/autoload.ph
 if ( is_readable( $vendor_file ) ) {
 	require_once $vendor_file;
 }
-add_filter(
-	'themeisle_sdk_products', function ( $products ) {
-		$products[] = get_template_directory() . '/style.css';
+add_filter( 'themeisle_sdk_products', 'hestia_load_sdk' );
+/**
+ * Loads products array.
+ *
+ * @param array $products All products.
+ *
+ * @return array Products array.
+ */
+function hestia_load_sdk( $products ) {
+	$products[] = get_template_directory() . '/style.css';
 
-		return $products;
-	}
-);
+	return $products;
+}
 
 require_once( HESTIA_PHP_INCLUDE . 'template-tags.php' );
 require_once( HESTIA_PHP_INCLUDE . 'hooks.php' );
@@ -52,13 +74,30 @@ require_once( HESTIA_PHP_INCLUDE . 'wp-bootstrap-navwalker/class-hestia-bootstra
 require_once( HESTIA_PHP_INCLUDE . 'customizer.php' );
 require_once( HESTIA_PHP_INCLUDE . 'page-builder-extras.php' );
 require_once( get_template_directory() . '/demo-preview-images/init-prevdem.php' );
-if ( class_exists( 'woocommerce' ) ) {
+if ( hestia_woocommerce_check() ) {
 	require_once( HESTIA_PHP_INCLUDE . 'woocommerce/functions.php' );
 	require_once( HESTIA_PHP_INCLUDE . 'woocommerce/hooks.php' );
 }
 
+// For now this file contains just compatibility with theme locations api
+$elementor_compatibility_path = HESTIA_PHP_INCLUDE . 'plugins-compatibility/elementor/class-elementor-compatibility.php';
+if ( defined( 'ELEMENTOR_VERSION' ) && file_exists( $elementor_compatibility_path ) ) {
+	require_once( $elementor_compatibility_path );
+}
+
 // Auto-loader for classes under Hestia namespace.
 require_once( get_template_directory() . '/assets/autoloader/class-hestia-autoloader.php' );
+
+// Individual layout feature
+$individual_layout_path = HESTIA_PHP_INCLUDE . 'features/feature-individual-layout.php';
+if ( file_exists( $individual_layout_path ) ) {
+	require_once( $individual_layout_path );
+}
+
+/**
+ * Require parallax functions
+ */
+require_once( get_template_directory() . '/assets/parallax/parallax-functions.php' );
 
 Hestia_Autoloader::set_path( HESTIA_PHP_INCLUDE );
 Hestia_Autoloader::define_namespaces( array( 'Hestia' ) );
@@ -140,9 +179,13 @@ if ( ! function_exists( 'hestia_setup_theme' ) ) {
 		// Adding image sizes. https://developer.wordpress.org/reference/functions/add_image_size/
 		add_image_size( 'hestia-blog', 360, 240, true );
 
-		if ( class_exists( 'woocommerce' ) ) {
-			add_image_size( 'hestia-shop', 230, 350, true );
-			add_image_size( 'hestia-shop-2x', 460, 700, true );
+		if ( hestia_woocommerce_check() ) {
+			if ( function_exists( 'wc_get_image_size' ) ) {
+				$thumbnail = wc_get_image_size( 'thumbnail' );
+				if ( ! empty( $thumbnail['width'] ) && ! empty( $thumbnail['height'] ) && ! empty( $thumbnail['crop'] ) ) {
+					add_image_size( 'woocommerce_thumbnail_2x', $thumbnail['width'] * 2, $thumbnail['height'] * 2, $thumbnail['crop'] );
+				}
+			}
 		}
 
 		// Add Portfolio Image size if Jetpack Portfolio CPT is enabled.
@@ -153,8 +196,22 @@ if ( ! function_exists( 'hestia_setup_theme' ) ) {
 		}
 
 		// Added WooCommerce support.
-		if ( class_exists( 'woocommerce' ) ) {
-			add_theme_support( 'woocommerce' );
+		if ( hestia_woocommerce_check() ) {
+			add_theme_support(
+				'woocommerce', apply_filters(
+					'hestia_woocommerce_args', array(
+						'single_image_width'    => 600,
+						'thumbnail_image_width' => 230,
+						'product_grid'          => array(
+							'default_columns' => 3,
+							'default_rows'    => 4,
+							'min_columns'     => 1,
+							'max_columns'     => 6,
+							'min_rows'        => 1,
+						),
+					)
+				)
+			);
 		}
 
 		// Added Jetpack Portfolio Support.
@@ -169,7 +226,7 @@ if ( ! function_exists( 'hestia_setup_theme' ) ) {
 		}
 
 		/* WooCommerce support for latest gallery */
-		if ( class_exists( 'WooCommerce' ) ) {
+		if ( hestia_woocommerce_check() ) {
 			add_theme_support( 'wc-product-gallery-zoom' );
 			add_theme_support( 'wc-product-gallery-lightbox' );
 			add_theme_support( 'wc-product-gallery-slider' );
@@ -180,6 +237,75 @@ if ( ! function_exists( 'hestia_setup_theme' ) ) {
 
 	add_action( 'after_setup_theme', 'hestia_setup_theme' );
 }// End if().
+
+/**
+ * Check if function exists.
+ */
+if ( ! function_exists( 'hestia_editor_inline_style' ) ) {
+	/**
+	 * Add inline style for editor.
+	 *
+	 * @param string $init Setup TinyMCE.
+	 *
+	 * @return mixed
+	 */
+	function hestia_editor_inline_style( $init ) {
+
+		$accent_color  = get_theme_mod( 'accent_color', apply_filters( 'hestia_accent_color_default', '#e91e63' ) );
+		$headings_font = get_theme_mod( 'hestia_headings_font' );
+		$body_font     = get_theme_mod( 'hestia_body_font' );
+
+		$custom_css = '';
+
+		// Check if accent color is exists.
+		if ( ! empty( $accent_color ) ) {
+			$custom_css .= 'body.mce-content-body a { color: ' . esc_attr( $accent_color ) . '; }';
+		}
+
+		// Check if font family for body exists.
+		if ( ! empty( $body_font ) ) {
+			$custom_css .= 'body, p { font-family: ' . esc_attr( $body_font ) . ' !important; }';
+		}
+
+		// Check if font family for headings exists.
+		if ( ! empty( $headings_font ) ) {
+			$custom_css .= 'h1, h2, h3, h4, h5, h6 { font-family: ' . esc_attr( $headings_font ) . ' !important; }';
+		}
+
+		?>
+
+		<script type="text/javascript">
+			function hestiaEditorInlineStyle( ed ) {
+				ed.onInit.add( function () {
+					<?php
+					// Added font family for body in editor.
+					if ( ! empty( $body_font ) ) {
+						?>
+					tinymce.activeEditor.dom.loadCSS( 'https://fonts.googleapis.com/css?family=<?php echo esc_attr( $body_font ); ?>' );
+						<?php
+					}
+
+					// Added font family for headings in editor.
+					if ( ! empty( $headings_font ) ) {
+						?>
+					tinymce.activeEditor.dom.loadCSS( 'https://fonts.googleapis.com/css?family=<?php echo esc_attr( $headings_font ); ?>' );
+					<?php } ?>
+
+					// Added custom CSS in editor.
+					tinyMCE.activeEditor.dom.addStyle(<?php echo json_encode( $custom_css ); ?>);
+				} );
+			};
+		</script>
+
+		<?php
+		if ( wp_default_editor() == 'tinymce' ) {
+			$init['setup'] = 'hestiaEditorInlineStyle';
+		}
+
+		return $init;
+	}
+}
+add_filter( 'tiny_mce_before_init', 'hestia_editor_inline_style' );
 
 /**
  * Register widgets for the theme.
@@ -199,6 +325,7 @@ function hestia_widgets_init() {
 		'sidebar-woocommerce'    => esc_html__( 'WooCommerce Sidebar', 'hestia' ),
 		'sidebar-top-bar'        => esc_html__( 'Very Top Bar', 'hestia' ),
 		'header-sidebar'         => esc_html__( 'Navigation', 'hestia' ),
+		'sidebar-big-title'      => apply_filters( 'hestia_big_title_fs_label', esc_html__( 'Big Title Section', 'hestia' ) ),
 	);
 
 	/**
@@ -314,7 +441,7 @@ function hestia_scripts() {
 	wp_style_add_data( 'hestia_style', 'rtl', 'replace' );
 
 	// WooCommerce Style loaded only if WooCommerce exists on page.
-	if ( class_exists( 'WooCommerce' ) ) {
+	if ( hestia_woocommerce_check() ) {
 		$disabled_products = get_theme_mod( 'hestia_shop_hide', false );
 		if ( is_woocommerce() || is_checkout() || is_cart() || is_account_page() || ( is_front_page() && (bool) $disabled_products === false ) ) {
 			wp_enqueue_style( 'hestia_woocommerce_style', get_template_directory_uri() . '/assets/css/woocommerce.css', array(), HESTIA_VERSION );
@@ -339,15 +466,22 @@ function hestia_scripts() {
 	}
 	wp_enqueue_script( 'jquery-bootstrap', get_template_directory_uri() . '/assets/bootstrap/js/bootstrap.min.js', array( 'jquery' ), HESTIA_VENDOR_VERSION, true );
 	wp_enqueue_script( 'jquery-hestia-material', get_template_directory_uri() . '/assets/js/material.js', array( 'jquery' ), HESTIA_VENDOR_VERSION, true );
+
 	wp_enqueue_script(
 		'hestia_scripts', get_template_directory_uri() . '/assets/js/scripts.js', array(
 			'jquery-hestia-material',
 			'jquery-ui-core',
 		), HESTIA_VERSION, true
 	);
+	wp_localize_script(
+		'hestia_scripts', 'requestpost', array(
+			'ajaxurl'           => admin_url( 'admin-ajax.php' ),
+			'disable_autoslide' => get_theme_mod( 'hestia_slider_disable_autoplay' ),
+		)
+	);
 
 	$hestia_cart_url = '';
-	if ( class_exists( 'WooCommerce' ) ) {
+	if ( hestia_woocommerce_check() ) {
 		if ( function_exists( 'wc_get_cart_url' ) ) {
 			$hestia_cart_url = wc_get_cart_url();
 		}
@@ -456,10 +590,8 @@ function hestia_filter_features( $array ) {
 	$files_to_load = array(
 
 		'features/feature-themeisle-lite-manager',
-
 		'features/feature-navigation-tabs',
 		'features/feature-general-settings',
-		'features/feature-blog-settings',
 		'features/feature-general-credits',
 		'features/feature-slider-section',
 		'features/feature-big-title-section',
@@ -472,6 +604,8 @@ function hestia_filter_features( $array ) {
 		'features/feature-testimonials-section',
 		'features/feature-subscribe-section',
 		'features/feature-blog-section',
+		'features/feature-blog-section-lite',
+		'features/feature-blog-settings',
 		'features/feature-contact-section',
 		'features/feature-contact-form',
 		'features/feature-color-settings',
@@ -796,11 +930,11 @@ function hestia_is_external_url( $url ) {
 }
 
 
-if ( class_exists( 'woocommerce' ) ) {
+if ( hestia_woocommerce_check() ) {
 	/**
 	 * Display WooCommerce product image responsive
 	 */
-	function hestia_shop_thumbnail( $post_id, $size = 'hestia-shop' ) {
+	function hestia_shop_thumbnail( $post_id, $size = 'woocommerce_thumbnail' ) {
 
 		$image = '';
 
@@ -814,12 +948,27 @@ if ( class_exists( 'woocommerce' ) ) {
 			if ( ! empty( $thumbnail_tmp ) ) {
 				$thumbnail = $thumbnail_tmp[0];
 			}
-			$thumbnail_2x_tmp = wp_get_attachment_image_src( $thumnail_id, $size . '-2x' );
+			$thumbnail_2x_tmp = wp_get_attachment_image_src( $thumnail_id, $size . '_2x' );
 			if ( ! empty( $thumbnail_2x_tmp ) ) {
 				$thumbnail_2x = $thumbnail_2x_tmp[0];
 			}
 
-			$image = '<img src="' . $thumbnail . '" srcset="' . $thumbnail . ' 230w,' . $thumbnail_2x . ' 460w" sizes="(max-width: 480px) 460px, (min-width: 480px) and (max-width: 600px) 230px, (min-width: 600px) and (max-width: 992px) 460px, (min-width: 992px) 230px, 100vw">';
+			/**
+			 * Alternative text for the Shop box image
+			 * It first checks for the Alt Text option of the attachment
+			 * If that field is empty, uses the Title of the Testimonial box as alt text
+			 */
+			$alt_image = '';
+			$image_id  = function_exists( 'attachment_url_to_postid' ) ? attachment_url_to_postid( preg_replace( '/-\d{1,4}x\d{1,4}/i', '', $thumbnail ) ) : '';
+			if ( ! empty( $image_id ) && $image_id !== 0 ) {
+				$alt_image = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+			}
+
+			$image = '<img src="' . $thumbnail . '" srcset="' . $thumbnail . ' 230w,' . $thumbnail_2x . ' 460w" sizes="(max-width: 480px) 460px, (min-width: 480px) and (max-width: 600px) 230px, (min-width: 600px) and (max-width: 992px) 460px, (min-width: 992px) 230px, 100vw" ';
+			if ( ! empty( $alt_image ) ) {
+				$image .= ' alt="' . esc_attr( $alt_image ) . '" ';
+			}
+			$image .= '>';
 		}
 
 		return $image;
@@ -905,7 +1054,7 @@ if ( ! function_exists( 'hestia_after_primary_navigation' ) ) :
 		$nav .= '%3$s';
 
 		// If WooCommerce exists
-		if ( class_exists( 'woocommerce' ) ) {
+		if ( hestia_woocommerce_check() ) {
 			$is_in_topbar_sidebar = false;
 			$is_in_header_sidebar = false;
 			$nav_cart             = false;
@@ -1005,7 +1154,17 @@ function hestia_import_theme_mods_from_themeisle_child_themes() {
 	// Get the name of the previously active theme.
 	$previous_theme = strtolower( get_option( 'theme_switched' ) );
 
-	if ( ! in_array( $previous_theme, array( 'christmas-hestia', 'tiny-hestia' ) ) ) {
+	if ( ! in_array(
+		$previous_theme, array(
+			'christmas-hestia',
+			'tiny-hestia',
+			'orfeo',
+			'hestia-child',
+			'hestia-child-theme',
+			'hestia-child',
+			'hestia-child-theme',
+		)
+	) ) {
 		return;
 	}
 
@@ -1020,29 +1179,245 @@ function hestia_import_theme_mods_from_themeisle_child_themes() {
 }
 
 /**
- * Add a dismissible notice to mention the we made some changes in the 1.1.57 version for the Font size options
- * like removing the possibility to change the fonts for the frontpage sections
+ * Function that limits a text to $limit words, words that are separated by $separator
  *
- * This notice will appear only for users that had the previous font size options changed.
+ * @param array  $input Content to limit.
+ * @param int    $limit Max size.
+ * @param string $separator Separator.
+ * @param bool   $show_more Flag to decide if '...' should be added at the end of result.
  *
- * TO DO: Remove this notice in version 1.1.60
+ * @return string
  */
-add_action( 'admin_notices', 'hestia_notice_for_font_size_options_changes' );
-
-/**
- * Font size changes notice render function.
- */
-function hestia_notice_for_font_size_options_changes() {
-
-	$headings_fs_old = get_theme_mod( 'hestia_headings_font_size' );
-	$body_fs_old     = get_theme_mod( 'hestia_body_font_size' );
-	if ( ( empty( $body_fs_old ) && empty( $headings_fs_old ) ) ) {
-		return;
+function hestia_limit_content( $input, $limit, $separator = ',', $show_more = true ) {
+	if ( $limit === 0 ) {
+		return '';
+	}
+	$length = sizeof( $input );
+	$more   = $length > $limit ? apply_filters( 'hestia_text_more', ' ...' ) : '';
+	$result = '';
+	$index  = 0;
+	foreach ( $input as $word ) {
+		if ( $index < $limit || $limit < 0 ) {
+			$result .= $word;
+			if ( $length > 1 && $index !== $length - 1 && $index !== $limit - 1 ) {
+				$result .= $separator;
+				if ( $separator === ',' ) {
+					$result .= ' ';
+				}
+			}
+		}
+		$index ++;
+	}
+	if ( $show_more === true ) {
+		$result .= $more;
 	}
 
-	echo '<div class="error notice is-dismissible">';
-		echo '<p><strong>';
-		esc_html_e( 'Wanted to let you know that we did some changes to how font sizes work, make sure that they look well on your site after the update, front-page settings will be added in next version.', 'hestia' );
-		echo '</strong></p>';
-	echo '</div>';
+	return $result;
 }
+
+/**
+ * Check if the hestia_setup_theme() function exists as this function exists only in Hestia ( the lite version )
+ * and we want this notice to appear only in lite
+ */
+if ( function_exists( 'hestia_setup_theme' ) ) {
+
+	add_action( 'admin_notices', 'hestia_multi_language_upsell_notice' );
+
+	/**
+	 * Add a dismissible notice in the dashboard to let users know that Hestia's ( the lite version ) frontpage is not multi-language compatible
+	 * This notice appears only if we detect some plugins used for translations and the custom frontpage
+	 */
+	function hestia_multi_language_upsell_notice() {
+
+		global $current_user;
+		$user_id = $current_user->ID;
+
+		/* Check that the user hasn't already clicked to ignore the message */
+		if ( ! get_user_meta( $user_id, 'hestia_ignore_multi_language_upsell_notice' ) ) {
+
+			/**
+			 * Check if Polylang, TranslatePress or WPML are installed
+			 * and the custom frontpage is selected
+			 */
+			if ( ( defined( 'POLYLANG_VERSION' ) || defined( 'TRP_PLUGIN_VERSION' ) || ( false !== get_option( 'icl_sitepress_settings' ) ) ) && ( get_option( 'show_on_front' ) === 'page' ) ) {
+				echo '<div class="notice notice-warning" style="position:relative;">';
+				printf( '<a href="%s" class="notice-dismiss" style="text-decoration:none;"></a>', '?hestia_nag_ignore=0' );
+				echo '<p>';
+				/* translators: Upsell to get the pro version */
+				printf( esc_html__( 'Hestia front-page is not multi-language compatible, for this feature %s.', 'hestia' ), sprintf( '<a href="%1$s" target="_blank">%2$s</a>', esc_url( apply_filters( 'hestia_upgrade_link_from_child_theme_filter', 'https://themeisle.com/themes/hestia/upgrade/' ) ), esc_html__( 'Get the PRO version!', 'hestia' ) ) );
+				echo '</p>';
+				echo '</div>';
+			}
+		}
+	}
+
+	add_action( 'admin_init', 'hestia_nag_ignore' );
+
+	/**
+	 * Update the hestia_ignore_multi_language_upsell_notice option to true, to dismiss the multi language upsell notice from the dashboard
+	 */
+	function hestia_nag_ignore() {
+		global $current_user;
+		$user_id = $current_user->ID;
+		/* If user clicks to ignore the notice, add that to their user meta */
+		if ( isset( $_GET['hestia_nag_ignore'] ) && '0' == $_GET['hestia_nag_ignore'] ) {
+			add_user_meta( $user_id, 'hestia_ignore_multi_language_upsell_notice', 'true', true );
+		}
+	}
+
+	$theme      = wp_get_theme();
+	$theme_slug = $theme->get( 'Name' );
+
+	if ( isset( $theme_slug ) && ( $theme_slug != 'Fagri' ) ) {
+		add_action( 'admin_notices', 'hestia_fagri_notice' );
+	}
+	/**
+	 * Add a dismissible notice in the dashboard to let users know that we have a new child theme for Hestia, Fagri
+	 * TODO: Remove this in a future release
+	 */
+	function hestia_fagri_notice() {
+		global $current_user;
+		$user_id = $current_user->ID;
+		/* Check that the user hasn't already clicked to ignore the message */
+		if ( ! get_user_meta( $user_id, 'hestia_ignore_fagri_notice' ) ) {
+			echo '<div class="notice updated" style="position:relative;">';
+			printf( '<a href="%s" class="notice-dismiss" style="text-decoration:none;"></a>', '?hestia_nag_ignore_fagri=0' );
+			echo '<p>';
+			/* translators: Install Fagri link */
+			printf( esc_html__( 'We just launched a new free Hestia %s, you might like it.', 'hestia' ), sprintf( '<a href="%1$s">%2$s</a>', admin_url( 'theme-install.php?theme=fagri' ), esc_html__( 'child theme', 'hestia' ) ) );
+			echo '</p>';
+			echo '</div>';
+		}
+	}
+	if ( isset( $theme_slug ) && ( $theme_slug != 'Fagri' ) ) {
+		add_action( 'admin_init', 'hestia_nag_ignore_fagri' );
+	}
+	/**
+	 * Update the hestia_ignore_fagri_notice option to true, to dismiss the notice from the dashboard
+	 */
+	function hestia_nag_ignore_fagri() {
+		global $current_user;
+		$user_id = $current_user->ID;
+		/* If user clicks to ignore the notice, add that to their user meta */
+		if ( isset( $_GET['hestia_nag_ignore_fagri'] ) && '0' == $_GET['hestia_nag_ignore_fagri'] ) {
+			add_user_meta( $user_id, 'hestia_ignore_fagri_notice', 'true', true );
+		}
+	}
+}
+
+/**
+ * Add animation attribute for animate-on-scroll.
+ *
+ * @param string $animation_type the type of animation.
+ *
+ * @return string
+ */
+function hestia_add_animationation( $animation_type ) {
+	if ( ! function_exists( 'hestia_setup_theme' ) ) {
+		return '';
+	}
+	$enable_animations = apply_filters( 'hestia_enable_animations', true );
+	$output            = '';
+	if ( $enable_animations && ! empty( $animation_type ) ) {
+		$output .= ' data-aos="';
+		$output .= $animation_type;
+		$output .= '" ';
+	}
+	return $output;
+}
+
+/** Callback for WooCommerce customizer controls.
+ *
+ * @return bool
+ */
+function hestia_woocommerce_check() {
+	if ( class_exists( 'woocommerce' ) ) {
+		return true;
+	}
+	return false;
+}
+
+if ( ! function_exists( 'hestia_edited_with_pagebuilder' ) ) {
+	/**
+	 * This function returns whether the theme use or not one of the following pagebuilders:
+	 * Siteorigin, WP Bakery, Elementor, Divi Builder or Beaver Builder.
+	 *
+	 * @since 1.1.63
+	 * @return bool
+	 */
+	function hestia_edited_with_pagebuilder() {
+		$frontpage_id = get_option( 'page_on_front' );
+		/**
+		 * Exit with false if there is no page set as frontpage.
+		 */
+		if ( intval( $frontpage_id ) === 0 ) {
+			return false;
+		}
+		/**
+		 * Elementor, Beaver Builder, Divi and Siteorigin mark if the page was edited with its editors in post meta
+		 * so we'll have to check if plugins exists and the page was edited with page builder.
+		 */
+		$post_meta            = ! empty( $frontpage_id ) ? get_post_meta( $frontpage_id ) : '';
+		$page_builders_values = array(
+			'elementor'  => ! empty( $post_meta['_elementor_edit_mode'] ) && $post_meta['_elementor_edit_mode'][0] === 'builder' && class_exists( 'Elementor\Plugin' ),
+			'beaver'     => ! empty( $post_meta['_fl_builder_enabled'] ) && $post_meta['_fl_builder_enabled'][0] === '1' && class_exists( 'FLBuilder' ),
+			'siteorigin' => ! empty( $post_meta['panels_data'] ) && class_exists( 'SiteOrigin_Panels' ),
+			'divi'       => ! empty( $post_meta['_et_pb_use_builder'] ) && $post_meta['_et_pb_use_builder'][0] === 'on' && class_exists( 'ET_Builder_Plugin' ),
+		);
+		/**
+		 * WP Bakery (former Visual Composer) doesn't store a flag in meta data to say whether or not the page
+		 * is edited with it so we have to check post content if it contains shortcodes from plugin.
+		 */
+		$post_content = get_post_field( 'post_content', $frontpage_id );
+		if ( ! empty( $post_content ) ) {
+			$page_builders_values['wpbakery'] = class_exists( 'Vc_Manager' ) && strpos( $post_content, '[vc_' ) !== false;
+		}
+		/**
+		 * Check if at least one page builder returns true and return true if it does.
+		 */
+		foreach ( $page_builders_values as $page_builder ) {
+			if ( $page_builder === true ) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+/**
+ * Append theme name to the upgrade link
+ * If the active theme is child theme of Hestia
+ *
+ * @param string $link - Current link.
+ *
+ * @return string $link - New upgrade link.
+ * @package hestia
+ * @since 1.1.75
+ */
+function hestia_upgrade_link( $link ) {
+
+	$theme_name = wp_get_theme()->get_stylesheet();
+
+	$hestia_child_themes = array(
+		'orfeo',
+		'fagri',
+		'tiny-hestia',
+		'christmas-hestia',
+	);
+
+	if ( $theme_name === 'hestia' ) {
+		return $link;
+	}
+
+	if ( ! in_array( $theme_name, $hestia_child_themes ) ) {
+		return $link;
+	}
+
+	$link = add_query_arg(
+		array(
+			'theme' => $theme_name,
+		), $link
+	);
+	return $link;
+}
+add_filter( 'hestia_upgrade_link_from_child_theme_filter', 'hestia_upgrade_link' );

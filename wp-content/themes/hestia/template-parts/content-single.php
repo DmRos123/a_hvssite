@@ -18,6 +18,11 @@ if ( is_active_sidebar( 'sidebar-1' ) && ( $hestia_remove_sidebar_on_single_post
 $default_blog_layout        = hestia_sidebar_on_single_post_get_default();
 $hestia_blog_sidebar_layout = get_theme_mod( 'hestia_blog_sidebar_layout', $default_blog_layout );
 
+$individual_layout = get_post_meta( get_the_ID(), 'hestia_layout_select', true );
+if ( ! empty( $individual_layout ) && $individual_layout !== 'default' ) {
+	$hestia_blog_sidebar_layout = $individual_layout;
+}
+
 $args                 = array(
 	'sidebar-right' => 'col-md-8 single-post-wrap',
 	'sidebar-left'  => 'col-md-8 single-post-wrap',
@@ -27,63 +32,68 @@ $hestia_sidebar_width = get_theme_mod( 'hestia_sidebar_width', 25 );
 if ( $hestia_sidebar_width > 3 && $hestia_sidebar_width < 80 ) {
 	$args['sidebar-left'] .= ' col-md-offset-1';
 }
-
 $class_to_add = hestia_get_content_classes( $hestia_blog_sidebar_layout, 'sidebar-1', $args );
 ?>
 
 <div class="row">
 	<?php
-	if ( $hestia_blog_sidebar_layout === 'sidebar-left' ) {
+	if ( ( $hestia_blog_sidebar_layout === 'sidebar-left' ) && ! is_singular( 'elementor_library' ) ) {
 		get_sidebar();
 	}
 	?>
-	<div class=" <?php echo esc_attr( $class_to_add ); ?>">
-		<article id="post-<?php the_ID(); ?>" class="section section-text">
-			<?php
-			the_content();
+		<div class=" <?php echo esc_attr( $class_to_add ); ?>">
+			<article id="post-<?php the_ID(); ?>" class="section section-text">
+				<?php
+				$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+				if ( ( $hestia_header_layout !== 'default' ) && ! ( hestia_woocommerce_check() && ( is_product() || is_cart() || is_checkout() ) ) ) {
+					hestia_show_header_content( 'post', $hestia_header_layout );
+				}
 
-			hestia_wp_link_pages(
-				array(
-					'before'      => '<div class="text-center"> <ul class="nav pagination pagination-primary">',
-					'after'       => '</ul> </div>',
-					'link_before' => '<li>',
-					'link_after'  => '</li>',
-				)
-			);
-			?>
-		</article>
+				the_content();
 
-		<div class="section section-blog-info">
-			<div class="row">
-				<div class="col-md-6">
-					<div class="entry-categories"><?php esc_html_e( 'Categories:', 'hestia' ); ?>
-						<?php
-						$categories = get_the_category( $post->ID );
-						foreach ( $categories as $category ) {
-							echo '<span class="label label-primary"><a href="' . esc_url( get_category_link( $category->term_id ) ) . '">' . esc_html( $category->name ) . '</a></span>';
-						}
-						?>
+				hestia_wp_link_pages(
+					array(
+						'before'      => '<div class="text-center"> <ul class="nav pagination pagination-primary">',
+						'after'       => '</ul> </div>',
+						'link_before' => '<li>',
+						'link_after'  => '</li>',
+					)
+				);
+				?>
+			</article>
+
+			<div class="section section-blog-info">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="entry-categories"><?php esc_html_e( 'Categories:', 'hestia' ); ?>
+							<?php
+							$categories = get_the_category( $post->ID );
+							foreach ( $categories as $category ) {
+								echo '<span class="label label-primary"><a href="' . esc_url( get_category_link( $category->term_id ) ) . '">' . esc_html( $category->name ) . '</a></span>';
+							}
+							?>
+						</div>
+						<?php the_tags( '<div class="entry-tags">' . esc_html__( 'Tags: ', 'hestia' ) . '<span class="entry-tag">', '</span><span class="entry-tag">', '</span></div>' ); ?>
 					</div>
-					<?php the_tags( '<div class="entry-tags">' . esc_html__( 'Tags: ', 'hestia' ) . '<span class="entry-tag">', '</span><span class="entry-tag">', '</span></div>' ); ?>
+					<?php do_action( 'hestia_blog_social_icons' ); ?>
 				</div>
-				<?php do_action( 'hestia_blog_social_icons' ); ?>
+				<hr>
+				<?php
+				$author_description = get_the_author_meta( 'description' );
+				if ( ! empty( $author_description ) ) :
+					hestia_author_box();
+				endif;
+				if ( comments_open() || get_comments_number() ) :
+					comments_template();
+				endif;
+				?>
 			</div>
-			<hr>
-			<?php
-			$author_description = get_the_author_meta( 'description' );
-			if ( ! empty( $author_description ) ) :
-				hestia_author_box();
-			endif;
-			if ( comments_open() || get_comments_number() ) :
-				comments_template();
-			endif;
-			?>
 		</div>
-	</div>
-	<?php
-	if ( $hestia_blog_sidebar_layout === 'sidebar-right' ) {
-		get_sidebar();
-	}
-	?>
+		<?php
+
+		if ( ( $hestia_blog_sidebar_layout === 'sidebar-right' ) && ! is_singular( 'elementor_library' ) ) {
+			get_sidebar();
+		}
+		?>
 </div>
 

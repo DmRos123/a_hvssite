@@ -40,14 +40,16 @@ function hestia_tabs_customize_register( $wp_customize ) {
 							'nicename' => esc_html__( 'font size', 'hestia' ),
 							'icon'     => 'text-height',
 							'controls' => array(
-								// 'hestia_frontpage_title',
-								// 'hestia_section_primary_headings_fs',
-								// 'hestia_section_secondary_headings_fs',
-								// 'hestia_section_content_fs',
 								'hestia_posts_and_pages_title',
 								'hestia_header_titles_fs',
 								'hestia_post_page_headings_fs',
 								'hestia_post_page_content_fs',
+
+								'hestia_frontpage_sections_title',
+								'hestia_big_title_fs',
+								'hestia_section_primary_headings_fs',
+								'hestia_section_secondary_headings_fs',
+								'hestia_section_content_fs',
 
 								'hestia_generic_title',
 								'hestia_menu_fs',

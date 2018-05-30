@@ -20,15 +20,16 @@ var hestia_customize_tabs_focus = function ( $ ) {
 							'click', function() {
 								var controlId     = $( this ).attr( 'class' );
 								var tabToActivate = '';
+                                var controlFinalId = controlId.split( ' ' ).pop().split( '-' ).pop();
 
-								if ( controlId.indexOf( 'widget' ) !== -1 ) {
+                                if ( controlId.indexOf( 'widget' ) !== -1 ) {
 									tabToActivate = $( '.hestia-customizer-tab>.widgets' );
 								} else {
-									var controlFinalId = controlId.split( ' ' ).pop().split( '-' ).pop();
 									tabToActivate      = $( '.hestia-customizer-tab>.' + controlFinalId );
 								}
 
 								customize.preview.send( 'tab-previewer-edit', tabToActivate );
+                                customize.preview.send( 'focus-control', controlFinalId );
 							}
 						);
 					}

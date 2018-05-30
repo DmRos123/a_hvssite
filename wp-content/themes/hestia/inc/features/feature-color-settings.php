@@ -37,6 +37,26 @@ function hestia_colors_customize_register( $wp_customize ) {
 			)
 		)
 	);
+
+	// Alpha Color Picker setting for header gradient color
+	$wp_customize->add_setting(
+		'hestia_header_gradient_color', array(
+			'default'           => apply_filters( 'hestia_header_gradient_default', '#a81d84' ),
+			'transport'         => 'postMessage',
+			'sanitize_callback' => 'hestia_sanitize_colors',
+		)
+	);
+
+	// Alpha Color Picker control for header gradient color
+	$wp_customize->add_control(
+		new WP_Customize_Color_Control(
+			$wp_customize, 'hestia_header_gradient_color', array(
+				'label'    => esc_html__( 'Header Gradient', 'hestia' ),
+				'section'  => 'header_image',
+				'priority' => 30,
+			)
+		)
+	);
 }
 
 add_action( 'customize_register', 'hestia_colors_customize_register' );
@@ -49,6 +69,8 @@ add_action( 'customize_register', 'hestia_colors_customize_register' );
 function hestia_custom_colors_inline_style() {
 
 	$color_accent = get_theme_mod( 'accent_color', apply_filters( 'hestia_accent_color_default', '#e91e63' ) );
+
+	$color_header_gradient = get_theme_mod( 'hestia_header_gradient_color', apply_filters( 'hestia_header_gradient_default', '#a81d84' ) );
 
 	$custom_css = '';
 
@@ -65,9 +87,6 @@ a,
 .navbar .dropdown-menu li:hover > a,
 .navbar .dropdown-menu li:focus > a,
 .navbar .dropdown-menu li:active > a,
-.navbar .dropdown-menu li:hover > a > i,
-.navbar .dropdown-menu li:focus > a > i,
-.navbar .dropdown-menu li:active > a > i,
 .navbar.navbar-not-transparent .nav > li:not(.btn).on-section > a, 
 .navbar.navbar-not-transparent .nav > li.on-section:not(.btn) > a, 
 .navbar.navbar-not-transparent .nav > li.on-section:not(.btn):hover > a, 
@@ -118,9 +137,6 @@ input#searchsubmit,
 }
 
 @media (max-width: 768px) { 
-	.navbar .navbar-nav .dropdown a .caret {
-	    background-color: ' . esc_attr( $color_accent ) . ';
-	}
 	
 	.navbar-default .navbar-nav>li>a:hover,
 	.navbar-default .navbar-nav>li>a:focus,
@@ -179,17 +195,29 @@ background-image: -webkit-gradient(linear,left top, left bottom,from(' . esc_att
 
 		// Hover Effect for navbar items
 		$custom_css .= '
- .navbar:not(.navbar-transparent) .navbar-nav > li:not(.btn) > a:hover,
- body:not(.home) .navbar:not(.navbar-transparent) .navbar-nav > li.active:not(.btn) > a, .navbar:not(.navbar-transparent) .navbar-nav > li:not(.btn) > a:hover i, .navbar .container .nav-cart:hover .nav-cart-icon, .navbar-not-transparent .hestia-toggle-search:hover {
+ .navbar:not(.navbar-transparent) li:not(.btn):hover > a,
+ .navbar.full-screen-menu.navbar-transparent li:not(.btn):hover > a,
+ .navbar.full-screen-menu .navbar-toggle:hover,
+ .navbar:not(.navbar-transparent) .nav-cart:hover, 
+ .navbar:not(.navbar-transparent) .hestia-toggle-search:hover {
 		 color:' . esc_attr( $color_accent ) . '}';
 
 	}// End if().
+
+	if ( ! empty( $color_header_gradient ) ) {
+
+		// Header Gradient Color
+		$custom_css .= '
+.header-filter-gradient { 
+	background: linear-gradient(45deg, ' . hestia_hex_rgba( $color_header_gradient ) . ' 0%, ' . hestia_generate_gradient_color( $color_header_gradient ) . ' 100%); 
+} ';
+	}
 
 	$handle = apply_filters( 'hestia_custom_color_handle', 'hestia_style' );
 	wp_add_inline_style( $handle, $custom_css );
 
 	// WooCommerce Custom Colors
-	if ( class_exists( 'WooCommerce' ) ) {
+	if ( hestia_woocommerce_check() ) {
 		// Initialize empty string.
 		$custom_css_woocommerce = '';
 
@@ -345,12 +373,14 @@ div[id^=woocommerce_widget_cart].widget .buttons .button {
 add_action( 'wp_enqueue_scripts', 'hestia_custom_colors_inline_style', 10 );
 
 /**
- * HEX colors conversion to RGBA.
+ * HEX colors conversion to RGB.
  *
- * @return string RGBA string.
+ * @param string $input Color in hex format.
+ *
+ * @return array|string RGB string.
  * @since Hestia 1.0
  */
-function hestia_hex_rgba( $input, $opacity = false ) {
+function hestia_hex_rgb( $input ) {
 
 	$default = 'rgb(0,0,0)';
 
@@ -376,6 +406,20 @@ function hestia_hex_rgba( $input, $opacity = false ) {
 	// Convert hexadeciomal color to rgb(a)
 	$rgb = array_map( 'hexdec', $hex );
 
+	return $rgb;
+}
+
+/**
+ * Add opacity to rgb.
+ *
+ * @param array $rgb RGB color.
+ * @param int   $opacity Opacity value.
+ */
+function hestia_rgb_to_rgba( $rgb, $opacity ) {
+
+	if ( ! is_array( $rgb ) ) {
+		return '';
+	}
 	// Check for opacity
 	if ( $opacity ) {
 		if ( abs( $opacity ) > 1 ) {
@@ -386,8 +430,21 @@ function hestia_hex_rgba( $input, $opacity = false ) {
 		$output = 'rgb(' . implode( ',', $rgb ) . ')';
 	}
 
-	// Return rgb(a) color.
 	return $output;
+}
+
+
+/**
+ * HEX colors conversion to RGBA.
+ *
+ * @param array|string $input RGB color.
+ * @param int          $opacity Opacity value.
+ */
+function hestia_hex_rgba( $input, $opacity = false ) {
+
+	// Convert hexadeciomal color to rgb(a)
+	$rgb = hestia_hex_rgb( $input );
+	return hestia_rgb_to_rgba( $rgb, $opacity );
 }
 
 /**
@@ -398,29 +455,7 @@ function hestia_hex_rgba( $input, $opacity = false ) {
  */
 function hestia_generate_gradient_color( $input, $opacity = false ) {
 
-	$default = 'rgb(0,0,0)';
-
-	// Return default if no color provided
-	if ( empty( $input ) ) {
-		return $default;
-	}
-
-	// Sanitize $color if "#" is provided
-	if ( $input[0] == '#' ) {
-		$input = substr( $input, 1 );
-	}
-
-	// Check if color has 6 or 3 characters and get values
-	if ( strlen( $input ) == 6 ) {
-		$hex = array( $input[0] . $input[1], $input[2] . $input[3], $input[4] . $input[5] );
-	} elseif ( strlen( $input ) == 3 ) {
-		$hex = array( $input[0] . $input[0], $input[1] . $input[1], $input[2] . $input[2] );
-	} else {
-		return $default;
-	}
-
-	// Convert hexadeciomal color to rgb(a)
-	$rgb = array_map( 'hexdec', $hex );
+	$rgb = hestia_hex_rgb( $input );
 
 	$rgb[0] = $rgb[0] + 66;
 	$rgb[1] = $rgb[1] + 28;
@@ -438,16 +473,5 @@ function hestia_generate_gradient_color( $input, $opacity = false ) {
 		$rgb[2] = 0;
 	}
 
-	// Check for opacity
-	if ( $opacity ) {
-		if ( abs( $opacity ) > 1 ) {
-			$opacity = 1.0;
-		}
-		$output = 'rgba(' . implode( ',', $rgb ) . ',' . $opacity . ')';
-	} else {
-		$output = 'rgb(' . implode( ',', $rgb ) . ')';
-	}
-
-	// Return rgb(a) color.
-	return $output;
+	return hestia_rgb_to_rgba( $rgb, $opacity );
 }

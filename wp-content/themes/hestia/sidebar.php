@@ -13,12 +13,16 @@ $hestia_sidebar_layout = '';
 $default_blog_layout   = hestia_sidebar_on_single_post_get_default();
 $hestia_sidebar_layout = get_theme_mod( 'hestia_blog_sidebar_layout', $default_blog_layout );
 $hestia_sidebar_width  = get_theme_mod( 'hestia_sidebar_width', 25 );
-if ( $hestia_sidebar_layout === 'sidebar-right' && $hestia_sidebar_width > 3 && $hestia_sidebar_width < 80 && ! is_page() ) {
-	$class_to_add = 'col-md-offset-1';
+
+$individual_layout = get_post_meta( get_the_ID(), 'hestia_layout_select', true );
+if ( ! empty( $individual_layout ) && $individual_layout !== 'default' ) {
+	$hestia_sidebar_layout = $individual_layout;
 }
 
-
-
+$is_page_or_bbpress_or_budypress = is_page() || ( function_exists( 'is_bbpress' ) && is_bbpress() ) || ( function_exists( 'is_buddypress' ) && is_buddypress() );
+if ( $hestia_sidebar_layout === 'sidebar-right' && $hestia_sidebar_width > 3 && $hestia_sidebar_width < 80 && ! $is_page_or_bbpress_or_budypress ) {
+	$class_to_add = 'col-md-offset-1';
+}
 
 if ( is_active_sidebar( 'sidebar-1' ) ) { ?>
 	<div class="col-md-3 blog-sidebar-wrapper <?php echo esc_attr( $class_to_add ); ?>">

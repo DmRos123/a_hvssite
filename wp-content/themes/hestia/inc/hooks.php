@@ -22,6 +22,16 @@ function hestia_before_header_trigger() {
 function hestia_before_header_content_trigger() {
 	do_action( 'hestia_before_header_content_hook' );
 }
+
+/**
+ * Hook just after the responsive navbar-toggle.
+ *
+ * HTML context: after `header nav button.navbar-toggle`
+ */
+function hestia_before_navbar_toggle_trigger() {
+	do_action( 'hestia_before_navbar_toggle_hook' );
+}
+
 /**
  * Hook just after the header ( navigation ) content
  *
@@ -111,6 +121,14 @@ function hestia_before_big_title_section_content_trigger() {
  */
 function hestia_top_big_title_section_content_trigger() {
 	do_action( 'hestia_top_big_title_section_content_hook' );
+}
+/**
+ * Hook after the button in Big Title Section
+ *
+ * HTML context: inside `div.big-title-content div.buttons`
+ */
+function hestia_big_title_section_buttons_trigger() {
+	do_action( 'hestia_big_title_section_buttons' );
 }
 /**
  * Hook at the bottom of the Big title / Slider section content
@@ -598,3 +616,53 @@ function hestia_after_portfolio_section_trigger() {
  * Force displaying cart on checkout and cart pages.
  */
 add_filter( 'woocommerce_widget_cart_is_hidden', 'hestia_always_show_live_cart', 40, 0 );
+
+/* Clients Bar section */
+
+/**
+ * Hook just before the Clients Bar section
+ *
+ * HTML context: before `section.hestia-clients-bar`
+ */
+function hestia_before_clients_bar_section_trigger() {
+	do_action( 'hestia_before_clients_bar_section_hook' );
+}
+
+/**
+ * Hook just before the Clients Bar section content
+ *
+ * HTML context: just after `section.hestia-clients-bar div.container`
+ */
+function hestia_clients_bar_section_content_trigger() {
+	do_action( 'hestia_clients_bar_section_content_hook' );
+}
+
+
+/**
+ * Hook just after the Clients Bar section
+ *
+ * HTML context: after `section.hestia-clients-bar`
+ */
+function hestia_after_clients_bar_section_trigger() {
+	do_action( 'hestia_after_clients_bar_section_hook' );
+}
+
+/* Ribbon section */
+
+/**
+ * Hook just before the Ribbon section
+ *
+ * HTML context: before `section.hestia-ribbon`
+ */
+function hestia_before_ribbon_section_trigger() {
+	do_action( 'hestia_before_ribbon_section_hook' );
+}
+
+/**
+ * Hook just after the Ribbon section
+ *
+ * HTML context: after `section.hestia-ribbon`
+ */
+function hestia_after_ribbon_section_trigger() {
+	do_action( 'hestia_after_ribbon_section_hook' );
+}

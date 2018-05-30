@@ -13,7 +13,7 @@
  * @return string - path to image
  */
 function hestia_layout_control_left_image() {
-	return trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-left.png';
+	return trailingslashit( get_template_directory_uri() ) . 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAACVBMVEX///8+yP/V1dXG9YqxAAAAWElEQVR42mNgGAXDE4RCQMDAKONaBQINWqtWrWBatQDIaxg8ygYqQIAOYwC6bwHUmYNH2eBPSMhgBQXKRr0w6oVRL4x6YdQLo14Y9cKoF0a9QCO3jYLhBADvmFlNY69qsQAAAABJRU5ErkJggg==';
 }
 
 /**
@@ -23,7 +23,7 @@ function hestia_layout_control_left_image() {
  * @return string - path to image
  */
 function hestia_layout_control_right_image() {
-	return trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-right.png';
+	return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAACVBMVEX///8+yP/V1dXG9YqxAAAAWUlEQVR42mNgGAUjB4iGgkEIzZStAoEVTECiQWsVkLdiECkboAABOmwBF9BtUGcOImUDEiCkJCQU0ECBslEvjHph1AujXhj1wqgXRr0w6oVRLwyEF0bBUAUAz/FTNXm+R/MAAAAASUVORK5CYII=';
 }
 
 /**
@@ -48,26 +48,22 @@ function hestia_general_customize_register( $wp_customize ) {
 		)
 	);
 
-	// Boxed layout toggle.
-	$wp_customize->add_setting(
-		'hestia_general_layout', array(
-			'default'           => 1,
-			'sanitize_callback' => 'hestia_sanitize_checkbox',
-			'transport'         => 'postMessage',
-		)
-	);
-
-	$wp_customize->add_control(
-		'hestia_general_layout', array(
-			'label'       => esc_html__( 'Boxed Layout', 'hestia' ),
-			'description' => esc_html__( 'If enabled, the theme will use a boxed layout.', 'hestia' ),
-			'section'     => 'hestia_general',
-			'priority'    => 5,
-			'type'        => 'checkbox',
-		)
-	);
-
 	if ( class_exists( 'Hestia_Customize_Control_Radio_Image' ) ) {
+
+		$sidebar_choices = array(
+			'full-width'    => array(
+				'url'   => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAQMAAABknzrDAAAABlBMVEX////V1dXUdjOkAAAAPUlEQVRIx2NgGAUkAcb////Y/+d/+P8AdcQoc8vhH/X/5P+j2kG+GA3CCgrwi43aMWrHqB2jdowEO4YpAACyKSE0IzIuBgAAAABJRU5ErkJggg==',
+				'label' => esc_html__( 'Full Width', 'hestia' ),
+			),
+			'sidebar-left'  => array(
+				'url'   => apply_filters( 'hestia_layout_control_image_left', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAACVBMVEX///8+yP/V1dXG9YqxAAAAWElEQVR42mNgGAXDE4RCQMDAKONaBQINWqtWrWBatQDIaxg8ygYqQIAOYwC6bwHUmYNH2eBPSMhgBQXKRr0w6oVRL4x6YdQLo14Y9cKoF0a9QCO3jYLhBADvmFlNY69qsQAAAABJRU5ErkJggg==' ),
+				'label' => esc_html__( 'Left Sidebar', 'hestia' ),
+			),
+			'sidebar-right' => array(
+				'url'   => apply_filters( 'hestia_layout_control_image_right', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAACVBMVEX///8+yP/V1dXG9YqxAAAAWUlEQVR42mNgGAUjB4iGgkEIzZStAoEVTECiQWsVkLdiECkboAABOmwBF9BtUGcOImUDEiCkJCQU0ECBslEvjHph1AujXhj1wqgXRr0w6oVRLwyEF0bBUAUAz/FTNXm+R/MAAAAASUVORK5CYII=' ),
+				'label' => esc_html__( 'Right Sidebar', 'hestia' ),
+			),
+		);
 
 		$wp_customize->add_setting(
 			'hestia_page_sidebar_layout', array(
@@ -82,20 +78,7 @@ function hestia_general_customize_register( $wp_customize ) {
 					'label'    => esc_html__( 'Page Sidebar Layout', 'hestia' ),
 					'section'  => 'hestia_general',
 					'priority' => 15,
-					'choices'  => array(
-						'full-width'    => array(
-							'url'   => trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/full-width.png',
-							'label' => esc_html__( 'Full Width', 'hestia' ),
-						),
-						'sidebar-left'  => array(
-							'url'   => apply_filters( 'hestia_layout_control_image_left', trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-left.png' ),
-							'label' => esc_html__( 'Left Sidebar', 'hestia' ),
-						),
-						'sidebar-right' => array(
-							'url'   => apply_filters( 'hestia_layout_control_image_right', trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-right.png' ),
-							'label' => esc_html__( 'Right Sidebar', 'hestia' ),
-						),
-					),
+					'choices'  => $sidebar_choices,
 				)
 			)
 		);
@@ -114,20 +97,7 @@ function hestia_general_customize_register( $wp_customize ) {
 					'label'    => esc_html__( 'Blog Sidebar Layout', 'hestia' ),
 					'section'  => 'hestia_general',
 					'priority' => 20,
-					'choices'  => array(
-						'full-width'    => array(
-							'url'   => trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/full-width.png',
-							'label' => esc_html__( 'Full Width', 'hestia' ),
-						),
-						'sidebar-left'  => array(
-							'url'   => apply_filters( 'hestia_layout_control_image_left', trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-left.png' ),
-							'label' => esc_html__( 'Left Sidebar', 'hestia' ),
-						),
-						'sidebar-right' => array(
-							'url'   => apply_filters( 'hestia_layout_control_image_right', trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/sidebar-right.png' ),
-							'label' => esc_html__( 'Right Sidebar', 'hestia' ),
-						),
-					),
+					'choices'  => $sidebar_choices,
 				)
 			)
 		);
@@ -161,6 +131,25 @@ function hestia_general_customize_register( $wp_customize ) {
 			'section'  => 'hestia_general',
 			'priority' => 40,
 			'type'     => 'checkbox',
+		)
+	);
+
+	// Boxed layout toggle.
+	$wp_customize->add_setting(
+		'hestia_general_layout', array(
+			'default'           => 1,
+			'sanitize_callback' => 'hestia_sanitize_checkbox',
+			'transport'         => 'postMessage',
+		)
+	);
+
+	$wp_customize->add_control(
+		'hestia_general_layout', array(
+			'label'       => esc_html__( 'Boxed Layout', 'hestia' ),
+			'description' => esc_html__( 'If enabled, the theme will use a boxed layout.', 'hestia' ),
+			'section'     => 'hestia_general',
+			'priority'    => 50,
+			'type'        => 'checkbox',
 		)
 	);
 

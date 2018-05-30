@@ -76,27 +76,37 @@ function hestia_about_customize_register( $wp_customize ) {
 		$wp_customize->add_control(
 			new Hestia_Page_Editor(
 				$wp_customize, 'hestia_page_editor', array(
-					'label'    => esc_html__( 'About Content', 'hestia' ),
-					'section'  => 'hestia_about',
-					'priority' => 10,
-					'needsync' => true,
+					'label'           => esc_html__( 'About Content', 'hestia' ),
+					'section'         => 'hestia_about',
+					'priority'        => 10,
+					'needsync'        => true,
+					'active_callback' => 'hestia_display_content_editor',
 				)
 			)
 		);
 	}
-	$default = '';
-	if ( ! empty( $frontpage_id ) ) {
-		if ( has_post_thumbnail( $frontpage_id ) ) {
-			$default = get_the_post_thumbnail_url( $frontpage_id );
-		} else {
-			$default = get_template_directory_uri() . '/assets/img/contact.jpg';
-		}
-	}
+
+	$wp_customize->add_setting(
+		'hestia_elementor_edit', array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new Hestia_PageBuilder_Button(
+			$wp_customize, 'hestia_elementor_edit', array(
+				'label'           => esc_html__( 'About Content', 'hestia' ),
+				'section'         => 'hestia_about',
+				'priority'        => 14,
+				'active_callback' => 'hestia_edited_with_pagebuilder',
+			)
+		)
+	);
 
 	$wp_customize->add_setting(
 		'hestia_feature_thumbnail', array(
 			'sanitize_callback' => 'esc_url_raw',
-			'default'           => $default,
+			'default'           => get_template_directory_uri() . '/assets/img/contact.jpg',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -129,26 +139,10 @@ function hestia_register_about_partials( $wp_customize ) {
 	}
 
 	$wp_customize->selective_refresh->add_partial(
-		'hestia_about_hide', array(
-			'selector'            => '.hestia-about',
-			'container_inclusive' => true,
-			'render_callback'     => 'hestia_about',
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
 		'hestia_page_editor', array(
 			'selector'        => '.hestia-about-content',
 			'settings'        => 'hestia_page_editor',
 			'render_callback' => 'hestia_about_content_callback',
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_feature_thumbnail', array(
-			'selector'        => '.hestia-about-image',
-			'settings'        => 'hestia_feature_thumbnail',
-			'render_callback' => 'hestia_about_image_callback',
 		)
 	);
 }
@@ -171,13 +165,13 @@ function hestia_about_image_callback() {
 		</style>
 		<?php
 	} else {
-	?>
+		?>
 		<style class="hestia-about-image-css">
 			#about {
 				background-image: none !important;
 			}
 		</style>
-	<?php
+		<?php
 	}
 }
 
@@ -205,4 +199,17 @@ function hestia_about_content_callback() {
  */
 function hestia_is_static_page() {
 	return 'page' === get_option( 'show_on_front' );
+}
+
+
+/**
+ * Callback for About section content editor
+ *
+ * @return bool
+ */
+function hestia_display_content_editor() {
+	if ( 'page' === get_option( 'show_on_front' ) ) {
+		return ! hestia_edited_with_pagebuilder();
+	}
+	return false;
 }

@@ -31,6 +31,11 @@ Copyright 2014, liabru, MIT License, http://www.opensource.org/licenses/MIT
 Hammer.js, https://hammerjs.github.io/
 Copyright 2011-2017, Jorik Tangelder (Eight Media), MIT License, http://www.opensource.org/licenses/MIT
 
+Animate on scroll.js, https://hammerjs.github.io/
+Copyright (c) 2015 Michał Sajnóg, MIT License, http://www.opensource.org/licenses/MIT
+
+Parallax.js, https://github.com/wagerfield/parallax
+Matthew Wagerfield, René Roth, MIT License, http://www.opensource.org/licenses/MIT
 ## Images ##
 
 License: All mystock.photos images are licensed under the terms of the Creative Commons Zero, http://creativecommons.org/publicdomain/zero/1.0/, http://mystock.photos/license/
@@ -63,6 +68,8 @@ demo-preview-images/img/8.jpg - http://mystock.photos/pidgeons/
 demo-preview-images/img/9.jpg - http://mystock.photos/thinking-time/
 demo-preview-images/img/10.jpg - http://mystock.photos/london-eye-2/
 
+assets/parallax/img/background1.jpg - https://unsplash.com/photos/d19by2PLaPc
+assets/parallax/img/background2.png - https://unsplash.com/photos/hv5pLutRkCI
 
 # Changelog  #
 

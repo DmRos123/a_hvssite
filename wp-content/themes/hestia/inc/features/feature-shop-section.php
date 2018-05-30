@@ -14,7 +14,7 @@
  */
 function hestia_shop_customize_register( $wp_customize ) {
 
-	if ( ! class_exists( 'WooCommerce' ) ) {
+	if ( ! hestia_woocommerce_check() ) {
 		return;
 	}
 
@@ -61,7 +61,7 @@ function hestia_shop_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_shop_title', array(
 			'default'           => esc_html__( 'Products', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -77,7 +77,7 @@ function hestia_shop_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_shop_subtitle', array(
 			'default'           => esc_html__( 'Change this subtitle in the Customizer', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -124,33 +124,8 @@ function hestia_register_shop_partials( $wp_customize ) {
 	}
 
 	$wp_customize->selective_refresh->add_partial(
-		'hestia_shop_hide', array(
-			'selector'            => '.products:not(.is-shortcode)',
-			'render_callback'     => 'hestia_shop',
-			'container_inclusive' => true,
-			'fallback_refresh'    => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_shop_title', array(
-			'selector'         => '.products .hestia-title',
-			'render_callback'  => 'hestia_shop_title_callback',
-			'fallback_refresh' => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_shop_subtitle', array(
-			'selector'         => '.products .description',
-			'render_callback'  => 'hestia_shop_subtitle_callback',
-			'fallback_refresh' => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
 		'hestia_shop_items', array(
-			'selector'            => '.hestia-shop-content',
+			'selector'            => '.hestia-shop .hestia-shop-content',
 			'render_callback'     => 'hestia_shop_content',
 			'container_inclusive' => true,
 		)
@@ -158,26 +133,3 @@ function hestia_register_shop_partials( $wp_customize ) {
 
 }
 add_action( 'customize_register', 'hestia_register_shop_partials' );
-
-
-/**
- * Callback functions for selective refresh.
- * =========================================
- */
-/**
- * Render callback function for products section title selective refresh
- *
- * @return string
- */
-function hestia_shop_title_callback() {
-	return get_theme_mod( 'hestia_shop_title' );
-}
-
-/**
- * Render callback function for products section subtitle selective refresh
- *
- * @return string
- */
-function hestia_shop_subtitle_callback() {
-	return get_theme_mod( 'hestia_shop_subtitle' );
-}

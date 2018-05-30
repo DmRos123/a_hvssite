@@ -14,10 +14,22 @@
  * @return bool
  */
 function hestia_isprevdem() {
+
 	$ti_theme     = wp_get_theme();
 	$theme_name   = $ti_theme->get( 'TextDomain' );
 	$active_theme = hestia_get_raw_option( 'template' );
-	return apply_filters( 'hestia_isprevdem', ( $active_theme != strtolower( $theme_name ) && ! is_child_theme() ) );
+
+	if ( is_child_theme() ) {
+
+		$theme_name = get_option( 'stylesheet' );
+
+		$template_name   = $ti_theme->get( 'Template' );
+		$stylesheet_name = hestia_get_raw_option( 'stylesheet' );
+
+		return apply_filters( 'hestia_isprevdem', ( ( $active_theme != strtolower( $theme_name ) ) && ( $template_name == $stylesheet_name ) ) );
+	}
+
+	return apply_filters( 'hestia_isprevdem', $active_theme != strtolower( $theme_name ) );
 }
 
 /**

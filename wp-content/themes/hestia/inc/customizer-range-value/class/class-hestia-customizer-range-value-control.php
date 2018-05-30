@@ -163,7 +163,7 @@ class Hestia_Customizer_Range_Value_Control extends WP_Customize_Control {
 	 * @access public
 	 */
 	protected function content_template() {
-	?>
+		?>
 		<# if ( data.label ) { #>
 			<span class="customize-control-title">
 				<span>{{{ data.label }}}</span>
@@ -172,7 +172,7 @@ class Hestia_Customizer_Range_Value_Control extends WP_Customize_Control {
 				<# } #>
 			</span>
 			<# if ( data.media_query ) { #>
-				<ul class="responsive-switchers" data-plm="<# if( data.mobile ){ #> {{{data.mobile.min }}} <# } #>">
+				<ul class="responsive-switchers">
 					<li class="desktop">
 						<button type="button" class="preview-desktop active" data-device="desktop">
 							<i class="dashicons dashicons-desktop"></i>
@@ -235,7 +235,7 @@ class Hestia_Customizer_Range_Value_Control extends WP_Customize_Control {
 		<div class="range-slider <# if ( data.media_query ) { #>has-media-queries<# }#>">
 			<div class="desktop-range active">
 				<input type="range" class="range-slider__range" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" data-query="desktop" data-default="{{default_value}}" value="{{ value }}">
-				<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> + <# } #>{{ value }}">
+				<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> +<# } #>{{ value }}">
 				<span class="range-reset-slider"><span class="dashicons dashicons-image-rotate"></span></span>
 			</div>
 			<# if ( data.media_query ) {
@@ -264,10 +264,9 @@ class Hestia_Customizer_Range_Value_Control extends WP_Customize_Control {
 				#>
 				<div class="tablet-range">
 					<input type="range" class="range-slider__range" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" data-query="tablet" data-default="{{default_value}}"  value="{{ value }}">
-					<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> + <# } #>{{ value }}">
+					<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> +<# } #>{{ value }}">
 					<span class="range-reset-slider"><span class="dashicons dashicons-image-rotate"></span></span>
 				</div>
-
 				<# if( data.mobile ){
 					if ( data.mobile.min ){
 						min = data.mobile.min;
@@ -281,18 +280,17 @@ class Hestia_Customizer_Range_Value_Control extends WP_Customize_Control {
 					if ( data.mobile.default_value ){
 						default_value = data.mobile.default_value;
 					}
-
-					if( data.mobile_value ){
-						value = data.mobile_value;
-					} else {
-						if( default_value ) {
-							value = default_value;
-						}
+				}
+				if( data.mobile_value ){
+					value = data.mobile_value;
+				} else {
+					if( default_value ) {
+						value = default_value;
 					}
-				} #>
+				}#>
 				<div class="mobile-range">
 					<input type="range" class="range-slider__range" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" data-query="mobile" data-default="{{default_value}}" value="{{ value }}">
-					<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> + <# } #>{{ value }}">
+					<input type="{{input_type}}" class="range-slider-value" title="{{{data.label}}}" min="{{min}}" max="{{max}}" step="{{step}}" value="<# if( data.sum_type === true && value >= 0 ){ #> +<# } #>{{ value }}">
 					<span class="range-reset-slider"><span class="dashicons dashicons-image-rotate"></span></span>
 				</div>
 			<# } #>

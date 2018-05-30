@@ -22,7 +22,7 @@ function hestia_contact_customize_register( $wp_customize ) {
 				$wp_customize, 'hestia_contact', array(
 					'title'          => esc_html__( 'Contact', 'hestia' ),
 					'panel'          => 'hestia_frontpage_sections',
-					'priority'       => apply_filters( 'hestia_section_priority', 55, 'hestia_contact' ),
+					'priority'       => apply_filters( 'hestia_section_priority', 65, 'hestia_contact' ),
 					'hiding_control' => 'hestia_contact_hide',
 				)
 			)
@@ -75,7 +75,7 @@ function hestia_contact_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_contact_title', array(
 			'default'           => esc_html__( 'Get in Touch', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -91,7 +91,7 @@ function hestia_contact_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_contact_subtitle', array(
 			'default'           => esc_html__( 'Change this subtitle in the Customizer', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -185,33 +185,8 @@ function hestia_register_contact_partials( $wp_customize ) {
 	}
 
 	$wp_customize->selective_refresh->add_partial(
-		'hestia_contact_hide', array(
-			'selector'            => '.contactus:not(.is-shortcode)',
-			'render_callback'     => 'hestia_contact',
-			'container_inclusive' => true,
-			'fallback_refresh'    => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_contact_title', array(
-			'selector'        => '.contactus h2.hestia-title',
-			'settings'        => 'hestia_contact_title',
-			'render_callback' => 'hestia_contact_title_callback',
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_contact_subtitle', array(
-			'selector'        => '.contactus .col-md-5 > h5.description',
-			'settings'        => 'hestia_contact_subtitle',
-			'render_callback' => 'hestia_contact_subtitle_callback',
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
 		'hestia_contact_area_title', array(
-			'selector'        => '.contactus .card-contact .card-title',
+			'selector'        => '.contactus .card-contact .card-title, .contactus .pirate-forms-placeholder .hestia-title',
 			'settings'        => 'hestia_contact_area_title',
 			'render_callback' => 'hestia_contact_area_title_callback',
 		)
@@ -226,14 +201,6 @@ function hestia_register_contact_partials( $wp_customize ) {
 	);
 
 	$wp_customize->selective_refresh->add_partial(
-		'hestia_contact_background', array(
-			'selector'        => '.contact-image',
-			'settings'        => 'hestia_contact_background',
-			'render_callback' => 'hestia_contact_image_callback',
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
 		'hestia_contact_info', array(
 			'selector' => '.contactus div.pirate-forms-placeholder h4.placeholder-text',
 			'settings' => 'hestia_contact_info',
@@ -241,28 +208,6 @@ function hestia_register_contact_partials( $wp_customize ) {
 	);
 }
 add_action( 'customize_register', 'hestia_register_contact_partials' );
-
-/**
- * Render callback function for contact section title selective refresh
- *
- * @since 1.1.31
- * @access public
- * @return string
- */
-function hestia_contact_title_callback() {
-	return get_theme_mod( 'hestia_contact_title' );
-}
-
-/**
- * Render callback function for contact section subtitle selective refresh
- *
- * @since 1.1.31
- * @access public
- * @return string
- */
-function hestia_contact_subtitle_callback() {
-	return get_theme_mod( 'hestia_contact_subtitle' );
-}
 
 /**
  * Render callback function for contact section contact area title selective refresh
@@ -315,7 +260,7 @@ function hestia_contact_form_placeholder() {
 <div class="col-md-5 col-md-offset-2 pirate-forms-placeholder">
     <div class="card card-contact">
         <div class="header header-raised header-primary text-center">
-            <h4 class="hestia-title">' . esc_html__( 'Contact', 'hestia' ) . '</h4>
+            <h4 class="hestia-title">' . esc_html__( 'Contact Us', 'hestia' ) . '</h4>
         </div>
         <div class="pirate-forms-placeholder-overlay">
         	<div class="pirate-forms-placeholder-align">
@@ -344,7 +289,7 @@ function hestia_contact_form_placeholder() {
                 <div class="col-sm-12 col-lg-12 form_field_wrap contact_message_wrap">
     					<textarea id="pirate-forms-contact-message" required="" class="form-control" placeholder="Your message"></textarea>
                     </div>
-                <div class="col-xs-12 col-sm-6 col-lg-6 form_field_wrap contact_submit_wrap">
+                <div class="col-xs-12 form_field_wrap contact_submit_wrap">
 					    <button id="pirate-forms-contact-submit" class="pirate-forms-submit-button" type="submit">Send Message</button>
                     </div>
                 <div class="pirate_forms_clearfix"></div>

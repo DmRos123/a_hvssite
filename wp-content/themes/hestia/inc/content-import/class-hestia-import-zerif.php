@@ -56,6 +56,8 @@ class Hestia_Import_Zerif extends Hestia_Import_Utilities {
 		'hestia_general_credits'       => 'zerif_copyright',
 		'hestia_blog_title'            => 'zerif_latestnews_title',
 		'hestia_blog_subtitle'         => 'zerif_latestnews_subtitle',
+		'hestia_parallax_layer1'       => 'zerif_parallax_img1',
+		'hestia_parallax_layer2'       => 'zerif_parallax_img2',
 	);
 
 	/**
@@ -172,6 +174,19 @@ class Hestia_Import_Zerif extends Hestia_Import_Utilities {
 	private function import_zerif_header() {
 		// This is the main structure of a slide. In zerif all slides have same content but different background.
 		$main_slide = array();
+
+		/**
+		 * Slider type
+		 */
+		$slider_type = get_theme_mod( 'hestia_slider_type' );
+		if ( ! empty( $this->previous_theme_content['zerif_parallax_show'] ) && empty( $slider_type ) ) {
+			if ( $this->previous_theme_content['zerif_parallax_show'] ) {
+				set_theme_mod( 'hestia_slider_type', 'parallax' );
+			} else {
+				set_theme_mod( 'hestia_slider_type', 'video' );
+			}
+		}
+
 		if ( ! empty( $this->previous_theme_content['zerif_bigtitle_title'] ) ) {
 			$main_slide['title'] = wp_kses_post( $this->previous_theme_content['zerif_bigtitle_title'] );
 		} elseif ( ! empty( $this->previous_theme_content['zerif_bigtitle_title_2'] ) ) {

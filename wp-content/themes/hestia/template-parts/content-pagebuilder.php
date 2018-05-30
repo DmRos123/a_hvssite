@@ -8,6 +8,6 @@
  * @since Hestia 1.1.24
  * @author Themeisle
  */ ?>
-<article id="post-<?php the_ID(); ?>" class="section section-text pagebuilder-section">
+<article id="post-<?php the_ID(); ?>" class="section pagebuilder-section">
 	<?php the_content(); ?>
 </article>

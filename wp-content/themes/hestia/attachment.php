@@ -8,11 +8,11 @@
 
 get_header();
 ?>
-	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small">
+	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small" data-parallax="active">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1 text-center">
-					<?php single_post_title( '<h1 class="hestia-title">', '</h1>' ); ?>
+					<h1 class="hestia-title"><?php single_post_title(); ?></h1>
 					<h4 class="author">
 						<?php
 						printf(
@@ -46,7 +46,7 @@ get_header();
 			if ( have_posts() ) :
 				while ( have_posts() ) :
 					the_post();
-?>
+					?>
 
 				<div class="entry-attachment section section-text">
 					<?php
@@ -66,13 +66,13 @@ get_header();
 						<?php
 
 						if ( wp_attachment_is_image( get_the_ID() ) ) {
-						?>
+							?>
 					<div class="image-meta">
-						<?php
-						echo '<i class="fa fa-camera"></i> ';
-						/* translators: %s is Image sizes for attachment single page. */
-						printf( esc_html__( 'Size: %s', 'hestia' ), hestia_get_image_sizes() );
-						?>
+							<?php
+							echo '<i class="fa fa-camera"></i> ';
+							/* translators: %s is Image sizes for attachment single page. */
+							printf( esc_html__( 'Size: %s', 'hestia' ), hestia_get_image_sizes() );
+							?>
 					</div>
 				<?php } ?>
 									</p>

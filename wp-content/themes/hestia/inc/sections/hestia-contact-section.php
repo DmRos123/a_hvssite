@@ -18,19 +18,23 @@ if ( ! function_exists( 'hestia_contact' ) ) :
 	 */
 	function hestia_contact( $is_shortcode = false ) {
 
-		// When this function is called from selective refresh, $is_shortcode gets the value of WP_Customize_Selective_Refresh object. We don't need that.
-		if ( ! is_bool( $is_shortcode ) ) {
-			$is_shortcode = false;
-		}
-
-		$hide_section = get_theme_mod( 'hestia_contact_hide', false );
+		/**
+		 * Don't show section if Disable section is checked.
+		 * Show it if it's called as a shortcode.
+		 */
+		$hide_section  = get_theme_mod( 'hestia_contact_hide', false );
+		$section_style = '';
 		if ( $is_shortcode === false && (bool) $hide_section === true ) {
 			if ( is_customize_preview() ) {
-				echo '<section class="contactus section-image" id="contact" data-sorder="hestia_contact" style="display: none"></section>';
+				$section_style .= 'display: none;';
+			} else {
+				return;
 			}
-			return;
 		}
 
+		/**
+		 * Gather data to display the section.
+		 */
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			/* translators: 1 - link to customizer setting. 2 - 'customizer' */
 			$hestia_contact_subtitle = get_theme_mod( 'hestia_contact_subtitle', sprintf( __( 'Change this subtitle in %s.', 'hestia' ), sprintf( '<a href="%1$s" class="default-link">%2$s</a>', esc_url( admin_url( 'customize.php?autofocus&#91;control&#93;=hestia_contact_subtitle' ) ), __( 'customizer', 'hestia' ) ) ) );
@@ -40,33 +44,52 @@ if ( ! function_exists( 'hestia_contact' ) ) :
 		$hestia_contact_title      = get_theme_mod( 'hestia_contact_title', esc_html__( 'Get in Touch', 'hestia' ) );
 		$hestia_contact_area_title = get_theme_mod( 'hestia_contact_area_title', esc_html__( 'Contact Us', 'hestia' ) );
 
-		hestia_before_contact_section_trigger();
+		$hestia_contact_background = get_theme_mod( 'hestia_contact_background', apply_filters( 'hestia_contact_background_default', get_template_directory_uri() . '/assets/img/contact.jpg' ) );
+		if ( ! empty( $hestia_contact_background ) ) {
+			$section_style .= 'background-image: url(' . esc_url( $hestia_contact_background ) . ');';
+		}
+		$section_style = 'style="' . $section_style . '"';
 
-		$wrapper_class = $is_shortcode === true ? 'is-shortcode' : '';
-		?>
-		<section class="contactus section-image <?php echo esc_attr( $wrapper_class ); ?>" id="contact" data-sorder="hestia_contact" style="background-image: url('<?php echo get_theme_mod( 'hestia_contact_background', apply_filters( 'hestia_contact_background_default', get_template_directory_uri() . '/assets/img/contact.jpg' ) ); ?>')">
+		/**
+		 * In case this function is called as shortcode, we remove the container and we add 'is-shortcode' class.
+		 */
+		$class_to_add  = $is_shortcode === true ? 'is-shortcode' : '';
+		$class_to_add .= ! empty( $hestia_contact_background ) ? 'section-image' : '';
+
+		hestia_before_contact_section_trigger(); ?>
+		<section class="hestia-contact contactus <?php echo esc_attr( $class_to_add ); ?>" id="contact" data-sorder="hestia_contact" <?php echo wp_kses_post( $section_style ); ?>>
 			<?php
-			if ( is_customize_preview() ) {
-			?>
-				<div class="contact-image"></div>
-				<?php
-			}
-
 			hestia_before_contact_section_content_trigger();
+			if ( $is_shortcode === false ) {
+				hestia_display_customizer_shortcut( 'hestia_contact_hide', true );
+			}
 			?>
 			<div class="container">
 				<?php hestia_top_contact_section_content_trigger(); ?>
 				<div class="row">
-					<div class="col-md-5">
-						<?php if ( ! empty( $hestia_contact_title ) || is_customize_preview() ) : ?>
-							<h2 class="hestia-title"><?php echo esc_html( $hestia_contact_title ); ?></h2>
+					<div class="col-md-5 hestia-contact-title-area" <?php echo hestia_add_animationation( 'fade-right' ); ?>>
+						<?php
+						hestia_display_customizer_shortcut( 'hestia_contact_title' );
+						if ( ! empty( $hestia_contact_title ) || is_customize_preview() ) :
+							?>
+							<h2 class="hestia-title"><?php echo wp_kses_post( $hestia_contact_title ); ?></h2>
 						<?php endif; ?>
 						<?php if ( ! empty( $hestia_contact_subtitle ) || is_customize_preview() ) : ?>
-							<h5 class="description"><?php echo wp_kses_post( $hestia_contact_subtitle ); ?></h5>
+							<h5 class="description"><?php echo hestia_sanitize_string( $hestia_contact_subtitle ); ?></h5>
 						<?php endif; ?>
 						<?php
 
-						$hestia_contact_content = get_theme_mod( 'hestia_contact_content_new', hestia_contact_get_old_content( 'hestia_contact_content' ) );
+						/**
+						 * Get the default value for the Contact Content option
+						 * This first tries to get the old value ( we made some changes at some point ) and if that if empty, get the new default value
+						 */
+						$contact_content_default = hestia_contact_get_old_content( 'hestia_contact_content' );
+
+						if ( empty( $contact_content_default ) && current_user_can( 'edit_theme_options' ) ) {
+							$contact_content_default = hestia_contact_content_default();
+						}
+
+						$hestia_contact_content = get_theme_mod( 'hestia_contact_content_new', wp_kses_post( $contact_content_default ) );
 						if ( ! empty( $hestia_contact_content ) ) {
 							echo '<div class="hestia-description">';
 								echo wp_kses_post( $hestia_contact_content );
@@ -80,7 +103,7 @@ if ( ! function_exists( 'hestia_contact' ) ) :
 					$hestia_contact_form_shortcode         = get_theme_mod( 'hestia_contact_form_shortcode', $hestia_contact_form_shortcode_default );
 					if ( defined( 'PIRATE_FORMS_VERSION' ) || ( $hestia_contact_form_shortcode != $hestia_contact_form_shortcode_default ) ) {
 						?>
-							<div class="col-md-5 col-md-offset-2">
+							<div class="col-md-5 col-md-offset-2 hestia-contact-form-col" <?php echo hestia_add_animationation( 'fade-left' ); ?>>
 								<div class="card card-contact">
 									<?php if ( ! empty( $hestia_contact_area_title ) || is_customize_preview() ) : ?>
 										<div class="header header-raised header-primary text-center">
@@ -103,7 +126,7 @@ if ( ! function_exists( 'hestia_contact' ) ) :
 					} elseif ( is_customize_preview() ) {
 						hestia_contact_form_placeholder();
 					}
-?>
+					?>
 				</div>
 				<?php hestia_bottom_contact_section_content_trigger(); ?>
 			</div>

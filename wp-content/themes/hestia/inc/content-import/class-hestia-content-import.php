@@ -192,6 +192,10 @@ final class Hestia_Content_Import {
 					// Blog section
 					'hestia_blog_title'           => 'parallax_one_latest_news_title',
 
+					// Parallax
+					'hestia_parallax_layer1'      => 'paralax_one_first_layer',
+					'hestia_parallax_layer2'      => 'paralax_one_second_layer',
+
 				);
 				$this->simple_theme_mods = array_merge( $this->simple_theme_mods, $theme_exceptions );
 				break;
@@ -247,6 +251,18 @@ final class Hestia_Content_Import {
 		$clients_hide = get_theme_mod( 'hestia_clients_bar_hide' );
 		if ( ! empty( $this->previous_theme_content[ $prefix . 'logos_content' ] ) && empty( $clients_hide ) ) {
 			set_theme_mod( 'hestia_clients_bar_hide', false );
+		}
+
+		/**
+		 * Slider type
+		 */
+		$slider_type = get_theme_mod( 'hestia_slider_type' );
+		if ( ! empty( $this->previous_theme_content[ $prefix . 'enable_move' ] ) && empty( $slider_type ) ) {
+			if ( $this->previous_theme_content[ $prefix . 'enable_move' ] ) {
+				set_theme_mod( 'hestia_slider_type', 'parallax' );
+			} else {
+				set_theme_mod( 'hestia_slider_type', 'video' );
+			}
 		}
 
 		/**
@@ -451,6 +467,7 @@ final class Hestia_Content_Import {
 		/* Set fonts */
 		set_theme_mod( 'hestia_headings_font', 'Cabin' );
 		set_theme_mod( 'hestia_body_font', 'Cabin' );
+		set_theme_mod( 'hestia_general_layout', false );
 
 		/* Set default color */
 		set_theme_mod( 'accent_color', '#be5000' );
@@ -476,22 +493,14 @@ final class Hestia_Content_Import {
 		/* Set fonts */
 		set_theme_mod( 'hestia_headings_font', 'Cabin' );
 		set_theme_mod( 'hestia_body_font', 'Cabin' );
+		set_theme_mod( 'hestia_general_layout', false );
 
 		/* Set default color */
 		set_theme_mod( 'accent_color', '#FFA200' );
 
 		/* Static front page settings */
 		if ( 'page' === get_option( 'show_on_front' ) ) {
-			$about_content = get_theme_mod( 'hestia_page_editor' );
-			$page_content  = ! empty( $about_content ) ? $about_content : '';
-			$page          = array(
-				'post_type'    => 'page',
-				'post_title'   => 'Front page',
-				'post_content' => wp_kses_post( $page_content ),
-				'post_status'  => 'publish',
-				'post_author'  => 1,
-			);
-			$pid           = wp_insert_post( $page );
+			$pid = $this->create_frontpage();
 			update_option( 'page_on_front', $pid );
 		}
 	}
@@ -506,6 +515,7 @@ final class Hestia_Content_Import {
 		/* Set fonts */
 		set_theme_mod( 'hestia_headings_font', 'Cabin' );
 		set_theme_mod( 'hestia_body_font', 'Cabin' );
+		set_theme_mod( 'hestia_general_layout', false );
 
 		/* Set default color */
 		set_theme_mod( 'accent_color', '#008ed6' );
@@ -519,18 +529,27 @@ final class Hestia_Content_Import {
 
 		/* Static front page settings */
 		if ( 'posts' === get_option( 'show_on_front' ) ) {
-			$about_content = get_theme_mod( 'hestia_page_editor' );
-			$page_content  = ! empty( $about_content ) ? $about_content : '';
-			$page          = array(
-				'post_type'    => 'page',
-				'post_title'   => 'Front page',
-				'post_content' => wp_kses_post( $page_content ),
-				'post_status'  => 'publish',
-				'post_author'  => 1,
-			);
-			$pid           = wp_insert_post( $page );
+			$pid = $this->create_frontpage();
 			update_option( 'show_on_front', 'page' );
 			update_option( 'page_on_front', $pid );
 		}
+	}
+
+	/**
+	 * Create the frontpage from previous themes ( azera/llorix/paralax) and returns its id.
+	 */
+	private function create_frontpage() {
+		$about_content = get_theme_mod( 'hestia_page_editor' );
+		$page_content  = ! empty( $about_content ) ? $about_content : '';
+		$page          = array(
+			'post_type'    => 'page',
+			'post_title'   => 'Front page',
+			'post_content' => wp_kses_post( $page_content ),
+			'post_status'  => 'publish',
+			'post_author'  => 1,
+		);
+		$pid           = wp_insert_post( $page );
+
+		return $pid;
 	}
 }

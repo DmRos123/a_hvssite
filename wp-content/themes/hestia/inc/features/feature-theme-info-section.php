@@ -53,10 +53,11 @@ function hestia_theme_info_customize_register( $wp_customize ) {
 					esc_html__( 'Change colors for the header overlay, header text and navbar.', 'hestia' ),
 					esc_html__( 'Portfolio section with two possible layouts.', 'hestia' ),
 					esc_html__( 'A fully customizable pricing plans section.', 'hestia' ),
+					esc_html__( 'Drag and drop panels to change the order of sections.', 'hestia' ),
 					esc_html__( 'The ability to reorganize your Frontpage Sections more easily and quickly.', 'hestia' ),
 					esc_html__( '24/7 HelpDesk Professional Support', 'hestia' ),
 				),
-				'button_url'         => esc_url( 'https://themeisle.com/themes/hestia-pro/upgrade/' ),
+				'button_url'         => esc_url( apply_filters( 'hestia_upgrade_link_from_child_theme_filter', 'https://themeisle.com/themes/hestia-pro/upgrade/' ) ),
 				'button_text'        => esc_html__( 'Get the PRO version!', 'hestia' ),
 			)
 		)

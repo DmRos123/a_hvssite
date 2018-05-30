@@ -77,7 +77,12 @@ class Hestia_Plugin_Install_Helper {
 						), network_admin_url( 'plugins.php' )
 					);
 
-					$button .= '<a data-slug="' . $slug . '" class="activate-now button button-primary" href="' . esc_url( $nonce ) . '" aria-label="Activate ' . $slug . '">' . __( 'Activate', 'hestia' ) . '</a>';
+					$button .= '<a data-slug="' . $slug . '" class="activate-now button button-primary" href="' . esc_url( $nonce ) . '" aria-label="Activate ' . $slug . '">' . esc_html__( 'Activate', 'hestia' ) . '</a>';
+					break;
+
+				case 'enable_cpt':
+					$url     = admin_url( 'admin.php?page=jetpack#/settings' );
+					$button .= '<a  class="button" href="' . esc_url( $url ) . '">' . esc_html__( 'Activate', 'hestia' ) . ' ' . esc_html__( 'Jetpack Portfolio', 'hestia' ) . '</a>';
 					break;
 			}// End switch().
 			$button .= '</div>';
@@ -96,7 +101,9 @@ class Hestia_Plugin_Install_Helper {
 	private function check_plugin_state( $slug ) {
 		if ( file_exists( ABSPATH . 'wp-content/plugins/' . $slug . '/' . $slug . '.php' ) || file_exists( ABSPATH . 'wp-content/plugins/' . $slug . '/index.php' ) ) {
 			$needs = ( is_plugin_active( $slug . '/' . $slug . '.php' ) || is_plugin_active( $slug . '/index.php' ) || is_plugin_active( $slug . '/sendinblue.php' ) ) ? 'deactivate' : 'activate';
-
+			if ( $needs === 'deactivate' && ! post_type_exists( 'portfolio' ) && $slug === 'jetpack' ) {
+				return 'enable_cpt';
+			}
 			return $needs;
 		} else {
 			return 'install';

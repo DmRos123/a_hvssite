@@ -105,7 +105,7 @@ wp.customize.controlConstructor['range-value'] = wp.customize.Control.extend(
 
 						// Panel footer buttons
 						$footer_devices.find( 'button' ).removeClass( 'active' ).attr( 'aria-pressed', false );
-						$footer_devices.find( 'button.preview-' + $device ).addClass( 'active' ).attr( 'aria-pressed', true );
+						$footer_devices.find( 'button.preview-' + $device ).trigger('click');
 
 					}
 				);
@@ -115,6 +115,11 @@ wp.customize.controlConstructor['range-value'] = wp.customize.Control.extend(
 						event.preventDefault();
 						var device  = jQuery( this ).data( 'device' );
 						var queries = jQuery( '.responsive-switchers' );
+						if( device !== 'desktop'){
+                            queries.addClass( 'responsive-switchers-open' );
+						} else {
+                            queries.removeClass( 'responsive-switchers-open' );
+						}
 
 						queries.find( 'button' ).removeClass( 'active' );
 						queries.find( 'button.preview-' + device ).addClass( 'active' );
@@ -130,7 +135,7 @@ wp.customize.controlConstructor['range-value'] = wp.customize.Control.extend(
 
 			theme_controls.unbind().on(
 				'click', '.preview-desktop.active', function () {
-					jQuery( this ).parent().parent().toggleClass( 'responsive-switchers-open' );
+					jQuery( '.responsive-switchers' ).toggleClass( 'responsive-switchers-open' );
 				}
 			);
 

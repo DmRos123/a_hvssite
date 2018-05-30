@@ -10,22 +10,20 @@
  */
 
 get_header();
-?>
-<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1 text-center">
-				<?php single_post_title( '<h1 class="hestia-title">', '</h1>' ); ?>
-			</div>
-		</div>
-	</div>
-	<?php hestia_output_wrapper_header_background( false ); ?>
-</div>
+
+/**
+ * Don't display page header if header layout is set as classic blog.
+ */
+$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+if ( $hestia_header_layout !== 'classic-blog' ) {
+	hestia_display_page_header();
+} ?>
+
 </header>
 <div class="<?php echo hestia_layout(); ?>">
 	<?php
 	$class_to_add = '';
-	if ( class_exists( 'WooCommerce' ) && ! is_cart() ) {
+	if ( hestia_woocommerce_check() && ! is_cart() ) {
 		$class_to_add = 'blog-post-wrapper';
 	}
 	?>

@@ -14,24 +14,25 @@
  * @modified 1.1.30
  */
 
-$default_blog_layout        = hestia_sidebar_on_single_post_get_default();
-$hestia_blog_sidebar_layout = get_theme_mod( 'hestia_blog_sidebar_layout', $default_blog_layout );
-
-$args                 = array(
-	'sidebar-right' => 'col-md-8 archive-post-wrap',
-	'sidebar-left'  => 'col-md-8 archive-post-wrap',
-	'full-width'    => 'col-md-10 col-md-offset-1 archive-post-wrap',
-);
-$hestia_sidebar_width = get_theme_mod( 'hestia_sidebar_width', 25 );
-if ( $hestia_sidebar_width > 3 && $hestia_sidebar_width < 80 ) {
-	$args['sidebar-left'] .= ' col-md-offset-1';
-}
-
-$class_to_add = hestia_get_content_classes( $hestia_blog_sidebar_layout, 'sidebar-1', $args );
-
 get_header();
-?>
-	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small">
+
+
+	$default_blog_layout        = hestia_sidebar_on_single_post_get_default();
+	$hestia_blog_sidebar_layout = get_theme_mod( 'hestia_blog_sidebar_layout', $default_blog_layout );
+
+	$args                 = array(
+		'sidebar-right' => 'col-md-8 archive-post-wrap',
+		'sidebar-left'  => 'col-md-8 archive-post-wrap',
+		'full-width'    => 'col-md-10 col-md-offset-1 archive-post-wrap',
+	);
+	$hestia_sidebar_width = get_theme_mod( 'hestia_sidebar_width', 25 );
+	if ( $hestia_sidebar_width > 3 && $hestia_sidebar_width < 80 ) {
+		$args['sidebar-left'] .= ' col-md-offset-1';
+	}
+
+	$class_to_add = hestia_get_content_classes( $hestia_blog_sidebar_layout, 'sidebar-1', $args );
+	?>
+	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small" data-parallax="active">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1 text-center">
@@ -66,6 +67,7 @@ get_header();
 					?>
 				</div>
 				<?php
+
 				if ( $hestia_blog_sidebar_layout === 'sidebar-right' ) {
 					get_sidebar();
 				}
@@ -73,4 +75,5 @@ get_header();
 			</div>
 		</div>
 	</div>
-	<?php get_footer(); ?>
+	<?php
+	get_footer(); ?>

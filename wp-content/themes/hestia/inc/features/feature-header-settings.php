@@ -28,7 +28,38 @@ function hestia_header_customize_register( $wp_customize ) {
 	if ( ! empty( $header_image_section ) ) {
 		$header_image_section->panel    = 'hestia_header_options';
 		$header_image_section->priority = 20;
+		$header_image_section->title    = esc_html__( 'Header Settings', 'hestia' );
 	}
+
+	/**
+	 * Move header image control lower in the section.
+	 */
+	$header_image_control = $wp_customize->get_control( 'header_image' );
+	if ( ! empty( $header_image_control ) ) {
+		$header_image_control->priority = 15;
+	}
+
+	$header_image_data_control = $wp_customize->get_control( 'header_image_data' );
+	if ( ! empty( $header_image_data_control ) ) {
+		$header_image_data_control->priority = 20;
+	}
+
+	// Use Header Image Site-wide.
+	$wp_customize->add_setting(
+		'hestia_header_image_sitewide', array(
+			'sanitize_callback' => 'hestia_sanitize_checkbox',
+			'default'           => false,
+		)
+	);
+
+	$wp_customize->add_control(
+		'hestia_header_image_sitewide', array(
+			'type'     => 'checkbox',
+			'label'    => esc_html__( 'Enable Header Image Sitewide', 'hestia' ),
+			'section'  => 'header_image',
+			'priority' => 25,
+		)
+	);
 
 	/**
 	 * Top bar section.
@@ -154,13 +185,13 @@ function hestia_header_customize_register( $wp_customize ) {
 					'section'  => 'hestia_navigation',
 					'choices'  => array(
 						'left'   => array(
-							'url' => trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/default-header.png',
+							'url' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAADFBMVEX////V1dUAhbo+yP8aB7nsAAAARklEQVRYhWNgGEGA/z8EHKC+MqZVq1ah4xGtjOLgHQWjYBSMgmENREOxgoDhp2xkASIDYxgoGwUUACJDdlTZKBgFo2DAAAAZAflVkm2NtwAAAABJRU5ErkJggg==',
 						),
 						'center' => array(
-							'url' => trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/center-header.png',
+							'url' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqAgMAAAAjP0ATAAAADFBMVEX////V1dUAhbo+yP8aB7nsAAAARElEQVRYR2NgGKngPwT8GVU2BJQNb6C1atUCfHjEKRsFo2BEANFQrCBg+CkbWYDIwBgGykYBBYDIkB1VNgpGwSgYMAAAzIYr4wYj4sEAAAAASUVORK5CYII=',
 						),
 						'right'  => array(
-							'url' => trailingslashit( get_template_directory_uri() ) . 'inc/customizer-radio-image/img/widget-header.png',
+							'url' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqBAMAAACsf7WzAAAAD1BMVEX////V1dXF7v8Ahbo+yP+vNfjRAAAAWUlEQVR42u3TsQ2AMAxFQRAswAaIFViB/WeKlI4KgUJMwl3j7lXfA3+xXVvfas3HmZaWVtw/1mrRjmnPnl6tDlsAEcblFq2PtuhLyS1oxbWgjpIL1dICgEYlsKfbvyzuWeMAAAAASUVORK5CYII=',
 						),
 					),
 				)
@@ -183,7 +214,43 @@ function hestia_header_customize_register( $wp_customize ) {
 		}
 	}
 
+	/**
+	 * Customize control for header layout.
+	 */
+	if ( class_exists( 'Hestia_Customize_Control_Radio_Image' ) ) {
+
+		$sidebar_choices = apply_filters(
+			'hestia_header_layout_choices', array(
+				'default'    => array(
+					'url' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqBAMAAACsf7WzAAAAD1BMVEU+yP/////Y9P/G7//V1dUbjhlcAAAAW0lEQVR4Ae3SAQmAYAyE0V9NMDCBCQxh/0wKGGCAIJ7vC3DA28ZvkjRVo49vzVujoeYFbF15i32pu4CtlCTVc+Vu2VqPRi9ssWfPnj179uzZs2fPnj179uwzt07LZ+4ImOW7JwAAAABJRU5ErkJggg==',
+				),
+				'no-content' => array(
+					'url' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAABqBAMAAACsf7WzAAAAElBMVEU+yP////88SFhjbXl1fonV1dUUDrn8AAAAXElEQVR4Ae3SMQ2AYAyEUSwAYOC3gAJE4N8KCztNKEPT9wm44eUmSZL0b3NeXbeWEaj41noEet/yCVs+cW7jqfjW12ztV6D8Lfbs2bNnz549e/bs2bNnz559060bqAJ8azq5sAYAAAAASUVORK5CYII=',
+				),
+			)
+		);
+
+		$wp_customize->add_setting(
+			'hestia_header_layout', array(
+				'sanitize_callback' => 'sanitize_key',
+				'default'           => 'default',
+			)
+		);
+
+		$wp_customize->add_control(
+			new Hestia_Customize_Control_Radio_Image(
+				$wp_customize, 'hestia_header_layout', array(
+					'label'    => esc_html__( 'Layout', 'hestia' ),
+					'section'  => 'header_image',
+					'priority' => 10,
+					'choices'  => $sidebar_choices,
+				)
+			)
+		);
+	}
+
 }
+
 add_action( 'customize_register', 'hestia_header_customize_register' );
 
 
@@ -191,6 +258,7 @@ add_action( 'customize_register', 'hestia_header_customize_register' );
  * Add selective refresh for header section controls.
  *
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
+ *
  * @since 1.1.40
  * @access public
  */
@@ -212,6 +280,7 @@ function hestia_register_header_partials( $wp_customize ) {
 	);
 
 }
+
 add_action( 'customize_register', 'hestia_register_header_partials' );
 
 /**
@@ -234,35 +303,35 @@ function hestia_get_top_bar_style() {
 	$hestia_top_bar_background = get_theme_mod( 'hestia_top_bar_background_color', '#363537' );
 	if ( ! empty( $hestia_top_bar_background ) ) {
 		$custom_css .= '.hestia-top-bar, .hestia-top-bar .widget.widget_shopping_cart .cart_list {
-            background-color: ' . $hestia_top_bar_background . '
-        }
-        .hestia-top-bar .widget .label-floating input[type=search]:-webkit-autofill {
-            -webkit-box-shadow: inset 0 0 0px 9999px ' . $hestia_top_bar_background . '
-        }';
+			background-color: ' . $hestia_top_bar_background . '
+		}
+		.hestia-top-bar .widget .label-floating input[type=search]:-webkit-autofill {
+			-webkit-box-shadow: inset 0 0 0px 9999px ' . $hestia_top_bar_background . '
+		}';
 	}
 
 	$hestia_top_bar_text_color = get_theme_mod( 'hestia_top_bar_text_color', '#ffffff' );
 	if ( ! empty( $hestia_top_bar_background ) ) {
 		$custom_css .= '.hestia-top-bar, .hestia-top-bar .widget .label-floating input[type=search], .hestia-top-bar .widget.widget_search form.form-group:before, .hestia-top-bar .widget.widget_product_search form.form-group:before, .hestia-top-bar .widget.widget_shopping_cart:before {
-            color: ' . $hestia_top_bar_text_color . '
-        } 
-        .hestia-top-bar .widget .label-floating input[type=search]{
-            -webkit-text-fill-color:' . $hestia_top_bar_text_color . ' !important 
-        }';
+			color: ' . $hestia_top_bar_text_color . '
+		} 
+		.hestia-top-bar .widget .label-floating input[type=search]{
+			-webkit-text-fill-color:' . $hestia_top_bar_text_color . ' !important 
+		}';
 	}
 
 	$hestia_top_bar_link_color = get_theme_mod( 'hestia_top_bar_link_color', '#ffffff' );
 	if ( ! empty( $hestia_top_bar_link_color ) ) {
 		$custom_css .= '.hestia-top-bar a, .hestia-top-bar .top-bar-nav li a {
-            color: ' . $hestia_top_bar_link_color . '
-        }';
+			color: ' . $hestia_top_bar_link_color . '
+		}';
 	}
 
 	$hestia_top_bar_link_color_hover = get_theme_mod( 'hestia_top_bar_link_color_hover', '#eeeeee' );
 	if ( ! empty( $hestia_top_bar_link_color_hover ) ) {
 		$custom_css .= '.hestia-top-bar a:hover, .hestia-top-bar .top-bar-nav li a:hover {
-            color: ' . $hestia_top_bar_link_color_hover . '
-        }';
+			color: ' . $hestia_top_bar_link_color_hover . '
+		}';
 	}
 
 	return $custom_css;
@@ -277,4 +346,5 @@ function hestia_top_bar_inline_style() {
 	$custom_css = hestia_get_top_bar_style();
 	wp_add_inline_style( 'hestia_style', $custom_css );
 }
+
 add_action( 'wp_enqueue_scripts', 'hestia_top_bar_inline_style' );

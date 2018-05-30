@@ -10,21 +10,21 @@
 /**
  * About page class
  */
-require_once get_template_directory() . '/ti-about-page/class-themeisle-about-page.php';
+require_once get_template_directory() . '/ti-notifications/ti-about-page/class-themeisle-about-page.php';
 
 /*
 * About page instance
 */
 $config = array(
 	// Menu name under Appearance.
-	'menu_name'           => __( 'About Hestia', 'hestia' ),
+	'menu_name'           => apply_filters( 'hestia_about_page_filter', __( 'About Hestia', 'hestia' ), 'menu_name' ),
 	// Page title.
-	'page_name'           => __( 'About Hestia', 'hestia' ),
+	'page_name'           => apply_filters( 'hestia_about_page_filter', __( 'About Hestia', 'hestia' ), 'page_name' ),
 	// Main welcome title
 	/* translators: s - theme name */
-	'welcome_title'       => sprintf( __( 'Welcome to %s! - Version ', 'hestia' ), 'Hestia' ),
+	'welcome_title'       => apply_filters( 'hestia_about_page_filter', sprintf( __( 'Welcome to %s! - Version ', 'hestia' ), 'Hestia' ), 'welcome_title' ),
 	// Main welcome content
-	'welcome_content'     => esc_html__( 'Hestia is a modern WordPress theme for professionals. It fits creative business, small businesses (restaurants, wedding planners, sport/medical shops), startups, corporate businesses, online agencies and firms, portfolios, ecommerce (WooCommerce), and freelancers. It has a multipurpose one-page design, widgetized footer, blog/news page and a clean look, is compatible with: Flat Parallax Slider, Photo Gallery, Travel Map and Elementor Page Builder . The theme is responsive, WPML, Retina ready, SEO friendly, and uses Material Kit for design.', 'hestia' ),
+	'welcome_content'     => apply_filters( 'hestia_about_page_filter', esc_html__( 'Hestia is a modern WordPress theme for professionals. It fits creative business, small businesses (restaurants, wedding planners, sport/medical shops), startups, corporate businesses, online agencies and firms, portfolios, ecommerce (WooCommerce), and freelancers. It has a multipurpose one-page design, widgetized footer, blog/news page and a clean look, is compatible with: Flat Parallax Slider, Photo Gallery, Travel Map and Elementor Page Builder . The theme is responsive, WPML, Retina ready, SEO friendly, and uses Material Kit for design.', 'hestia' ), 'welcome_content' ),
 	/**
 	 * Tabs array.
 	 *
@@ -130,9 +130,11 @@ $config = array(
 	'free_pro'            => array(
 		'free_theme_name'     => 'Hestia',
 		'pro_theme_name'      => 'Hestia Pro',
-		'pro_theme_link'      => 'https://themeisle.com/themes/hestia-pro/upgrade/',
+		'pro_theme_link'      => apply_filters( 'hestia_upgrade_link_from_child_theme_filter', 'https://themeisle.com/themes/hestia-pro/upgrade/' ),
 		/* translators: s - theme name */
 		'get_pro_theme_label' => sprintf( __( 'Get %s now!', 'hestia' ), 'Hestia Pro' ),
+		'banner_link'         => 'http://docs.themeisle.com/article/647-what-is-the-difference-between-hestia-and-hestia-pro',
+		'banner_src'          => get_template_directory_uri() . '/assets/img/free_vs_pro_banner.png',
 		'features'            => array(
 			array(
 				'title'       => __( 'Mobile friendly', 'hestia' ),
@@ -243,7 +245,7 @@ $config = array(
 		'deactivate_label' => esc_html__( 'Deactivate', 'hestia' ),
 		'content'          => array(
 			'themeisle-companion' => array(
-				'title'       => 'ThemeIsle Companion',
+				'title'       => 'Orbit Fox Companion',
 				'description' => __( 'It is highly recommended that you install the companion plugin to have access to the Frontpage features, Team and Testimonials sections.', 'hestia' ),
 				'check'       => defined( 'THEMEISLE_COMPANION_VERSION' ),
 				'plugin_slug' => 'themeisle-companion',
@@ -259,7 +261,7 @@ $config = array(
 			'elementor'           => array(
 				'title'       => 'Elementor',
 				'description' => hestia_get_wporg_plugin_description( 'elementor' ),
-				'check'       => ( defined( 'ELEMENTOR_VERSION' ) || ! hestia_check_passed_time( '259200' ) ),
+				'check'       => ( defined( 'ELEMENTOR_VERSION' ) || ! hestia_check_passed_time( MONTH_IN_SECONDS ) ),
 				'plugin_slug' => 'elementor',
 				'id'          => 'elementor',
 			),
@@ -272,14 +274,14 @@ Themeisle_About_Page::init( apply_filters( 'hestia_about_page_array', $config ) 
 /*
  * Notifications in customize
  */
-require get_template_directory() . '/ti-customizer-notify/class-themeisle-customizer-notify.php';
+require get_template_directory() . '/ti-notifications/ti-customizer-notify/class-themeisle-customizer-notify.php';
 
 $config_customizer = array(
 	'recommended_plugins'       => array(
 		'themeisle-companion' => array(
 			'recommended' => true,
-			/* translators: s - ThemeIsle Companion */
-			'description' => sprintf( esc_html__( 'If you want to take full advantage of the options this theme has to offer, please install and activate %s.', 'hestia' ), sprintf( '<strong>%s</strong>', 'ThemeIsle Companion' ) ),
+			/* translators: s - Orbit Fox Companion */
+			'description' => sprintf( esc_html__( 'If you want to take full advantage of the options this theme has to offer, please install and activate %s.', 'hestia' ), sprintf( '<strong>%s</strong>', 'Orbit Fox Companion' ) ),
 		),
 	),
 	'recommended_actions'       => array(),

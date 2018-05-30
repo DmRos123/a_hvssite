@@ -10,6 +10,10 @@ if ( ! defined( 'ELEMENTOR_PARTNER_ID' ) ) {
 }
 
 
+define( 'ZERIF_LITE_VERSION', '1.8.5.41' );
+
+
+
 /**
  * Main setup function
  */
@@ -22,18 +26,18 @@ function zerif_setup() {
 	}
 
 	/*
-     * Make theme available for translation.
-     * Translations can be filed in the /languages/ directory.
-     * If you're building a theme based on zerif, use a find and replace
-     * to change 'zerif-lite' to the name of your theme in all the template files
-     */
+	 * Make theme available for translation.
+	 * Translations can be filed in the /languages/ directory.
+	 * If you're building a theme based on zerif, use a find and replace
+	 * to change 'zerif-lite' to the name of your theme in all the template files
+	 */
 	load_theme_textdomain( 'zerif-lite', get_template_directory() . '/languages' );
 
 	add_theme_support( 'automatic-feed-links' );
 
 	/*
-     * Enable support for Post Thumbnails on posts and pages.
-     */
+	 * Enable support for Post Thumbnails on posts and pages.
+	 */
 	add_theme_support( 'post-thumbnails' );
 
 	/* Set the image size by cropping the image */
@@ -407,7 +411,7 @@ function zerif_setup() {
 			'deactivate_label' => esc_html__( 'Deactivate', 'zerif-lite' ),
 			'content'          => array(
 				'themeisle-companion' => array(
-					'title'       => 'ThemeIsle Companion',
+					'title'       => 'Orbit Fox',
 					'description' => __( 'It is highly recommended that you install the companion plugin to have access to the frontpage sections widgets.', 'zerif-lite' ),
 					'check'       => defined( 'THEMEISLE_COMPANION_VERSION' ),
 					'plugin_slug' => 'themeisle-companion',
@@ -426,11 +430,11 @@ function zerif_setup() {
 	);
 
 	/*
-	* Add recommendation for Elementor plugin, after 5 days of installing the theme
+	* Add recommendation for Beaver Builder plugin, after 5 days of installing the theme
 	**/
-	if ( ! defined( 'ELEMENTOR_VERSION' ) && zerif_check_passed_time( '259200' ) ) {
+	if ( ! defined( 'FL_BUILDER_VERSION' ) && zerif_check_passed_time( '259200' ) ) {
 		$elementor_array = array(
-			'slug' => 'elementor',
+			'slug' => 'beaver-builder-lite-version',
 		);
 		if ( ! empty( $config['recommended_plugins']['content'] ) ) {
 			array_push( $config['recommended_plugins']['content'], $elementor_array );
@@ -625,7 +629,7 @@ function zerif_scripts() {
 
 	wp_enqueue_style( 'zerif_fontawesome', get_template_directory_uri() . '/css/font-awesome.min.css', array(), 'v1' );
 
-	wp_enqueue_style( 'zerif_style', get_stylesheet_uri(), array( 'zerif_fontawesome' ), 'v1' );
+	wp_enqueue_style( 'zerif_style', get_stylesheet_uri(), array( 'zerif_fontawesome' ), ZERIF_LITE_VERSION );
 
 	/* Add this style only for the other cases than New users that have a static page */
 	$zerif_keep_old_fp_template = get_theme_mod( 'zerif_keep_old_fp_template' );
@@ -637,9 +641,9 @@ function zerif_scripts() {
 		wp_add_inline_style( 'zerif_style', $custom_css );
 	}
 
-	wp_enqueue_style( 'zerif_responsive_style', get_template_directory_uri() . '/css/responsive.css', array( 'zerif_style' ), 'v1' );
+	wp_enqueue_style( 'zerif_responsive_style', get_template_directory_uri() . '/css/responsive.css', array( 'zerif_style' ), ZERIF_LITE_VERSION );
 
-	wp_enqueue_style( 'zerif_ie_style', get_template_directory_uri() . '/css/ie.css', array( 'zerif_style' ), 'v1' );
+	wp_enqueue_style( 'zerif_ie_style', get_template_directory_uri() . '/css/ie.css', array( 'zerif_style' ), ZERIF_LITE_VERSION );
 	wp_style_add_data( 'zerif_ie_style', 'conditional', 'lt IE 9' );
 
 	if ( wp_is_mobile() ) {
@@ -647,24 +651,24 @@ function zerif_scripts() {
 	}
 
 	/* Bootstrap script */
-	wp_enqueue_script( 'zerif_bootstrap_script', get_template_directory_uri() . '/js/bootstrap.min.js', array( 'jquery' ), '20120206', true );
+	wp_enqueue_script( 'zerif_bootstrap_script', get_template_directory_uri() . '/js/bootstrap.min.js', array( 'jquery' ), ZERIF_LITE_VERSION, true );
 
 	/* Knob script */
-	wp_enqueue_script( 'zerif_knob_nav', get_template_directory_uri() . '/js/jquery.knob.js', array( 'jquery' ), '20120206', true );
+	wp_enqueue_script( 'zerif_knob_nav', get_template_directory_uri() . '/js/jquery.knob.js', array( 'jquery' ), ZERIF_LITE_VERSION, true );
 
 	/* Smootscroll script */
 	$zerif_disable_smooth_scroll = get_theme_mod( 'zerif_disable_smooth_scroll' );
 	if ( isset( $zerif_disable_smooth_scroll ) && ( $zerif_disable_smooth_scroll != 1 ) ) {
-		wp_enqueue_script( 'zerif_smoothscroll', get_template_directory_uri() . '/js/smoothscroll.js', array( 'jquery' ), '20120206', true );
+		wp_enqueue_script( 'zerif_smoothscroll', get_template_directory_uri() . '/js/smoothscroll.js', array( 'jquery' ), ZERIF_LITE_VERSION, true );
 	}
 
 	/* scrollReveal script */
 	if ( ! wp_is_mobile() ) {
-		wp_enqueue_script( 'zerif_scrollReveal_script', get_template_directory_uri() . '/js/scrollReveal.js', array( 'jquery' ), '20120206', true );
+		wp_enqueue_script( 'zerif_scrollReveal_script', get_template_directory_uri() . '/js/scrollReveal.js', array( 'jquery' ), ZERIF_LITE_VERSION, true );
 	}
 
 	/* zerif script */
-	wp_enqueue_script( 'zerif_script', get_template_directory_uri() . '/js/zerif.js', array( 'jquery', 'zerif_knob_nav' ), '20120206', true );
+	wp_enqueue_script( 'zerif_script', get_template_directory_uri() . '/js/zerif.js', array( 'jquery', 'zerif_knob_nav' ), ZERIF_LITE_VERSION, true );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 
@@ -739,7 +743,7 @@ function zerif_register_required_plugins() {
 				'required' => false,
 			),
 			array(
-				'name'     => 'ThemeIsle Companion',
+				'name'     => 'Orbit Fox',
 				'slug'     => 'themeisle-companion',
 				'required' => false,
 			),
@@ -754,7 +758,7 @@ function zerif_register_required_plugins() {
 				'required' => false,
 			),
 			array(
-				'name'     => 'ThemeIsle Companion',
+				'name'     => 'Orbit Fox',
 				'slug'     => 'themeisle-companion',
 				'required' => false,
 			),
@@ -936,13 +940,11 @@ if ( ! class_exists( 'zerif_ourfocus' ) && zerif_check_if_old_version_of_theme()
 		 */
 		function widget( $args, $instance ) {
 
-			extract( $args );
-
-			echo $before_widget;
+			echo $args['before_widget'];
 
 			echo '<div class="col-lg-3 col-sm-3 focus-box" data-scrollreveal="enter left after 0.15s over 1s">';
 
-			if ( ! empty( $instance['image_uri'] ) && ( $instance['image_uri'] != 'Upload Image' ) ) {
+			if ( ! empty( $instance['image_uri'] ) && ( preg_match( '/(\.jpg|\.png|\.jpeg|\.gif|\.bmp)$/', $instance['image_uri'] ) ) ) {
 				if ( ! empty( $instance['link'] ) ) {
 
 					echo '<a href="' . esc_url( $instance['link'] ) . '" class="service-icon">';
@@ -1009,7 +1011,7 @@ if ( ! class_exists( 'zerif_ourfocus' ) && zerif_check_if_old_version_of_theme()
 
 			echo '</div>';
 
-			echo $after_widget;
+			echo $args['after_widget'];
 
 		}
 
@@ -1142,13 +1144,11 @@ if ( ! class_exists( 'zerif_testimonial_widget' ) && zerif_check_if_old_version_
 		 */
 		function widget( $args, $instance ) {
 
-			extract( $args );
-
 			$zerif_accessibility = get_theme_mod( 'zerif_accessibility' );
 			// open link in a new tab when checkbox "accessibility" is not ticked
 			$attribut_new_tab = ( isset( $zerif_accessibility ) && ( $zerif_accessibility != 1 ) ? ' target="_blank"' : '' );
 
-			echo $before_widget;
+			echo $args['before_widget'];
 
 			if ( ! empty( $instance['text'] ) ) {
 				echo '<div class="message">' . htmlspecialchars_decode( apply_filters( 'widget_title', $instance['text'] ) ) . '</div>';
@@ -1181,7 +1181,7 @@ if ( ! class_exists( 'zerif_testimonial_widget' ) && zerif_check_if_old_version_
 
 				echo '</div>';
 
-			if ( ! empty( $instance['image_uri'] ) && ( $instance['image_uri'] != 'Upload Image' ) ) {
+			if ( ! empty( $instance['image_uri'] ) && ( preg_match( '/(\.jpg|\.png|\.jpeg|\.gif|\.bmp)$/', $instance['image_uri'] ) ) ) {
 
 				echo '<div class="client-image hidden-xs">';
 
@@ -1207,7 +1207,7 @@ if ( ! class_exists( 'zerif_testimonial_widget' ) && zerif_check_if_old_version_
 
 			echo '</div>';
 
-			echo $after_widget;
+			echo $args['after_widget'];
 
 		}
 
@@ -1350,9 +1350,7 @@ if ( ! class_exists( 'zerif_clients_widget' ) && zerif_check_if_old_version_of_t
 		 */
 		function widget( $args, $instance ) {
 
-			extract( $args );
-
-			echo $before_widget;
+			echo $args['before_widget'];
 
 			echo '<a href="';
 
@@ -1361,7 +1359,7 @@ if ( ! class_exists( 'zerif_clients_widget' ) && zerif_check_if_old_version_of_t
 			}
 			echo '">';
 
-			if ( ! empty( $instance['image_uri'] ) && ( $instance['image_uri'] != 'Upload Image' ) ) {
+			if ( ! empty( $instance['image_uri'] ) && ( preg_match( '/(\.jpg|\.png|\.jpeg|\.gif|\.bmp)$/', $instance['image_uri'] ) ) ) {
 				echo '<img src="' . esc_url( $instance['image_uri'] ) . '" alt="' . __( 'Client', 'zerif-lite' ) . '">';
 
 			} elseif ( ! empty( $instance['custom_media_id'] ) ) {
@@ -1376,7 +1374,7 @@ if ( ! class_exists( 'zerif_clients_widget' ) && zerif_check_if_old_version_of_t
 
 			echo '</a>';
 
-			echo $after_widget;
+			echo $args['after_widget'];
 
 		}
 
@@ -1497,15 +1495,13 @@ if ( ! class_exists( 'zerif_team_widget' ) && zerif_check_if_old_version_of_them
 		 */
 		function widget( $args, $instance ) {
 
-			extract( $args );
-
-			echo $before_widget;
+			echo $args['before_widget'];
 
 			echo '<div class="col-lg-3 col-sm-3 team-box">';
 
 				echo '<div class="team-member" tabindex="0">';
 
-			if ( ! empty( $instance['image_uri'] ) && ( $instance['image_uri'] != 'Upload Image' ) ) {
+			if ( ! empty( $instance['image_uri'] ) && ( preg_match( '/(\.jpg|\.png|\.jpeg|\.gif|\.bmp)$/', $instance['image_uri'] ) ) ) {
 
 				echo '<figure class="profile-pic">';
 
@@ -1623,7 +1619,7 @@ if ( ! class_exists( 'zerif_team_widget' ) && zerif_check_if_old_version_of_them
 
 			echo '</div>';
 
-			echo $after_widget;
+			echo $args['after_widget'];
 
 		}
 
@@ -1956,4 +1952,127 @@ function zerif_check_passed_time( $no_seconds ) {
 		}
 	}
 	return true;
+}
+
+add_action( 'woocommerce_before_checkout_form', 'zerif_coupon_after_order_table_js' );
+
+/**
+ * Checkout page
+ * Move the coupon fild and message info after the order table
+ **/
+function zerif_coupon_after_order_table_js() {
+	wc_enqueue_js(
+		'
+		$( $( "div.woocommerce-info, .checkout_coupon" ).detach() ).appendTo( "#zerif-checkout-coupon" );
+	'
+	);
+}
+
+add_action( 'woocommerce_checkout_order_review', 'zerif_coupon_after_order_table' );
+
+/**
+ * Checkout page
+ * Add the id zerif-checkout-coupon to be able to Move the coupon fild and message info after the order table
+ **/
+function zerif_coupon_after_order_table() {
+	echo '<div id="zerif-checkout-coupon"></div><div style="clear:both"></div>';
+}
+
+/**
+ * Max Mega Menu Zerif Theme
+ **/
+function megamenu_add_theme_zerif_lite_max_menu( $themes ) {
+	$themes['zerif_lite_max_menu'] = array(
+		'title'                                    => 'Zerif Lite',
+		'menu_item_align'                          => 'right',
+		'menu_item_link_height'                    => '70px',
+		'container_background_from'                => 'rgb(255, 255, 255)',
+		'container_background_to'                  => 'rgb(255, 255, 255)',
+		'menu_item_background_hover_from'          => 'rgb(255, 255, 255)',
+		'menu_item_background_hover_to'            => 'rgb(255, 255, 255)',
+		'menu_item_link_font_size'                 => '15px',
+		'menu_item_link_color'                     => 'rgb(49, 49, 49)',
+		'menu_item_link_color_hover'               => 'rgb(233, 102, 86)',
+		'menu_item_highlight_current'              => 'off',
+		'panel_background_from'                    => 'rgb(255, 255, 255)',
+		'panel_background_to'                      => 'rgb(255, 255, 255)',
+		'panel_header_font_size'                   => '15px',
+		'panel_header_font_weight'                 => 'normal',
+		'panel_header_border_color'                => '#555',
+		'panel_font_size'                          => '15px',
+		'panel_font_color'                         => 'rgb(49, 49, 49)',
+		'panel_font_color_hover'                   => 'rgb(233, 102, 86)',
+		'panel_font_family'                        => 'inherit',
+		'panel_second_level_font_color'            => 'rgb(49, 49, 49)',
+		'panel_second_level_font_color_hover'      => 'rgb(233, 102, 86)',
+		'panel_second_level_text_transform'        => 'none',
+		'panel_second_level_font'                  => 'inherit',
+		'panel_second_level_font_size'             => '15px',
+		'panel_second_level_font_weight'           => 'normal',
+		'panel_second_level_font_weight_hover'     => 'normal',
+		'panel_second_level_text_decoration'       => 'none',
+		'panel_second_level_text_decoration_hover' => 'none',
+		'panel_second_level_padding_left'          => '20px',
+		'panel_second_level_border_color'          => '#555',
+		'panel_third_level_font_color'             => 'rgb(49, 49, 49)',
+		'panel_third_level_font_color_hover'       => 'rgb(233, 102, 86)',
+		'panel_third_level_font'                   => 'inherit',
+		'panel_third_level_font_size'              => '15px',
+		'panel_third_level_padding_left'           => '20px',
+		'flyout_background_from'                   => 'rgb(255, 255, 255)',
+		'flyout_background_to'                     => 'rgb(255, 255, 255)',
+		'flyout_background_hover_from'             => 'rgb(255, 255, 255)',
+		'flyout_background_hover_to'               => 'rgb(255, 255, 255)',
+		'flyout_link_size'                         => '15px',
+		'flyout_link_color'                        => 'rgb(49, 49, 49)',
+		'flyout_link_color_hover'                  => 'rgb(233, 102, 86)',
+		'flyout_link_family'                       => 'inherit',
+		'responsive_breakpoint'                    => '768px',
+		'resets'                                   => 'on',
+		'toggle_background_from'                   => '#222',
+		'toggle_background_to'                     => '#222',
+		'toggle_font_color'                        => 'rgb(102, 102, 102)',
+		'mobile_background_from'                   => 'rgb(255, 255, 255)',
+		'mobile_background_to'                     => 'rgb(255, 255, 255)',
+		'mobile_menu_item_link_font_size'          => '15px',
+		'mobile_menu_item_link_color'              => 'rgb(102, 102, 102)',
+		'mobile_menu_item_link_text_align'         => 'left',
+	);
+	return $themes;
+}
+add_filter( 'megamenu_themes', 'megamenu_add_theme_zerif_lite_max_menu' );
+
+
+add_action( 'admin_notices', 'zerif_fagri_notice' );
+/**
+ * Add a dismissible notice in the dashboard to let users know that we have a new child theme for Hestia, Fagri
+ * TODO: Remove this in a future release
+ */
+function zerif_fagri_notice() {
+	global $current_user;
+	$user_id = $current_user->ID;
+	/* Check that the user hasn't already clicked to ignore the message */
+	if ( ! get_user_meta( $user_id, 'zerif_ignore_fagri_notice' ) ) {
+		echo '<div class="notice updated" style="position:relative;">';
+		printf( '<a href="%s" class="notice-dismiss" style="text-decoration:none;"></a>', '?zerif_nag_ignore_fagri=0' );
+		echo '<p>';
+		/* translators: Install Fagri link */
+		printf( esc_html__( 'We just launched a new free %s, you might like it.', 'zerif-lite' ), sprintf( '<a href="%1$s">%2$s</a>', admin_url( 'theme-install.php?theme=fagri' ), esc_html__( 'theme', 'zerif-lite' ) ) );
+		echo '</p>';
+		echo '</div>';
+	}
+}
+
+add_action( 'admin_init', 'zerif_nag_ignore_fagri' );
+
+/**
+ * Update the zerif_ignore_fagri_notice option to true, to dismiss the notice from the dashboard
+ */
+function zerif_nag_ignore_fagri() {
+	global $current_user;
+	$user_id = $current_user->ID;
+	/* If user clicks to ignore the notice, add that to their user meta */
+	if ( isset( $_GET['zerif_nag_ignore_fagri'] ) && '0' == $_GET['zerif_nag_ignore_fagri'] ) {
+		add_user_meta( $user_id, 'zerif_ignore_fagri_notice', 'true', true );
+	}
 }

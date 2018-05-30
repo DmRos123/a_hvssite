@@ -5,14 +5,441 @@
  */
 
 /* global initializeAllElements */
+/* global AOS */
+/* exported hestiaGetCss */
+
 ( function( $ ) {
+
+    /**
+     * This handles the customizer live actions
+     */
+	$.hestiaCustomizeLive = {
+		'init':function () {
+		    this.liveShowHideSection();
+		    this.liveTextReplace();
+		    this.liveBackgroundReplace();
+			this.livePricingSection();
+			this.sliderHeightFix();
+        },
+
+		'sliderHeightFix': function() {
+				var windowWidth = $( window ).width();
+				var windowHeight = $( window ).height();
+
+			if ( windowWidth > 768 ) {
+					$( '.carousel .page-header' ).css( 'min-height', (windowHeight * 0.9) ); // 90% of window height
+				} else {
+					$( '.carousel .page-header' ).css( 'min-height', (windowHeight) ); // 90% of window height
+				}
+		},
+
+        /**
+		 * This function handle the action when a user clicks on show/hide customizer control.
+		 * It toggles the section and then refresh animations.
+         */
+        'liveShowHideSection':function () {
+            var showHideControls = {
+                'hestia_features_hide' : '.hestia-features',
+                'hestia_about_hide' : '.hestia-about',
+                'hestia_shop_hide' : '.hestia-shop',
+                'hestia_portfolio_hide' : '.hestia-work',
+                'hestia_team_hide' : '.hestia-team',
+                'hestia_pricing_hide' : '.hestia-pricing',
+                'hestia_ribbon_hide' : '.hestia-ribbon',
+                'hestia_testimonials_hide' : '.hestia-testimonials',
+                'hestia_subscribe_hide' : '.hestia-subscribe',
+                'hestia_clients_bar_hide' : '.hestia-clients-bar',
+                'hestia_blog_hide' : '.hestia-blogs',
+                'hestia_contact_hide' : '.hestia-contact'
+
+            };
+            Object.keys(showHideControls).forEach(function (key) {
+                wp.customize(
+                    key, function (value) {
+                        value.bind(
+                            function(newval){
+                                $(showHideControls[key]).toggle();
+                                if( newval === true ){
+									if ( typeof AOS !== 'undefined' ) {
+										AOS.refresh();
+									}
+                                }
+                            }
+                        );
+                    }
+                );
+            });
+        },
+
+        /**
+		 * This function handle the action when a user change a simple html input.
+		 * It target the class and then replace the inside of it with the new value.
+         */
+        'liveTextReplace': function () {
+            var textToReplace = [
+                { controlName:'hestia_features_title', selector:'.hestia-features .hestia-title' },
+                { controlName:'hestia_features_subtitle', selector:'.hestia-features .description' },
+                { controlName:'hestia_shop_title', selector:'.hestia-shop .hestia-title' },
+                { controlName:'hestia_shop_subtitle', selector:'.hestia-shop .description' },
+                { controlName:'hestia_portfolio_title', selector:'.hestia-work .hestia-title' },
+                { controlName:'hestia_portfolio_subtitle', selector:'.hestia-work .description' },
+                { controlName:'hestia_team_title', selector:'.hestia-team .hestia-title' },
+                { controlName:'hestia_team_subtitle', selector:'.hestia-team .description' },
+                { controlName:'hestia_pricing_title', selector:'.hestia-pricing .hestia-title' },
+                { controlName:'hestia_pricing_subtitle', selector:'.hestia-pricing p.text-gray' },
+                { controlName:'hestia_pricing_table_one_title', selector:'.hestia-pricing .hestia-table-one .category' },
+                { controlName:'hestia_pricing_table_one_price', selector:'.hestia-pricing .hestia-table-one .card-title', isHtml:true },
+                { controlName:'hestia_pricing_table_one_text', selector:'.hestia-pricing .hestia-table-one .btn' },
+                { controlName:'hestia_pricing_table_two_title', selector:'.hestia-pricing .hestia-table-two .category' },
+                { controlName:'hestia_pricing_table_two_price', selector:'.hestia-pricing .hestia-table-two .card-title', isHtml:true },
+                { controlName:'hestia_pricing_table_two_text', selector:'.hestia-pricing .hestia-table-two .btn' },
+                { controlName:'hestia_ribbon_text', selector:'.hestia-ribbon .hestia-title' },
+                { controlName:'hestia_ribbon_button_text', selector:'.hestia-ribbon .hestia-ribbon-content-right a' },
+                { controlName:'hestia_testimonials_title', selector:'.hestia-testimonials .hestia-title' },
+                { controlName:'hestia_testimonials_subtitle', selector:'.hestia-testimonials .description' },
+                { controlName:'hestia_subscribe_title', selector:'.hestia-subscribe .title' },
+                { controlName:'hestia_subscribe_subtitle', selector:'.hestia-subscribe .subscribe-description' },
+                { controlName:'hestia_blog_title', selector:'.hestia-blogs .hestia-title' },
+                { controlName:'hestia_blog_subtitle', selector:'.hestia-blogs .description' },
+                { controlName:'hestia_contact_title', selector:'.hestia-contact .hestia-contact-title-area .hestia-title' },
+                { controlName:'hestia_contact_subtitle', selector:'.hestia-contact h5.description' }
+            ];
+            textToReplace.forEach(function (item) {
+                wp.customize(
+                    item.controlName, function( value ) {
+                        value.bind(
+                            function( newval ) {
+                                if(typeof item.isHtml !== 'undefined' ){
+                                    $( item.selector ).html( newval );
+                                } else {
+                                    $( item.selector ).text( newval );
+                                }
+                            }
+                        );
+                    }
+                );
+            });
+        },
+
+        /**
+         * This function handle the action when a user change the background of a section.
+         * It target the class and then replace the background. If the input is empty,
+		 * it will toggle the class section-image (or you can specify what class to toggle),
+		 * class that adds overlay and make the text white.
+         */
+        'liveBackgroundReplace': function () {
+            var backgroundImages = [
+                {controlName: 'hestia_feature_thumbnail', selector:'.hestia-about'},
+                {controlName: 'hestia_ribbon_background', selector:'.hestia-ribbon'},
+                {controlName: 'hestia_subscribe_background', selector:'.hestia-subscribe', toggleClass:'subscribe-line-image'},
+                {controlName: 'hestia_contact_background', selector:'.hestia-contact'}
+            ];
+            backgroundImages.forEach(function (item) {
+                wp.customize(
+                    item.controlName, function( value ) {
+                        value.bind(
+                            function( newval ) {
+                                $( item.selector ).css( 'background-image', 'url('+newval+')' );
+                                var toggleClass = 'section-image';
+                                if( typeof item.toggleClass !== 'undefined' ){
+                                    toggleClass = item.toggleClass;
+                                }
+                                if ( newval === '' ) {
+                                    $( item.selector ).removeClass( toggleClass );
+                                } else {
+                                    $( item.selector ).addClass( toggleClass );
+                                }
+                            }
+                        );
+                    }
+                );
+            });
+        },
+
+        /**
+		 * This function handle the action when a user change the content of pricing tables.
+         */
+		'livePricingSection':function(){
+            var self = this;
+            wp.customize(
+                'hestia_pricing_table_one_features', function( value ) {
+                    value.bind(
+                        function( newval ) {
+                            var result = self.parsePricingFeatures(newval);
+                            $( '.hestia-pricing .hestia-table-one ul' ).html( result );
+                        }
+                    );
+                }
+            );
+
+            wp.customize(
+                'hestia_pricing_table_two_features', function( value ) {
+                    value.bind(
+                        function( newval ) {
+                            var result = self.parsePricingFeatures(newval);
+                            $( '.hestia-pricing .hestia-table-two ul' ).html( result );
+                        }
+                    );
+                }
+            );
+
+            function updatePricingTableIcon( newval, tableNumber ) {
+
+                var accent_color = wp.customize._value.accent_color();
+                var packageSelector = '.home .hestia-pricing .hestia-table-' + tableNumber + ' .hestia-pricing-icon-wrapper';
+
+                if ( newval ) {
+                    $( packageSelector + ' i' ).removeClass().addClass( 'fa' ).addClass( newval );
+                    $( packageSelector ).addClass( 'pricing-has-icon' ).css( {'display' : 'block', 'color' : accent_color } );
+                } else {
+                    $( packageSelector + '.pricing-has-icon .card-title' ).css( { 'font-size' : '60px', 'margin-top' : '30px'  } );
+                    $( packageSelector + '.pricing-has-icon .card-title small' ).css( { 'color' : '#777', 'top' : '-17px', 'font-size' : '26px', 'font-weight' : 'normal', 'line-height' : '1'  } );
+                    $( packageSelector + '.pricing-has-icon' ).removeClass( 'pricing-has-icon' ).css( 'display', 'none' );
+                }
+            }
+
+            /* Live refresh for pricing icon, table one */
+            wp.customize(
+                'hestia_pricing_table_one_icon', function( value ) {
+                    value.bind(
+                        function (newval) {
+                            updatePricingTableIcon( newval, 'one' );
+                        }
+                    );
+                }
+            );
+
+            /* Live refresh for pricing icon, table two */
+            wp.customize(
+                'hestia_pricing_table_two_icon', function( value ) {
+                    value.bind(
+                        function (newval) {
+                            updatePricingTableIcon( newval, 'two' );
+                        }
+
+                    );
+                }
+            );
+		},
+
+        /**
+		 * This function parse the content of pricing table and create html for it.
+         */
+		'parsePricingFeatures': function (newval) {
+            var val = newval.replace('\\r', '');
+            var features = val.split('\\n');
+            var result = '';
+            features.forEach(function (feature) {
+                result += '<li>'+feature+'</li>';
+            });
+            return result;
+        },
+	};
+    $.hestiaCustomizeLive.init();
+
+    /**
+	 * This extends jQuery functionality and adds a function to check if a jQuery element contain
+	 * any of classes in an array.
+     */
+    $.fn.extend({
+        hasClasses: function (selectors) {
+            var self = this;
+            for (var i in selectors) {
+                if ($(self).hasClass(selectors[i])) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    });
+
+    /**
+     * This handles the customizer shortcuts.
+     * Send events on click etc.
+     */
+    $.hestiaCustomize = {
+        'init': function () {
+            this.focusForCustomShortcut();
+            this.handleShowHideShortcut();
+            this.addShortcutForMenu();
+            this.handleTextEditor();
+            this.handleTopBarWidgetFocus();
+        },
+
+        /**
+		 * This function does the focus on controls when the user clicks on a custom shortcut.
+		 * If controls are in a tab, it does focus on tab too.
+         */
+        'focusForCustomShortcut': function () {
+            /**
+			 * All controls that have custom shortcuts
+             */
+            var fakeShortcutClasses = [
+                'hestia_features_hide',
+                'hestia_features_title',
+                'hestia_about_hide',
+                'hestia_shop_hide',
+                'hestia_shop_title',
+				'hestia_portfolio_hide',
+                'hestia_portfolio_title',
+                'hestia_team_hide',
+                'hestia_team_title',
+                'hestia_pricing_hide',
+                'hestia_pricing_title',
+                'hestia_pricing_table_one_title',
+                'hestia_pricing_table_two_title',
+                'hestia_ribbon_hide',
+                'hestia_ribbon_text',
+                'hestia_testimonials_hide',
+                'hestia_testimonials_title',
+                'hestia_clients_bar_hide',
+                'hestia_subscribe_hide',
+                'hestia_subscribe_title',
+                'hestia_blog_hide',
+                'hestia_blog_title',
+                'hestia_contact_hide',
+                'hestia_contact_title'
+            ];
+
+            /**
+			 * Controls that have custom shortcuts and are in a tab in customizer.
+			 * We need to focus on tab too if clicked on one of those controls.
+             */
+            var controlsInTabs = [
+                'hestia_pricing_title',
+                'hestia_pricing_table_one_title',
+                'hestia_pricing_table_two_title',
+                'hestia_subscribe_hide',
+                'hestia_subscribe_title',
+                'hestia_contact_hide',
+                'hestia_contact_title'
+            ];
+            fakeShortcutClasses.forEach(function (element) {
+                $('.customize-partial-edit-shortcut-'+element).on('click',function () {
+                    if( controlsInTabs.indexOf(element) > -1) {
+                        var tabToActivate = $('.hestia-customizer-tab>.' + element);
+                        wp.customize.preview.send('focus-control', element);
+                        wp.customize.preview.send('tab-previewer-edit', tabToActivate);
+                    } else {
+                        wp.customize.preview.send( 'hestia-customize-focus-control', element );
+                    }
+                });
+            });
+        },
+
+        'handleTopBarWidgetFocus': function(){
+            $('.customize-partial-edit-shortcut-hestia-top-bar-widget').on('click', function(){
+                wp.customize.preview.send('focus-section', 'sidebar-widgets-sidebar-top-bar');
+            });
+        },
+
+        /**
+		 * This function triggers click on show/hide control when user clicks on one of their custom shortcut.
+         */
+        'handleShowHideShortcut': function () {
+            var classesToLook = [
+                'hestia_features_hide',
+                'hestia_about_hide',
+                'hestia_shop_hide',
+                'hestia_portfolio_hide',
+                'hestia_team_hide',
+                'hestia_pricing_hide',
+                'hestia_ribbon_hide',
+                'hestia_testimonials_hide',
+                'hestia_clients_bar_hide',
+                'hestia_subscribe_hide',
+                'hestia_blog_hide',
+                'hestia_contact_hide'];
+
+            classesToLook.forEach(function(element){
+                $( '.customize-partial-edit-shortcut-'+element ).on( 'click', function() {
+                    wp.customize.preview.send('hestia-customize-disable-section', element);
+                });
+            });
+        },
+
+        /**
+         * Add shortcut button for primary menu.
+         */
+        'addShortcutForMenu' : function () {
+            var primaryMenu = $('.navbar-nav');
+            var menuShortcutHtml = '<span class="menu-shortcut customize-partial-edit-shortcut customize-partial-edit-shortcut-primary-menu"><button class="customize-partial-edit-shortcut-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13.89 3.39l2.71 2.72c.46.46.42 1.24.03 1.64l-8.01 8.02-5.56 1.16 1.16-5.58s7.6-7.63 7.99-8.03c.39-.39 1.22-.39 1.68.07zm-2.73 2.79l-5.59 5.61 1.11 1.11 5.54-5.65zm-2.97 8.23l5.58-5.6-1.07-1.08-5.59 5.6z"></path></svg></button></span>';
+            primaryMenu.before(menuShortcutHtml);
+            this.handleMenuShortcutClick();
+        },
+
+        /**
+         * Handle the click of shortcut of the menu
+         */
+        'handleMenuShortcutClick': function () {
+            $( '.menu-shortcut' ).on( 'click', function() {
+                wp.customize.preview.send('trigger-focus-menu');
+            });
+        },
+
+        /**
+         * Handle the opening of text editor
+         */
+        'handleTextEditor': function(){
+            $(document).on('DOMNodeInserted','.customize-partial-edit-shortcut', function() {
+                $( this ).on(
+                    'click', function(){
+                        var controls = ['hestia_page_editor', 'hestia_contact_content_new'];
+                        var clickedControl = $( this ).attr('class');
+                        var openControl = '';
+                        $.each(controls, function(index, value){
+                            if (clickedControl.indexOf( value ) !== -1){
+                                openControl = value;
+                                return false;
+                            }
+                        });
+                        if( openControl !== ''){
+                            wp.customize.preview.send( 'trigger-open-editor', openControl );
+                        } else {
+                            wp.customize.preview.send( 'trigger-close-editor');
+                        }
+                    }
+                );
+            });
+        }
+    };
+
+    $.hestiaCustomize.init();
+
+    /**
+     * Live refresh for container width
+     */
+    wp.customize(
+        'hestia_container_width', function( value ) {
+            'use strict';
+            value.bind(
+                function( to ) {
+                    if ( to ) {
+                        var values = JSON.parse( to );
+                        if ( values ) {
+                            if ( values.mobile ) {
+                                var settings = {
+                                    selectors: 'div.container',
+                                    cssProperty: 'width',
+                                    propertyUnit: 'px',
+                                    styleClass: 'hestia-container-width-css'
+                                }, val;
+                                val          = JSON.parse( to );
+                                hestiaSetCss( settings, val );
+                            }
+                        }
+                    }
+                }
+            );
+        }
+    );
 
 	// Site Identity > Site Title
 	wp.customize(
 		'blogname', function( value ) {
 			value.bind(
 				function( newval ) {
-					$( '.navbar .navbar-brand h1' ).text( newval );
+					$( '.navbar .navbar-brand p' ).text( newval );
 				}
 			);
 		}
@@ -34,10 +461,13 @@
 		'hestia_general_layout', function( value ) {
 			value.bind(
 				function() {
+					var navbar_height = $( '.navbar-fixed-top' ).outerHeight();
 					if ( $( '.main' ).hasClass( 'main-raised' ) ) {
 						$( '.main' ).removeClass( 'main-raised' );
+                        $( '.main.classic-blog' ).css( 'margin-top', navbar_height );
 					} else {
 						$( '.main' ).addClass( 'main-raised' );
+						$('.main.classic-blog').css('margin-top', navbar_height);
 					}
 				}
 			);
@@ -121,43 +551,6 @@
 		}
 	);
 
-	// Frontpage Sections > Features  > Title
-	wp.customize(
-		'hestia_features_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-features .title' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Features  > Subtitle
-	wp.customize(
-		'hestia_features_subtitle', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-features .description' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > About  > Featured Image
-	wp.customize(
-		'hestia_feature_thumbnail', function( value ) {
-			value.bind(
-				function( newval ) {
-					if ( newval === '' ) {
-						$( 'section#about' ).removeClass( 'section-image' );
-					} else {
-						$( 'section#about' ).addClass( 'section-image' );
-					}
-				}
-			);
-		}
-	);
-
 	// Frontpage Sections > Portfolio  > Title
 	wp.customize(
 		'hestia_portfolio_title', function( value ) {
@@ -175,127 +568,6 @@
 			value.bind(
 				function( newval ) {
 					$( '.hestia-work .description' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Team  > Title
-	wp.customize(
-		'hestia_team_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-team .title' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Team  > Subtitle
-	wp.customize(
-		'hestia_team_subtitle', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-team .description' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Title
-	wp.customize(
-		'hestia_pricing_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .title' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Subtitle
-	wp.customize(
-		'hestia_pricing_subtitle', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .text-gray' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Pricing Table One: Title
-	wp.customize(
-		'hestia_pricing_table_one_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .col-md-6:nth-child(1) .card-pricing .category' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Pricing Table One: Text
-	wp.customize(
-		'hestia_pricing_table_one_text', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .col-md-6:nth-child(1) .card-pricing .btn' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Pricing Table Two: Title
-	wp.customize(
-		'hestia_pricing_table_two_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .col-md-6:nth-child(2) .card-pricing .category' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Pricing  > Pricing Table Two: Text
-	wp.customize(
-		'hestia_pricing_table_two_text', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.pricing .col-md-6:nth-child(2) .card-pricing .btn' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Testimonials  > Title
-	wp.customize(
-		'hestia_testimonials_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-testimonials .title' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Testimonials  > Subtitle
-	wp.customize(
-		'hestia_testimonials_subtitle', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.hestia-testimonials .description' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Frontpage Sections > Subscribe  > Background
-	wp.customize(
-		'hestia_subscribe_background', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '.subscribe-line' ).css( 'background-image', 'url(' + newval + ')' );
 				}
 			);
 		}
@@ -323,28 +595,6 @@
 		}
 	);
 
-	// Blog Settiungs > Subscribe Section > Title
-	wp.customize(
-		'hestia_blog_subscribe_title', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '#subscribe-on-blog .title' ).text( newval );
-				}
-			);
-		}
-	);
-
-	// Blog Settiungs > Subscribe Section > Subtitle
-	wp.customize(
-		'hestia_blog_subscribe_subtitle', function( value ) {
-			value.bind(
-				function( newval ) {
-					$( '#subscribe-on-blog .description' ).text( newval );
-				}
-			);
-		}
-	);
-
 	// Colors > Accent Color
 	wp.customize(
 		'accent_color', function( value ) {
@@ -355,6 +605,9 @@
 
 					var accentColorVariation2 = convertHex( newval, 20 );
 					var accentColorVariation3 = convertHex( newval, 42 );
+
+					// Pricing icon
+                    $( '.home .hestia-pricing .card-pricing .content .hestia-pricing-icon-wrapper' ).css( 'color', newval) ;
 
 					// LINKS HOVER STYLE
 					var style = '<style class="hover-styles">', el;
@@ -530,6 +783,36 @@
 		}
 	);
 
+    /**
+	 * Documentation: http://vitaliykiyko.com/en/4077/fire-custom-js-code-wp-customizer-selective-refresh-made/
+     */
+    var reEnableParallaxFor = ['hestia_slider_content','hestia_slider_alignment'];
+    reEnableParallaxFor.forEach(function (controlName) {
+        wp.customize(
+            controlName, function(value) {
+                value.bind(
+                    function() {
+                        wp.customize.selectiveRefresh.bind('partial-content-rendered', function ( placement ) {
+                        	if( typeof wp.customize._value.hestia_slider_type === 'function' ) {
+                                var sliderType = wp.customize._value.hestia_slider_type();
+                                if (placement.partial.id === controlName && sliderType) {
+	                                $.hestiaCustomizeLive.sliderHeightFix();
+                                    if (sliderType === 'parallax') {
+                                        $.hestiaParallax.parallaxMove();
+                                    } else if ( typeof wp.customHeader !== 'undefined' ) {
+                                        wp.customHeader.initialize();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                );
+            }
+        );
+    });
+
+
+
 	function trigger_slider_selective( newval, linkedControl ){
 		if ( newval || linkedControl ) {
 			return;
@@ -600,18 +883,136 @@
 		return result;
 	}
 
-	$( document ).on(
-		'DOMNodeInserted', '.customize-partial-edit-shortcut', function () {
-			$( this ).on(
-				'click', function(){
-					if ( $( this ).hasClass( 'customize-partial-edit-shortcut-hestia_page_editor' ) ) {
-						wp.customize.preview.send( 'trigger-close-editor', false );
-					} else {
-						wp.customize.preview.send( 'trigger-close-editor', true );
-					}
-				}
-			);
-		}
-	);
-
 } )( jQuery );
+
+
+
+
+
+/**
+ * This function builds two arrays of settings for each value from arraySizes. Those two arrays are parameters for
+ * hestiaSetCss function. Those parameters are:
+ * 	data: an object with desktop, tablet and mobile value
+ * 	settings: an object with class of the style tag and the selectors on witch the style will be applied
+ *
+ *
+ * @param arraySizes
+ * An object with multiple sizes. Foreach size you have to specify:
+ * 	selectors on which to apply sizes
+ * 	list of values on mobile, tablet and desktop
+ *
+ * @param settings
+ * An object with the following components:
+ * cssProperty: what css property is changed (ex: font-size, width etc. )
+ * propertyUnit: unit (ex: px, em etc.)
+ * styleClass: the class of the temporary style tag that is added while changing the control.
+ *
+ * @param to
+ * Current value of the control
+ */
+function hestiaGetCss( arraySizes, settings, to ) {
+    'use strict';
+    var data, desktopVal, tabletVal, mobileVal,
+        className = settings.styleClass, i = 1;
+
+    var val = JSON.parse( to );
+    if ( typeof( val ) === 'object' && val !== null ) {
+        if ('desktop' in val) {
+            desktopVal = val.desktop;
+        }
+        if ('tablet' in val) {
+            tabletVal = val.tablet;
+        }
+        if ('mobile' in val) {
+            mobileVal = val.mobile;
+        }
+    }
+
+    for ( var key in arraySizes ) {
+        // skip loop if the property is from prototype
+        if ( ! arraySizes.hasOwnProperty( key )) {
+            continue;
+        }
+        var obj = arraySizes[key];
+        var limit = 0;
+        var correlation = [1,1,1];
+        if ( typeof( val ) === 'object' && val !== null ) {
+
+            if( typeof obj.limit !== 'undefined'){
+                limit = obj.limit;
+            }
+
+            if( typeof obj.correlation !== 'undefined'){
+                correlation = obj.correlation;
+            }
+
+            data = {
+                desktop: ( parseInt(parseFloat( desktopVal ) / correlation[0]) + obj.values[0]) > limit ? ( parseInt(parseFloat( desktopVal ) / correlation[0]) + obj.values[0] ) : limit,
+                tablet: ( parseInt(parseFloat( tabletVal ) / correlation[1]) + obj.values[1] ) > limit ? ( parseInt(parseFloat( tabletVal ) / correlation[1]) + obj.values[1] ) : limit,
+                mobile: ( parseInt(parseFloat( mobileVal ) / correlation[2]) + obj.values[2] ) > limit ? ( parseInt(parseFloat( mobileVal ) / correlation[2]) + obj.values[2] ) : limit
+            };
+        } else {
+            if( typeof obj.limit !== 'undefined'){
+                limit = obj.limit;
+            }
+
+            if( typeof obj.correlation !== 'undefined'){
+                correlation = obj.correlation;
+            }
+            data =( parseInt( parseFloat( to ) / correlation[0] ) ) + obj.values[0] > limit ? ( parseInt( parseFloat( to ) / correlation[0] ) ) + obj.values[0] : limit;
+        }
+        settings.styleClass = className + '-' + i;
+        settings.selectors  = obj.selectors;
+
+        hestiaSetCss( settings, data );
+        i++;
+    }
+}
+
+/**
+ * Add media query on settings from setStyle function.
+ *
+ * @param settings
+ * An object with the following components:
+ * 	styleClass class that will be on style tag
+ * 	selectors specified selectors
+ *
+ * @param to
+ * Current value of the control
+ */
+function hestiaSetCss( settings, to ){
+    'use strict';
+    var result     = '';
+    var styleClass = jQuery( '.' + settings.styleClass );
+    if ( to !== null && typeof to === 'object' ) {
+        jQuery.each(
+            to, function ( key, value ) {
+                var style_to_add;
+                if ( settings.selectors === '.container' ) {
+                    style_to_add = settings.selectors + '{ ' + settings.cssProperty + ':' + value + settings.propertyUnit + '; max-width: 100%; }';
+                } else {
+                    style_to_add = settings.selectors + '{ ' + settings.cssProperty + ':' + value + settings.propertyUnit + '}';
+                }
+                switch ( key ) {
+                    case 'desktop':
+                        result += style_to_add;
+                        break;
+                    case 'tablet':
+                        result += '@media (max-width: 767px){' + style_to_add + '}';
+                        break;
+                    case 'mobile':
+                        result += '@media (max-width: 480px){' + style_to_add + '}';
+                        break;
+                }
+            }
+        );
+        if ( styleClass.length > 0 ) {
+            styleClass.text( result );
+        } else {
+            jQuery( 'head' ).append( '<style type="text/css" class="' + settings.styleClass + '">' + result + '</style>' );
+        }
+    } else {
+        jQuery( settings.selectors ).css( settings.cssProperty, to + 'px' );
+    }
+}
+

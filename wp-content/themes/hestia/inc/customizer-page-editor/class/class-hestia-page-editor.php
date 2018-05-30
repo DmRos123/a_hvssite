@@ -49,7 +49,7 @@ class Hestia_Page_Editor extends WP_Customize_Control {
 			'hestia_text_editor', get_template_directory_uri() . '/inc/customizer-page-editor/js/hestia-text-editor.js', array(
 				'jquery',
 				'customize-preview',
-			), HESTIA_VERSION, true
+			), HESTIA_VERSION, false
 		);
 		if ( $this->needsync === true ) {
 			wp_enqueue_script( 'hestia_controls_script', get_template_directory_uri() . '/inc/customizer-page-editor/js/hestia-update-controls.js', array( 'jquery', 'hestia_text_editor' ), HESTIA_VERSION, true );
@@ -74,7 +74,7 @@ class Hestia_Page_Editor extends WP_Customize_Control {
 				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 			<?php endif; ?>
 			<input type="hidden" <?php $this->link(); ?> value="<?php echo esc_textarea( $this->value() ); ?>" id="<?php echo esc_attr( $this->id ); ?>" class="editorfield">
-			<a onclick="javascript:WPEditorWidget.toggleEditor('<?php echo $this->id; ?>');" class="button edit-content-button"><?php _e( '(Edit)', 'hestia' ); ?></a>
+			<button data-editor-id="<?php echo esc_attr( $this->id ); ?>" class="button edit-content-button"><?php _e( '(Edit)', 'hestia' ); ?></button>
 		</label>
 		<?php
 	}

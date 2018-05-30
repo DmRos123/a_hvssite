@@ -22,7 +22,7 @@ function hestia_blog_customize_register( $wp_customize ) {
 				$wp_customize, 'hestia_blog', array(
 					'title'          => esc_html__( 'Blog', 'hestia' ),
 					'panel'          => 'hestia_frontpage_sections',
-					'priority'       => apply_filters( 'hestia_section_priority', 50, 'hestia_blog' ),
+					'priority'       => apply_filters( 'hestia_section_priority', 60, 'hestia_blog' ),
 					'hiding_control' => 'hestia_blog_hide',
 				)
 			)
@@ -57,7 +57,7 @@ function hestia_blog_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_blog_title', array(
 			'default'           => esc_html__( 'Blog', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -73,7 +73,7 @@ function hestia_blog_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'hestia_blog_subtitle', array(
 			'default'           => esc_html__( 'Change this subtitle in the Customizer', 'hestia' ),
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'wp_kses_post',
 			'transport'         => $selective_refresh,
 		)
 	);
@@ -120,33 +120,6 @@ function hestia_register_blog_partials( $wp_customize ) {
 	}
 
 	$wp_customize->selective_refresh->add_partial(
-		'hestia_blog_hide', array(
-			'selector'            => '.hestia-blogs:not(.is-shortcode)',
-			'render_callback'     => 'hestia_blog',
-			'container_inclusive' => true,
-			'fallback_refresh'    => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_blog_title', array(
-			'selector'         => '.hestia-blogs h2.hestia-title',
-			'settings'         => 'hestia_blog_title',
-			'render_callback'  => 'hestia_blog_title_render_callback',
-			'fallback_refresh' => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
-		'hestia_blog_subtitle', array(
-			'selector'         => '.hestia-blogs h5.description',
-			'settings'         => 'hestia_blog_subtitle',
-			'render_callback'  => 'hestia_blog_subtitle_render_callback',
-			'fallback_refresh' => false,
-		)
-	);
-
-	$wp_customize->selective_refresh->add_partial(
 		'hestia_blog_items', array(
 			'selector'        => '.hestia-blog-content',
 			'settings'        => 'hestia_blog_items',
@@ -156,26 +129,6 @@ function hestia_register_blog_partials( $wp_customize ) {
 }
 add_action( 'customize_register', 'hestia_register_blog_partials' );
 
-
-/**
- * Render callback function for header title selective refresh
- *
- * @return string
- */
-function hestia_blog_title_render_callback() {
-	return get_theme_mod( 'hestia_blog_title' );
-}
-
-/**
- * Render callback function for header title selective refresh
- *
- * @return string
- */
-function hestia_blog_subtitle_render_callback() {
-	return get_theme_mod( 'hestia_blog_subtitle' );
-}
-
-
 /**
  * Callback function for blog content selective refresh.
  *
@@ -183,6 +136,5 @@ function hestia_blog_subtitle_render_callback() {
  * @access public
  */
 function hestia_blog_content_callback() {
-	$hestia_blog_items = get_theme_mod( 'hestia_blog_items' );
-	hestia_blog_content( $hestia_blog_items, true );
+	hestia_blog_content( true );
 }

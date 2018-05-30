@@ -102,7 +102,7 @@ final class Hestia_Customizer_Theme_Info {
 							esc_html__( 'Section Reordering', 'hestia' ),
 						),
 
-						'button_url'         => esc_url( 'https://themeisle.com/themes/hestia-pro/upgrade/' ),
+						'button_url'         => esc_url( apply_filters( 'hestia_upgrade_link_from_child_theme_filter', 'https://themeisle.com/themes/hestia-pro/upgrade/' ) ),
 						'button_text'        => esc_html__( 'Get the PRO version!', 'hestia' ),
 						'explained_features' => array(
 							esc_html__( 'Portfolio section with two possible layouts.', 'hestia' ),

@@ -29,7 +29,7 @@ h2.title {
 @media (max-width: 768px) {
 	h2.hestia-title,
 	h2.title {
-		font-size: 32px;
+		font-size: 24px;
 	}
 }
 
@@ -73,10 +73,15 @@ h5.subscribe-description {
 
 h4.card-title,
 .hestia-info h4.info-title,
-.card-blog .card-title,
 .footer .widget h5,
 section.contactus h4.hestia-title {
 	font-size: 18px;
+}
+
+.blog .card-blog .card-title,
+.archive .card-blog .card-title,
+.blog .hestia-blog-featured-card .card-title {
+	font-size: 25px;
 }
 
 /*
@@ -102,8 +107,15 @@ section.pricing p.text-gray,
  */
 h1,
 .single-post-wrap article h1,
-.page-content-wrap h1 {
+.page-content-wrap h1,
+.hestia-title.title-in-content {
 	font-size: 42px;
+}
+
+@media (max-width: 768px) {
+	.hestia-title.title-in-content {
+		font-size: 36px;
+	}
 }
 
 h2,

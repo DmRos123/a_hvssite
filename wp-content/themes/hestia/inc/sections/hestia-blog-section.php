@@ -7,6 +7,7 @@
  */
 
 if ( ! function_exists( 'hestia_blog' ) ) :
+
 	/**
 	 * Blog section content.
 	 * This function can be called from a shortcode too.
@@ -18,20 +19,23 @@ if ( ! function_exists( 'hestia_blog' ) ) :
 	 */
 	function hestia_blog( $is_shortcode = false ) {
 
-		// When this function is called from selective refresh, $is_shortcode gets the value of WP_Customize_Selective_Refresh object. We don't need that.
-		if ( ! is_bool( $is_shortcode ) ) {
-			$is_shortcode = false;
-		}
-
-		/* Don't show section if Disable section is checked or it doesn't have any content. Show it if it's called as a shortcode */
-		$hide_section = get_theme_mod( 'hestia_blog_hide', false );
+		/**
+		 * Don't show section if Disable section is checked.
+		 * Show it if it's called as a shortcode.
+		 */
+		$hide_section  = get_theme_mod( 'hestia_blog_hide', false );
+		$section_style = '';
 		if ( $is_shortcode === false && (bool) $hide_section === true ) {
 			if ( is_customize_preview() ) {
-				echo '<section class="hestia-blogs" id="blog" data-sorder="hestia_blog" style="display: none"></section>';
+				$section_style = 'style="display: none"';
+			} else {
+				return;
 			}
-			return;
 		}
 
+		/**
+		 * Gather data to display the section.
+		 */
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			/* translators: 1 - link to customizer setting. 2 - 'customizer' */
 			$hestia_blog_subtitle = get_theme_mod( 'hestia_blog_subtitle', sprintf( __( 'Change this subtitle in the %s.', 'hestia' ), sprintf( '<a href="%1$s" class="default-link">%2$s</a>', esc_url( admin_url( 'customize.php?autofocus&#91;control&#93;=hestia_blog_subtitle' ) ), __( 'Customizer', 'hestia' ) ) ) );
@@ -43,35 +47,42 @@ if ( ! function_exists( 'hestia_blog' ) ) :
 			$hestia_blog_title    = '';
 			$hestia_blog_subtitle = '';
 		}
-		$hestia_blog_items = get_theme_mod( 'hestia_blog_items', 3 );
 
+		/**
+		 * In case this function is called as shortcode, we remove the container and we add 'is-shortcode' class.
+		 */
 		$wrapper_class   = $is_shortcode === true ? 'is-shortcode' : '';
 		$container_class = $is_shortcode === true ? '' : 'container';
 
-		hestia_before_blog_section_trigger();
-		?>
-		<section class="hestia-blogs <?php echo esc_attr( $wrapper_class ); ?>" id="blog" data-sorder="hestia_blog">
-			<?php hestia_before_blog_section_content_trigger(); ?>
+		hestia_before_blog_section_trigger(); ?>
+		<section class="hestia-blogs <?php echo esc_attr( $wrapper_class ); ?>" id="blog" data-sorder="hestia_blog" <?php echo wp_kses_post( $section_style ); ?>>
+			<?php
+			hestia_before_blog_section_content_trigger();
+			if ( $is_shortcode === false ) {
+				hestia_display_customizer_shortcut( 'hestia_blog_hide', true );
+			}
+			?>
 			<div class="<?php echo esc_attr( $container_class ); ?>">
 				<?php
 				hestia_top_blog_section_content_trigger();
 				if ( $is_shortcode === false ) {
-				?>
+					?>
 					<div class="row">
-						<div class="col-md-8 col-md-offset-2 text-center">
+						<div class="col-md-8 col-md-offset-2 text-center hestia-blogs-title-area">
 							<?php
+							hestia_display_customizer_shortcut( 'hestia_blog_title' );
 							if ( ! empty( $hestia_blog_title ) || is_customize_preview() ) {
-								echo '<h2 class="hestia-title">' . esc_html( $hestia_blog_title ) . '</h2>';
+								echo '<h2 class="hestia-title">' . wp_kses_post( $hestia_blog_title ) . '</h2>';
 							}
 							if ( ! empty( $hestia_blog_subtitle ) || is_customize_preview() ) {
-								echo '<h5 class="description">' . wp_kses_post( $hestia_blog_subtitle ) . '</h5>';
+								echo '<h5 class="description">' . hestia_sanitize_string( $hestia_blog_subtitle ) . '</h5>';
 							}
 							?>
 						</div>
 					</div>
 					<?php
 				}
-				hestia_blog_content( $hestia_blog_items );
+				hestia_blog_content();
 				?>
 				<?php hestia_bottom_blog_section_content_trigger(); ?>
 			</div>
@@ -89,10 +100,11 @@ if ( ! function_exists( 'hestia_blog_content' ) ) {
 	 *
 	 * @since 1.1.31
 	 * @access public
-	 * @param string $hestia_blog_items Number of items.
-	 * @param bool   $is_callback Flag to check if it's callback or not.
+	 * @param bool $is_callback Flag to check if it's callback or not.
 	 */
-	function hestia_blog_content( $hestia_blog_items, $is_callback = false ) {
+	function hestia_blog_content( $is_callback = false ) {
+
+		$hestia_blog_items = get_theme_mod( 'hestia_blog_items', 3 );
 		if ( ! $is_callback ) {
 			?>
 			<div class="hestia-blog-content">
@@ -103,6 +115,18 @@ if ( ! function_exists( 'hestia_blog_content' ) ) {
 			'ignore_sticky_posts' => true,
 		);
 		$args['posts_per_page'] = ! empty( $hestia_blog_items ) ? absint( $hestia_blog_items ) : 3;
+
+		$hestia_blog_categories = get_theme_mod( 'hestia_blog_categories' );
+
+		if ( ! empty( $hestia_blog_categories[0] ) && sizeof( $hestia_blog_categories ) >= 1 ) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'category',
+					'field'    => 'term_id',
+					'terms'    => $hestia_blog_categories,
+				),
+			);
+		}
 
 		$loop = new WP_Query( $args );
 
@@ -118,7 +142,7 @@ if ( ! function_exists( 'hestia_blog_content' ) ) {
 
 		if ( $loop->have_posts() ) :
 			$i = 1;
-			echo '<div class="row">';
+			echo '<div class="row" ' . hestia_add_animationation( 'fade-up' ) . '>';
 			while ( $loop->have_posts() ) :
 				$loop->the_post();
 				?>
@@ -145,7 +169,7 @@ if ( ! function_exists( 'hestia_blog_content' ) ) {
 				<?php
 				if ( $i % apply_filters( 'hestia_blog_per_row_no', 3 ) == 0 ) {
 					echo '</div><!-- /.row -->';
-					echo '<div class="row">';
+					echo '<div class="row" ' . hestia_add_animationation( 'fade-up' ) . '>';
 				}
 				$i++;
 			endwhile;

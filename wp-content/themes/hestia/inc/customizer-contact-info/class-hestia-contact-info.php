@@ -35,7 +35,7 @@ class Hestia_Contact_Info extends WP_Customize_Control {
 				/* translators: %s is Path in plugin wrapped */
 				esc_html__( 'You should be able to see the form on your front-page. You can configure settings from %s, in your WordPress dashboard.', 'hestia' ),
 				/* translators: %s is Path in plugin*/
-				sprintf( '<b>%s</b>', esc_html__( 'Settings > Pirate Forms', 'hestia' ) )
+				sprintf( '<a href="%s" target="_blank">%s</a>', admin_url( 'admin.php?page=pirateforms-admin' ), esc_html__( 'Settings > Pirate Forms', 'hestia' ) )
 			);
 		} else {
 			printf(

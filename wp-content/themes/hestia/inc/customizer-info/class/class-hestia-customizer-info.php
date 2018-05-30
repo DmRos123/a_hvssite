@@ -90,7 +90,7 @@ class Hestia_Customizer_Info extends WP_Customize_Section {
 	 * @return void
 	 */
 	protected function render_template() {
-	?>
+		?>
 		<# if ( !data.hide_notice ) { #>
 			<li id="accordion-section-{{ data.id }}" class="hestia-notice accordion-section control-section control-section-{{ data.type }} cannot-expand">
 				<button type="button" class="notice-dismiss" style="z-index: 1;">

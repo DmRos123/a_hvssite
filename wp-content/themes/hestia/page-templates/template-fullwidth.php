@@ -9,22 +9,35 @@
  */
 
 get_header();
-?>
-	<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1 text-center">
-					<?php single_post_title( '<h1 class="hestia-title">', '</h1>' ); ?>
-				</div>
-			</div>
-		</div>
-		<?php hestia_output_wrapper_header_background( false ); ?>
-	</div>
+
+/**
+ * Don't display page header if header layout is set as classic blog.
+ */
+$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+if ( $hestia_header_layout !== 'classic-blog' ) {
+	hestia_display_page_header();
+} ?>
+
 </header>
 <div class="<?php echo hestia_layout(); ?>">
-	<div class="blog-post blog-post-wrapper">
+	<?php
+	$class_to_add = '';
+	if ( hestia_woocommerce_check() && ! is_cart() ) {
+		$class_to_add = 'blog-post-wrapper';
+	}
+	?>
+	<div class="blog-post <?php echo esc_attr( $class_to_add ); ?>">
 		<div class="container">
 			<?php
+			if ( hestia_woocommerce_check() && ( is_cart() || is_checkout() ) ) {
+				?>
+				<div class="row">
+					<div class="col-sm-12">
+						<h1 class="hestia-title"><?php single_post_title(); ?></h1>
+					</div>
+				</div>
+				<?php
+			}
 			if ( have_posts() ) :
 				while ( have_posts() ) :
 					the_post();

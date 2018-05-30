@@ -146,17 +146,23 @@ function hestia_typography_settings( $wp_customize ) {
 	 * 2. Font Size tab
 	 * ------------------
 	 */
-
 	if ( class_exists( 'Hestia_Customizer_Range_Value_Control' ) ) {
 
 		/**
-		 * --------------
-		 * Posts & Pages
-		 * --------------
+		 * -------------------------------------
+		 * 2.a. Customizer headings for a better
+		 * organization
+		 * -------------------------------------
 		 */
-
 		if ( class_exists( 'Hestia_Customizer_Heading' ) ) {
 
+			/**
+			 * -------------------------------------
+			 * Heading control that is displayed
+			 * before font size controls for posts
+			 * and pages.
+			 * -------------------------------------
+			 */
 			$wp_customize->add_setting(
 				'hestia_posts_and_pages_title', array(
 					'sanitize_callback' => 'wp_kses',
@@ -168,20 +174,47 @@ function hestia_typography_settings( $wp_customize ) {
 					$wp_customize, 'hestia_posts_and_pages_title', array(
 						'label'    => esc_html__( 'Posts & Pages', 'hestia' ),
 						'section'  => 'hestia_typography',
-						'priority' => 50,
+						'priority' => 100,
+					)
+				)
+			);
+
+			/**
+			 * -------------------------------------
+			 * Heading control that is displayed
+			 * before font size controls for
+			 * frontpage.
+			 * -------------------------------------
+			 */
+			$wp_customize->add_setting(
+				'hestia_frontpage_sections_title', array(
+					'sanitize_callback' => 'wp_kses',
+				)
+			);
+
+			$wp_customize->add_control(
+				new Hestia_Customizer_Heading(
+					$wp_customize, 'hestia_frontpage_sections_title', array(
+						'label'    => esc_html__( 'Frontpage Sections', 'hestia' ),
+						'section'  => 'hestia_typography',
+						'priority' => 200,
 					)
 				)
 			);
 		}
 
 		/**
-		 * ---------------------------------
-		 * 2.a. Title control [Posts & Pages]
-		 * This control allows the user to choose a font size for the main titles that appear in the header for pages and posts.
+		 * --------------------------------------------------------------------------
+		 * 2.b. Font size controls for Posts & Pages
+		 * --------------------------------------------------------------------------
+		 *
+		 * Title control [Posts & Pages]
+		 * This control allows the user to choose a font size for the main titles
+		 * that appear in the header for pages and posts.
+		 *
 		 * The values area between -25 and +25 px.
-		 * --------------------------------
+		 * --------------------------------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_header_titles_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -201,7 +234,7 @@ function hestia_typography_settings( $wp_customize ) {
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'    => 60,
+					'priority'    => 110,
 					'media_query' => true,
 					'sum_type'    => true,
 				)
@@ -209,13 +242,15 @@ function hestia_typography_settings( $wp_customize ) {
 		);
 
 		/**
-		 * ---------------------------------
-		 * 2.b. Headings control [Posts & Pages]
-		 * This control allows the user to choose a font size for all headings ( h1 - h6 ) from pages and posts.
+		 * --------------------------------------------------------------------------
+		 * Headings control [Posts & Pages]
+		 *
+		 * This control allows the user to choose a font size for all headings
+		 * ( h1 - h6 ) from pages and posts.
+		 *
 		 * The values area between -25 and +25 px.
-		 * --------------------------------
+		 * --------------------------------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_post_page_headings_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -235,20 +270,22 @@ function hestia_typography_settings( $wp_customize ) {
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'   => 70,
+					'priority'   => 115,
 					'sum_type'   => true,
 				)
 			)
 		);
 
 		/**
-		 * ---------------------------------
-		 * 2.c. Content control [Posts & Pages]
-		 * This control allows the user to choose a font size for the main content area in pages and posts.
+		 * --------------------------------------------------------------------------
+		 * Content control [Posts & Pages]
+		 *
+		 * This control allows the user to choose a font size for the main content
+		 * area in pages and posts.
+		 *
 		 * The values area between -25 and +25 px.
-		 * --------------------------------
+		 * --------------------------------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_post_page_content_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -268,47 +305,57 @@ function hestia_typography_settings( $wp_customize ) {
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'   => 80,
+					'priority'   => 120,
 					'sum_type'   => true,
 				)
 			)
 		);
 
 		/**
-		 * -----------------------------
-		 * Blog, Frontpage & WooCommerce
-		 * TODO: This section is hidden at this moment (1.1.58) and we need to fix all the problems until have it back in both lite and pro
-		 * For now, it's been used only for migration purposes for users that had the option to change more fonts in ver 1.1.56 and got removed in 1.1.57
-		 * -----------------------------
+		 * --------------------------------------------------------------------------
+		 * 2.c. Font size controls for Frontpage
+		 * --------------------------------------------------------------------------
+		 * Big Title Section / Header Slider font size control. [Frontpage Sections]
+		 *
+		 * This is changing the big title/slider titles, the
+		 * subtitle and the button in the big title section.
+		 *
+		 * The values are between -25 and +25 px.
+		 * --------------------------------------------------------------------------
 		 */
+		$wp_customize->add_setting(
+			'hestia_big_title_fs', array(
+				'sanitize_callback' => 'hestia_sanitize_range_value',
+				'default'           => '0',
+				'transport'         => 'postMessage',
+			)
+		);
 
-		if ( class_exists( 'Hestia_Customizer_Heading' ) ) {
-
-			$wp_customize->add_setting(
-				'hestia_frontpage_title', array(
-					'sanitize_callback' => 'wp_kses',
+		$wp_customize->add_control(
+			new Hestia_Customizer_Range_Value_Control(
+				$wp_customize, 'hestia_big_title_fs', array(
+					'label'      => apply_filters( 'hestia_big_title_fs_label', esc_html__( 'Big Title Section', 'hestia' ) ),
+					'section'    => 'hestia_typography',
+					'type'       => 'range-value',
+					'input_attr' => array(
+						'min'  => - 25,
+						'max'  => 25,
+						'step' => 1,
+					),
+					'priority'   => 210,
+					'sum_type'   => true,
 				)
-			);
-
-			$wp_customize->add_control(
-				new Hestia_Customizer_Heading(
-					$wp_customize, 'hestia_frontpage_title', array(
-						'label'    => esc_html__( 'Blog, Frontpage & WooCommerce', 'hestia' ),
-						'section'  => 'hestia_typography',
-						'priority' => 10,
-					)
-				)
-			);
-		}
+			)
+		);
 
 		/**
-		 * --------------------------------------------------
-		 * 2.d. Titles control [Blog, Frontpage & WooCommerce]
-		 * This control allows the user to choose a font size for all Titles for Frontpage Sections ( for Slider check Posts & Pages Title ), Box Headings for Frontpage Sections, Blog and WooCommerce pages ( Single product page, Cart and Checkout.
-		 * The values area between -25 and +25 px.
-		 * --------------------------------------------------
+		 * --------------------------------------------------------------------------
+		 * Section Title [Frontpage Sections]
+		 *
+		 * This control is changing sections titles and card titles
+		 * The values are between -25 and +25 px.
+		 * --------------------------------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_section_primary_headings_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -320,30 +367,28 @@ function hestia_typography_settings( $wp_customize ) {
 		$wp_customize->add_control(
 			new Hestia_Customizer_Range_Value_Control(
 				$wp_customize, 'hestia_section_primary_headings_fs', array(
-					'label'       => esc_html__( 'Titles', 'hestia' ),
-					'description' => esc_html__( 'Titles for Frontpage Sections ( for Slider check Posts & Pages Title ), Box Headings for Frontpage Sections, Blog and WooCommerce pages ( Single product page, Cart and Checkout ).', 'hestia' ),
-					'section'     => 'hestia_typography',
-					'type'        => 'range-value',
-					'input_attr'  => array(
+					'label'      => esc_html__( 'Section Title', 'hestia' ),
+					'section'    => 'hestia_typography',
+					'type'       => 'range-value',
+					'input_attr' => array(
 						'min'  => - 25,
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'    => 20,
-					'media_query' => true,
-					'sum_type'    => true,
+					'priority'   => 215,
+					'sum_type'   => true,
 				)
 			)
 		);
 
 		/**
 		 * -----------------------------------------------------
-		 * 2.e. Subtitles control [Blog, Frontpage & WooCommerce]
-		 * This control allows the user to choose a font size for all Subtitles on Blog and Frontpage sections and WooCommerce price on product page.
+		 * Subtitles control [Frontpage Sections]
+		 * This control allows the user to choose a font size
+		 * for all Subtitles on Frontpage sections.
 		 * The values area between -25 and +25 px.
 		 * -----------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_section_secondary_headings_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -355,30 +400,28 @@ function hestia_typography_settings( $wp_customize ) {
 		$wp_customize->add_control(
 			new Hestia_Customizer_Range_Value_Control(
 				$wp_customize, 'hestia_section_secondary_headings_fs', array(
-					'label'       => esc_html__( 'Subtitles', 'hestia' ),
-					'description' => esc_html__( 'Subtitles on Blog and Frontpage sections and WooCommerce price on product page.', 'hestia' ),
-					'section'     => 'hestia_typography',
-					'type'        => 'range-value',
-					'input_attr'  => array(
+					'label'      => esc_html__( 'Section Subtitle', 'hestia' ),
+					'section'    => 'hestia_typography',
+					'type'       => 'range-value',
+					'input_attr' => array(
 						'min'  => - 25,
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'    => 30,
-					'media_query' => true,
-					'sum_type'    => true,
+					'priority'   => 220,
+					'sum_type'   => true,
 				)
 			)
 		);
 
 		/**
 		 * -----------------------------------------------------
-		 * 2.e. Content control [Blog, Frontpage & WooCommerce]
-		 * This control allows the user to choose a font size for the Main content for Frontpage Sections, Blog and WooCommerce pages ( Single product page and Shop page ).
+		 * Content control [Frontpage Sections]
+		 * This control allows the user to choose a font size
+		 * for the Main content for Frontpage Sections
 		 * The values area between -25 and +25 px.
 		 * -----------------------------------------------------
 		 */
-
 		$wp_customize->add_setting(
 			'hestia_section_content_fs', array(
 				'sanitize_callback' => 'hestia_sanitize_range_value',
@@ -390,18 +433,16 @@ function hestia_typography_settings( $wp_customize ) {
 		$wp_customize->add_control(
 			new Hestia_Customizer_Range_Value_Control(
 				$wp_customize, 'hestia_section_content_fs', array(
-					'label'       => esc_html__( 'Content', 'hestia' ),
-					'description' => esc_html__( 'Main content for Frontpage Sections, Blog and WooCommerce pages ( Single product page and Shop page ).', 'hestia' ),
-					'section'     => 'hestia_typography',
-					'type'        => 'range-value',
-					'input_attr'  => array(
+					'label'      => esc_html__( 'Content', 'hestia' ),
+					'section'    => 'hestia_typography',
+					'type'       => 'range-value',
+					'input_attr' => array(
 						'min'  => - 25,
 						'max'  => 25,
 						'step' => 1,
 					),
-					'priority'    => 40,
-					'media_query' => true,
-					'sum_type'    => true,
+					'priority'   => 225,
+					'sum_type'   => true,
 				)
 			)
 		);
@@ -410,85 +451,53 @@ function hestia_typography_settings( $wp_customize ) {
 
 add_action( 'customize_register', 'hestia_typography_settings', 20 );
 
-
-/**
- * Return style for fonts.
- *
- * @return string
- * @since 1.1.48
- */
-function hestia_get_fonts_style() {
-
-	$custom_css = '';
-
+if ( ! file_exists( 'hestia_fonts_inline_style' ) ) {
 	/**
-	 * Title control [Posts & Pages]
+	 * Add inline style for custom fonts.
+	 *
+	 * @since 1.1.59
 	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_header_titles_fs', 'hestia_get_header_titles_style' );
+	function hestia_fonts_inline_style() {
 
-	/**
-	 * Headings control [Posts & Pages]
-	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_post_page_headings_fs', 'hestia_get_post_page_headings_style', $custom_css );
+		/**
+		 * Headings font family.
+		 */
+		$custom_css           = '';
+		$default              = apply_filters( 'hestia_headings_default', false );
+		$hestia_headings_font = get_theme_mod( 'hestia_headings_font', $default );
 
-	/**
-	 * Content control [Posts & Pages]
-	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_post_page_content_fs', 'hestia_get_post_page_content_style', $custom_css );
-
-	/**
-	 * Titles control [Blog, Frontpage & WooCommerce]
-	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_section_primary_headings_fs', 'hestia_get_fp_and_woo_titles_style' );
-
-	/**
-	 * Subitles control [Blog, Frontpage & WooCommerce]
-	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_section_secondary_headings_fs', 'hestia_get_fp_and_woo_subtitles_style' );
-
-	/**
-	 * Content control [Blog, Frontpage & WooCommerce]
-	 */
-	$custom_css .= hestia_get_inline_style( 'hestia_section_content_fs', 'hestia_get_fp_and_woo_content_style' );
-
-	/**
-	 * Headings font family.
-	 */
-	$default              = apply_filters( 'hestia_headings_default', false );
-	$hestia_headings_font = get_theme_mod( 'hestia_headings_font', $default );
-
-	if ( ! empty( $hestia_headings_font ) ) {
-		hestia_enqueue_google_font( $hestia_headings_font );
-		$custom_css .=
-			'h1, h2, h3, h4, h5, h6, .hestia-title , .info-title, .card-title,
+		if ( ! empty( $hestia_headings_font ) ) {
+			hestia_enqueue_google_font( $hestia_headings_font );
+			$custom_css .=
+				'h1, h2, h3, h4, h5, h6, .hestia-title, .hestia-title.title-in-content, p.meta-in-content , .info-title, .card-title,
 		.page-header.header-small .hestia-title, .page-header.header-small .title, .widget h5, .hestia-title, 
 		.title, .card-title, .info-title, .footer-brand, .footer-big h4, .footer-big h5, .media .media-heading, 
 		.carousel h1.hestia-title, .carousel h2.title, 
 		.carousel span.sub-title, .woocommerce.single-product h1.product_title, .woocommerce section.related.products h2, .hestia-about h1, .hestia-about h2, .hestia-about h3, .hestia-about h4, .hestia-about h5 {
 			font-family: ' . $hestia_headings_font . ';
 		}';
-		if ( class_exists( 'WooCommerce' ) ) {
-			$custom_css .=
-				'.woocommerce.single-product .product_title, .woocommerce .related.products h2, .woocommerce span.comment-reply-title {
+			if ( class_exists( 'WooCommerce' ) ) {
+				$custom_css .=
+					'.woocommerce.single-product .product_title, .woocommerce .related.products h2, .woocommerce span.comment-reply-title {
 				font-family: ' . $hestia_headings_font . ';
 			}';
+			}
 		}
-	}
 
-	/**
-	 * Body font family.
-	 */
-	$default          = apply_filters( 'hestia_body_font_default', false );
-	$hestia_body_font = get_theme_mod( 'hestia_body_font', $default );
-	if ( ! empty( $hestia_body_font ) ) {
-		hestia_enqueue_google_font( $hestia_body_font );
-		$custom_css .= '
+		/**
+		 * Body font family.
+		 */
+		$default          = apply_filters( 'hestia_body_font_default', false );
+		$hestia_body_font = get_theme_mod( 'hestia_body_font', $default );
+		if ( ! empty( $hestia_body_font ) ) {
+			hestia_enqueue_google_font( $hestia_body_font );
+			$custom_css .= '
 		body, ul, .tooltip-inner {
 			font-family: ' . $hestia_body_font . ';
 		}';
 
-		if ( class_exists( 'WooCommerce' ) ) {
-			$custom_css .= '
+			if ( class_exists( 'WooCommerce' ) ) {
+				$custom_css .= '
 		.products .shop-item .added_to_cart,
 		.woocommerce-checkout #payment input[type=submit], .woocommerce-checkout input[type=submit],
 		.woocommerce-cart table.shop_table td.actions input[type=submit],
@@ -498,27 +507,86 @@ function hestia_get_fonts_style() {
 		.woocommerce a.button {
 			font-family: ' . $hestia_body_font . ';
 		}';
+			}
 		}
+
+		/**
+		 * Hide customizer shortcut for page editor control if frontpage was edited with elementor, beaver or wpbakery.
+		 */
+		$is_pagebuilder = hestia_edited_with_pagebuilder();
+		if ( $is_pagebuilder ) {
+			$custom_css .= '.customize-partial-edit-shortcut-hestia_page_editor{
+				display:none;
+			}';
+		}
+
+		wp_add_inline_style( 'hestia_style', $custom_css );
 	}
 
-	return $custom_css;
+	add_action( 'wp_enqueue_scripts', 'hestia_fonts_inline_style' );
 }
 
-/**
- * Adds inline style from customizer
- *
- * @since 1.1.38
- */
-function hestia_typography_inline_style() {
+if ( ! function_exists( 'hestia_typography_inline_style' ) ) {
+	/**
+	 * Add inline style for font sizes.
+	 *
+	 * @since 1.1.48
+	 */
+	function hestia_typography_inline_style() {
 
-	$custom_css = hestia_get_fonts_style();
-	wp_add_inline_style( 'hestia_style', $custom_css );
+		$custom_css = '';
+
+		/**
+		 * Title control [Posts & Pages]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_header_titles_fs', 'hestia_get_header_titles_style' );
+
+		/**
+		 * Headings control [Posts & Pages]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_post_page_headings_fs', 'hestia_get_post_page_headings_style' );
+
+		/**
+		 * Content control [Posts & Pages]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_post_page_content_fs', 'hestia_get_post_page_content_style' );
+
+		/**
+		 * Big Title Section / Header Slide [Frontpage sections]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_big_title_fs', 'hestia_get_big_title_content_style' );
+
+		/**
+		 * Titles control [Frontpage sections]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_section_primary_headings_fs', 'hestia_get_fp_titles_style' );
+
+		/**
+		 * Subitles control [Frontpage sections]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_section_secondary_headings_fs', 'hestia_get_fp_subtitles_style' );
+
+		/**
+		 * Content control [Blog, Frontpage & WooCommerce]
+		 */
+		$custom_css .= hestia_get_inline_style( 'hestia_section_content_fs', 'hestia_get_fp_content_style' );
+
+		wp_add_inline_style( 'hestia_style', $custom_css );
+	}
+
+	add_action( 'wp_enqueue_scripts', 'hestia_typography_inline_style' );
 }
 
-add_action( 'wp_enqueue_scripts', 'hestia_typography_inline_style' );
+
 
 /**
- * Get inline style for different controls
+ * This function checks if the value stored in the customizer control named '$control_name' is a json object.
+ * If the value is json it means that the customizer range control stores a value for every device ( mobile, tablet,
+ * desktop). In this case, for each of those devices it calls '$function_name' that with the following parameters:
+ * the device and the value for the control on that device.
+ * '$function_name' returns css code that will be added to inline style.
+ * If the value is not json then it's int and the '$function_name' function will be called just once for all three
+ * devices.
  *
  * @param string $control_name Control name.
  * @param string $function_name Function to be called.
@@ -548,16 +616,46 @@ function hestia_get_inline_style( $control_name, $function_name ) {
 }
 
 /**
+ * [Posts and Pages] Title font size.
+ *
+ * This function is called by hestia_get_inline_style to change the font size for:
+ * pages/posts titles
+ * Slider/Big title title/subtitle
+ *
+ * @param string $value Font value.
+ */
+function hestia_get_header_titles_style( $value, $dimension = 'desktop' ) {
+	$custom_css = '';
+	switch ( $dimension ) {
+		case 'desktop':
+			$v3 = ( 42 + (int) $value ) > 0 ? ( 42 + (int) $value ) : 0;
+			break;
+		case 'tablet':
+		case 'mobile':
+			$v3 = ( 36 + (int) $value ) > 0 ? ( 36 + (int) $value ) : 0;
+			break;
+	}
+	$custom_css .= '
+	.page-header.header-small .hestia-title,
+	.page-header.header-small .title,
+	h1.hestia-title.title-in-content{
+		font-size: ' . $v3 . 'px;
+	}';
+
+	$custom_css = hestia_add_media_query( $dimension, $custom_css );
+
+	return $custom_css;
+}
+
+/**
  * [Posts & Pages] Headings.
- * This changes the font size for headings ( h1 - h6 ) on pages and single post pages
+ * This function is called by hestia_get_inline_style to change the font size for:
+ * headings ( h1 - h6 ) on pages and single post pages
  *
  * @param string $value Font value.
  */
 function hestia_get_post_page_headings_style( $value, $dimension = 'desktop' ) {
 	$custom_css = '';
-	if ( empty( $value ) ) {
-		return $custom_css;
-	}
 	switch ( $dimension ) {
 		case 'desktop':
 			$v1 = ( 42 + (int) $value ) > 0 ? ( 42 + (int) $value ) : 0;
@@ -578,38 +676,59 @@ function hestia_get_post_page_headings_style( $value, $dimension = 'desktop' ) {
 			break;
 	}
 
-	$custom_css .= '
-	.single-post-wrap article h1,
-	.page-content-wrap h1,
-	.page-template-template-fullwidth article h1 {
-		font-size: ' . $v1 . 'px;
+	if ( ! empty( $v1 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h1:not(.title-in-content),
+		.page-content-wrap h1:not(.title-in-content),
+		.page-template-template-fullwidth article h1:not(.title-in-content) {
+			font-size: ' . intval( $v1 ) . 'px;
+		}';
 	}
-	.single-post-wrap article h2,
-	.page-content-wrap h2,
-	.page-template-template-fullwidth article h2 {
-		font-size: ' . $v2 . 'px;
-	}
-	.single-post-wrap article h3,
-	.page-content-wrap h3,
-	.page-template-template-fullwidth article h3 {
-		font-size: ' . $v3 . 'px;
-	}
-	.single-post-wrap article h4,
-	.page-content-wrap h4,
-	.page-template-template-fullwidth article h4 {
-		font-size: ' . $v4 . 'px;
-	}
-	.single-post-wrap article h5,
-	.page-content-wrap h5,
-	.page-template-template-fullwidth article h5 {
-		font-size: ' . $v5 . 'px;
-	}
-	.single-post-wrap article h6,
-	.page-content-wrap h6,
-	.page-template-template-fullwidth article h6 {
-		font-size: ' . $v6 . 'px;
-	}';
 
+	if ( ! empty( $v2 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h2,
+		.page-content-wrap h2,
+		.page-template-template-fullwidth article h2 {
+			font-size: ' . intval( $v2 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $v3 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h3,
+		.page-content-wrap h3,
+		.page-template-template-fullwidth article h3 {
+			font-size: ' . intval( $v3 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $v4 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h4,
+		.page-content-wrap h4,
+		.page-template-template-fullwidth article h4 {
+			font-size: ' . intval( $v4 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $v5 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h5,
+		.page-content-wrap h5,
+		.page-template-template-fullwidth article h5 {
+			font-size: ' . intval( $v5 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $v6 ) ) {
+		$custom_css .= '
+		.single-post-wrap article h6,
+		.page-content-wrap h6,
+		.page-template-template-fullwidth article h6 {
+			font-size: ' . $v6 . 'px;
+		}';
+	}
 	if ( function_exists( 'hestia_add_media_query' ) ) {
 		$custom_css = hestia_add_media_query( $dimension, $custom_css );
 	}
@@ -620,15 +739,14 @@ function hestia_get_post_page_headings_style( $value, $dimension = 'desktop' ) {
 
 /**
  * [Posts & Pages] Content.
- * This changes the font size for content ( p ) on pages and single post pages
+ * This function is called by hestia_get_inline_style to change the font size for:
+ * content ( p ) on pages
+ * single post pages
  *
  * @param string $value Font value.
  */
 function hestia_get_post_page_content_style( $value, $dimension = 'desktop' ) {
 	$custom_css = '';
-	if ( empty( $value ) ) {
-		return $custom_css;
-	}
 	switch ( $dimension ) {
 		case 'desktop':
 			$v1 = ( 18 + (int) $value ) > 0 ? ( 18 + (int) $value ) : 0;
@@ -638,9 +756,13 @@ function hestia_get_post_page_content_style( $value, $dimension = 'desktop' ) {
 			$v1 = ( 16 + (int) $value ) > 0 ? ( 16 + (int) $value ) : 0;
 			break;
 	}
-	$custom_css .= '.single-post-wrap article p, .page-content-wrap p, .single-post-wrap article ul, .page-content-wrap ul, .single-post-wrap article ol, .page-content-wrap ol, .single-post-wrap article dl, .page-content-wrap dl, .single-post-wrap article table, .page-content-wrap table, .page-template-template-fullwidth article p {
-		font-size: ' . $v1 . 'px;
-	}';
+
+	if ( ! empty( $v1 ) ) {
+		$custom_css .= '.single-post-wrap article p:not(.meta-in-content), .page-content-wrap p, .single-post-wrap article ul, .page-content-wrap ul, .single-post-wrap article ol, .page-content-wrap ol, .single-post-wrap article dl, .page-content-wrap dl, .single-post-wrap article table, .page-content-wrap table, .page-template-template-fullwidth article p {
+			font-size: ' . intval( $v1 ) . 'px;
+		}';
+	}
+
 	if ( function_exists( 'hestia_add_media_query' ) ) {
 		$custom_css = hestia_add_media_query( $dimension, $custom_css );
 	}
@@ -648,92 +770,211 @@ function hestia_get_post_page_content_style( $value, $dimension = 'desktop' ) {
 	return $custom_css;
 }
 
+/**
+ * [Frontpage Sections] Big Title Section / Header Slider.
+ *
+ * This function is called by hestia_get_inline_style to change big title/slider titles, the
+ * subtitle and the button in the big title section.
+ *
+ * How to calculate values:
+ * Hardcoded values (67, 18 and 14 on desktop or 36, 18, 14 on tablet and mobile) are the default values from css.
+ * In this case 67 is for big title, 18 for subtitle and 14 for button.
+ * The main formula for calculating is this:
+ * $initial_value + ($variable_value / $correlation)
+ * $initial_value -> value from css
+ * $variable_value -> controls value that is between -25 and 25
+ * $correlation -> this variable says we increase the value every X units.
+ * There is another variable to set a lower limit. Just change the value compared to.
+ *
+ * @param string $value Font value.
+ * @param string $dimension Dimension.
+ */
+function hestia_get_big_title_content_style( $value, $dimension = 'desktop' ) {
+	$custom_css = '';
+	switch ( $dimension ) {
+		case 'desktop':
+			$v1 = ( 67 + (int) $value ) > 0 ? ( 67 + (int) $value ) : 0;
+			$v2 = ( 18 + intval( (int) $value / 8 ) ) > 0 ? ( 18 + intval( (int) $value / 8 ) ) : 0;
+			$v3 = ( 14 + intval( (int) $value / 12 ) ) > 0 ? ( 14 + intval( (int) $value / 12 ) ) : 0;
+			break;
+		case 'tablet':
+		case 'mobile':
+			$v1 = ( 36 + intval( (int) $value / 4 ) ) > 0 ? ( 36 + intval( (int) $value / 4 ) ) : 0;
+			$v2 = ( 18 + intval( (int) $value / 4 ) ) > 0 ? ( 18 + intval( (int) $value / 4 ) ) : 0;
+			$v3 = ( 14 + intval( (int) $value / 6 ) ) > 0 ? ( 14 + intval( (int) $value / 6 ) ) : 0;
+			break;
+	}
+	if ( ! empty( $v1 ) ) {
+		$custom_css .= '#carousel-hestia-generic .hestia-title{
+			font-size: ' . intval( $v1 ) . 'px;
+		}';
+	}
+	if ( ! empty( $v2 ) ) {
+		$custom_css .= '#carousel-hestia-generic span.sub-title{
+			font-size: ' . intval( $v2 ) . 'px;
+		}';
+	}
+	if ( ! empty( $v3 ) ) {
+		$custom_css .= '#carousel-hestia-generic .btn{
+			font-size: ' . intval( $v3 ) . 'px;
+		}';
+	}
+
+	if ( function_exists( 'hestia_add_media_query' ) ) {
+		$custom_css = hestia_add_media_query( $dimension, $custom_css );
+	}
+
+	return $custom_css;
+}
 
 /**
- * [Blog, Frontpage & WooCommerce] Titles font size.
+ * [Frontpage Sections] Frontpage Titles font size.
  *
- * This function changes the font size for:
+ * This function is called by hestia_get_inline_style to change the font size for:
  * all frontpage sections titles and small headings ( Feature box title, Shop box title, Team box title, Testimonial box title, Blog box title )
- * WooCommerce pages titles ( Single product page < + Related Products string and Leave a review string >, Cart and Checkout pages )
- * Posts titles on the blog page
+ *
+ * The main formula for calculating is this:
+ * $initial_value + ($variable_value / $correlation)
+ * $initial_value -> value from css
+ * $variable_value -> controls value that is between -25 and 25
+ * $correlation -> this variable says we increase the value every X units.
+ * There is another variable to set a lower limit. Just change the value compared to.
  *
  * @param string $value Font value.
  */
-function hestia_get_fp_and_woo_titles_style( $value, $dimension = 'desktop' ) {
+function hestia_get_fp_titles_style( $value, $dimension = 'desktop' ) {
 	$custom_css = '';
 	switch ( $dimension ) {
 		case 'desktop':
+			$v1 = ( 37 + (int) $value ) > 18 ? ( 37 + (int) $value ) : 18;
+			$v2 = ( 18 + intval( (int) $value / 3 ) ) > 14 ? ( 18 + intval( (int) $value / 3 ) ) : 14;
+			$v3 = ( 23 + intval( (int) $value / 3 ) ) > 0 ? ( 23 + intval( (int) $value / 3 ) ) : 0;
+			$h1 = ( 42 + intval( (int) $value / 3 ) ) > 0 ? ( 42 + intval( (int) $value / 3 ) ) : 0;
+			$h2 = ( 37 + intval( (int) $value / 3 ) ) > 0 ? ( 37 + intval( (int) $value / 3 ) ) : 0;
+			$h3 = ( 32 + intval( (int) $value / 3 ) ) > 0 ? ( 32 + intval( (int) $value / 3 ) ) : 0;
+			$h4 = ( 27 + intval( (int) $value / 3 ) ) > 0 ? ( 27 + intval( (int) $value / 3 ) ) : 0;
+			break;
 		case 'tablet':
 		case 'mobile':
-			$v1 = ( 37 + (int) $value ) > 0 ? ( 37 + (int) $value ) : 0;
-			$v2 = ( 32 + (int) $value ) > 0 ? ( 32 + (int) $value ) : 0;
-			$v3 = ( 27 + (int) $value ) > 0 ? ( 27 + (int) $value ) : 0;
-			$v4 = ( 18 + (int) $value ) > 0 ? ( 18 + (int) $value ) : 0;
+			$v1 = ( 24 + (int) $value ) > 18 ? ( 24 + (int) $value ) : 18;
+			$v2 = ( 18 + intval( (int) $value / 3 ) ) > 14 ? ( 18 + intval( (int) $value / 3 ) ) : 14;
+			$v3 = ( 23 + intval( (int) $value / 3 ) ) > 0 ? ( 23 + intval( (int) $value / 3 ) ) : 0;
+			$h1 = ( 42 + intval( (int) $value / 3 ) ) > 0 ? ( 42 + intval( (int) $value / 3 ) ) : 0;
+			$h2 = ( 37 + intval( (int) $value / 3 ) ) > 0 ? ( 37 + intval( (int) $value / 3 ) ) : 0;
+			$h3 = ( 32 + intval( (int) $value / 3 ) ) > 0 ? ( 32 + intval( (int) $value / 3 ) ) : 0;
+			$h4 = ( 27 + intval( (int) $value / 3 ) ) > 0 ? ( 27 + intval( (int) $value / 3 ) ) : 0;
 			break;
 	}
-	$custom_css .= 'h2.hestia-title, h2.title {
-		font-size: ' . $v1 . 'px;
+
+	if ( ! empty( $v1 ) ) {
+		$custom_css .= '
+		section.hestia-features .hestia-title, 
+		section.hestia-shop .hestia-title, 
+		section.hestia-work .hestia-title, 
+		section.hestia-team .hestia-title, 
+		section.hestia-pricing .hestia-title, 
+		section.hestia-ribbon .hestia-title, 
+		section.hestia-testimonials .hestia-title, 
+		section.hestia-subscribe h2.title, 
+		section.hestia-blogs .hestia-title,
+		.section.related-posts .hestia-title,
+		section.hestia-contact .hestia-title{
+			font-size: ' . intval( $v1 ) . 'px;
+		}';
 	}
-	.woocommerce div.product .product_title,
-	.woocommerce .related.products h2 {
-		font-size: ' . $v2 . 'px;
+
+	if ( ! empty( $v2 ) ) {
+		$custom_css .= '
+		section.hestia-features .hestia-info h4.info-title, 
+		section.hestia-shop h4.card-title, 
+		section.hestia-team h4.card-title, 
+		section.hestia-testimonials h4.card-title, 
+		section.hestia-blogs h4.card-title,
+		.section.related-posts h4.card-title,
+		section.hestia-contact h4.card-title, 
+		section.hestia-contact .hestia-description h6{
+			font-size: ' . intval( $v2 ) . 'px;
+		}';
 	}
-	.subscribe-line h3.hestia-title,
-	 #comments .hestia-title,
-	.woocommerce .comment-reply-title,
-	.woocommerce-cart .blog-post h1.hestia-title,
-	.woocommerce-checkout .blog-post h1.hestia-title {
-		font-size: ' . $v3 . 'px;
+
+	if ( ! empty( $v3 ) ) {
+		$custom_css .= '	
+		section.hestia-work h4.card-title, 
+		section.hestia-contact .hestia-description h5{
+			font-size: ' . intval( $v3 ) . 'px;
+		}
+		';
 	}
-	h4.card-title,
-	.hestia-info h4.info-title,
-	.card-blog .card-title,
-	.footer .widget h5,
-	section.contactus h4.hestia-title,
-	 .blog-sidebar .widget h5{
-		font-size: ' . $v4 . 'px;
-	}';
+
+	if ( ! empty( $h1 ) ) {
+		$custom_css .= '
+		section.hestia-contact .hestia-description h1{
+			font-size: ' . intval( $h1 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $h2 ) ) {
+		$custom_css .= '
+		section.hestia-contact .hestia-description h2{
+			font-size: ' . intval( $h2 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $h3 ) ) {
+		$custom_css .= '
+		section.hestia-contact .hestia-description h3{
+			font-size: ' . intval( $h3 ) . 'px;
+		}';
+	}
+
+	if ( ! empty( $h4 ) ) {
+		$custom_css .= '
+		section.hestia-contact .hestia-description h4{
+			font-size: ' . intval( $h4 ) . 'px;
+		}';
+	}
 
 	$custom_css = hestia_add_media_query( $dimension, $custom_css );
 
 	return $custom_css;
 }
 
+
 /**
- * [Blog, Frontpage & WooCommerce] Subtitles font size.
+ * [Frontpage Sections] Subtitles font size.
  *
- * This function changes the font size for:
+ * This function is called by hestia_get_inline_style to change the font size for:
  * all frontpage sections subtitles
- * WooCommerce pages subtitles ( Single product page price, Cart and Checkout pages subtitles )
+ *
+ * The main formula for calculating is this:
+ * $initial_value + ($variable_value / $correlation)
+ * $initial_value -> value from css
+ * $variable_value -> controls value that is between -25 and 25
+ * $correlation -> this variable says we increase the value every X units.
+ * There is another variable to set a lower limit. Just change the value compared to.
  *
  * @param string $value Font value.
  */
-function hestia_get_fp_and_woo_subtitles_style( $value, $dimension = 'desktop' ) {
+function hestia_get_fp_subtitles_style( $value, $dimension = 'desktop' ) {
 	$custom_css = '';
 	switch ( $dimension ) {
 		case 'desktop':
 		case 'tablet':
 		case 'mobile':
-			$v1 = ( 23 + (int) $value ) > 0 ? ( 23 + (int) $value ) : 0;
-			$v2 = ( 18 + (int) $value ) > 0 ? ( 18 + (int) $value ) : 0;
-			$v3 = ( 14 + (int) $value ) > 0 ? ( 14 + (int) $value ) : 0;
+			$v1 = ( 18 + intval( (int) $value / 3 ) ) > 12 ? ( 18 + intval( (int) $value / 3 ) ) : 12;
 			break;
 	}
 
-	$custom_css .= '.hestia-work .card-title,
-	.woocommerce .cart-collaterals h2,
-	.woocommerce .cross-sells h2,
-	.woocommerce.single-product .summary .price,
-	.woocommerce-checkout .blog-post .section form.woocommerce-checkout h3:not(#ship-to-different-address) {
-		font-size: ' . $v1 . 'px;
-	}
-	
-	h5.description,
-	h5.subscribe-description {
-		font-size: ' . $v2 . 'px;
-	}
-	.subscribe-line .description {
-		font-size: ' . $v3 . 'px;
+	$custom_css .= ' 
+	section.hestia-features h5.description,
+	section.hestia-shop h5.description,
+	section.hestia-work h5.description,
+	section.hestia-team h5.description,
+	section.hestia-testimonials h5.description,
+	section.hestia-subscribe h5.subscribe-description,
+	section.hestia-blogs h5.description,
+	section.hestia-contact h5.description{
+		font-size: ' . intval( $v1 ) . 'px;
 	}';
 
 	$custom_css = hestia_add_media_query( $dimension, $custom_css );
@@ -742,37 +983,57 @@ function hestia_get_fp_and_woo_subtitles_style( $value, $dimension = 'desktop' )
 }
 
 /**
- * [Blog, Frontpage & WooCommerce] Content font size.
+ * [Frontpage Sections] Content font size.
  *
- * This function changes the font size for:
+ * This function is called by hestia_get_inline_style to change the font size for:
  * all frontpage sections box content
- * WooCommerce pages content ( Single product page description, Shop page product box content )
- * Posts content on the blog page
  *
  * @param string $value Font value.
  */
-function hestia_get_fp_and_woo_content_style( $value, $dimension = 'desktop' ) {
+function hestia_get_fp_content_style( $value, $dimension = 'desktop' ) {
 	$custom_css = '';
 	switch ( $dimension ) {
 		case 'desktop':
 		case 'tablet':
 		case 'mobile':
-			$v1 = ( 16 + (int) $value ) > 0 ? ( 16 + (int) $value ) : 0;
-			$v2 = ( 14 + (int) $value ) > 0 ? ( 14 + (int) $value ) : 0;
-			$v3 = ( 12 + (int) $value ) > 0 ? ( 12 + (int) $value ) : 0;
-
+			$v1 = ( 16 + intval( (int) $value / 3 ) ) > 12 ? ( 16 + intval( (int) $value / 3 ) ) : 12;
+			$v2 = ( 14 + intval( (int) $value / 3 ) ) > 12 ? ( 14 + intval( (int) $value / 3 ) ) : 12;
+			$v3 = ( 12 + intval( (int) $value / 3 ) ) > 12 ? ( 12 + intval( (int) $value / 3 ) ) : 12;
 			break;
 	}
 
-	$custom_css .= '.hestia-features .hestia-info p {
-		font-size: ' . $v1 . 'px;
+	if ( ! empty( $v1 ) ) {
+		$custom_css .= '
+		section.hestia-features .hestia-info p,
+		section.hestia-shop .card-description p{
+			font-size: ' . intval( $v1 ) . 'px;
+		}';
 	}
-	.woocommerce .product .card-product .card-description p, .card-description, section.pricing p.text-gray, .woocommerce.single-product .woocommerce-product-details__short-description {
-		font-size: ' . $v2 . 'px;
+
+	if ( ! empty( $v2 ) ) {
+		$custom_css .= '
+		section.hestia-team p.card-description,
+		section.hestia-pricing p.text-gray,
+		section.hestia-testimonials p.card-description,
+		section.hestia-blogs p.card-description,
+		.section.related-posts p.card-description,
+		.hestia-contact p{
+			font-size: ' . intval( $v2 ) . 'px;
+		}';
 	}
-	h6.category {
-		font-size: ' . $v3 . 'px;
-	}';
+
+	if ( ! empty( $v3 ) ) {
+		$custom_css .= '
+		section.hestia-shop h6.category,
+		section.hestia-work .label-primary,
+		section.hestia-team h6.category,
+		section.hestia-pricing .card-pricing h6.category,
+		section.hestia-testimonials h6.category,
+		section.hestia-blogs h6.category,
+		.section.related-posts h6.category{
+			font-size: ' . intval( $v3 ) . 'px;
+		}';
+	}
 
 	$custom_css = hestia_add_media_query( $dimension, $custom_css );
 
@@ -797,7 +1058,7 @@ function hestia_is_json( $string ) {
  * @since 1.1.58
  */
 function hestia_sync_new_fs() {
-	$execute = get_option( 'hestia_sync_new_fs2' );
+	$execute = get_option( 'hestia_sync_font_sizes' );
 	if ( $execute !== false ) {
 		return;
 	}
@@ -808,21 +1069,7 @@ function hestia_sync_new_fs() {
 	}
 
 	if ( ! empty( $headings_fs_old ) ) {
-		$decoded = json_decode( $headings_fs_old );
-		if ( ! hestia_is_json( $headings_fs_old ) ) {
-			$tmp_array = array(
-				'desktop' => floor( $decoded - 37 ) > 25 ? 25 : ( floor( $decoded - 37 ) < - 25 ? - 25 : floor( $decoded - 37 ) ),
-				'mobile'  => 0,
-				'tablet'  => 0,
-			);
-			$decoded   = json_encode( $tmp_array );
-		} else {
-			$decoded->desktop = floor( $decoded->desktop - 37 ) > 25 ? 25 : ( floor( $decoded->desktop - 37 ) < - 25 ? - 25 : floor( $decoded->desktop - 37 ) );
-			$decoded->tablet  = floor( $decoded->tablet - 32 ) > 25 ? 25 : ( floor( $decoded->tablet - 32 ) < - 25 ? - 25 : floor( $decoded->tablet - 32 ) );
-			$decoded->mobile  = floor( $decoded->mobile - 32 ) > 25 ? 25 : ( floor( $decoded->mobile - 32 ) < - 25 ? - 25 : floor( $decoded->mobile - 32 ) );
-			$decoded          = json_encode( $decoded );
-		}
-
+		$decoded = hestia_calculate_fs_value( $headings_fs_old, 37 );
 		set_theme_mod( 'hestia_section_primary_headings_fs', $decoded );
 		set_theme_mod( 'hestia_section_secondary_headings_fs', $decoded );
 		set_theme_mod( 'hestia_header_titles_fs', $decoded );
@@ -830,66 +1077,42 @@ function hestia_sync_new_fs() {
 	}
 
 	if ( ! empty( $body_fs_old ) ) {
-		$decoded = json_decode( $body_fs_old );
-		if ( ! hestia_is_json( $body_fs_old ) ) {
-			$tmp_array = array(
-				'desktop' => floor( $decoded - 18 ) > 25 ? 25 : ( floor( $decoded - 18 ) < - 25 ? - 25 : floor( $decoded - 18 ) ),
-				'mobile'  => 0,
-				'tablet'  => 0,
-			);
-			$decoded   = json_encode( $tmp_array );
-		} else {
-			$decoded->desktop = floor( $decoded->desktop - 18 ) > 25 ? 25 : ( floor( $decoded->desktop - 18 ) < - 25 ? - 25 : floor( $decoded->desktop - 18 ) );
-			$decoded->tablet  = floor( $decoded->tablet - 16 ) > 25 ? 25 : ( floor( $decoded->tablet - 16 ) < - 25 ? - 25 : floor( $decoded->tablet - 16 ) );
-			$decoded->mobile  = floor( $decoded->mobile - 16 ) > 25 ? 25 : ( floor( $decoded->mobile - 16 ) < - 25 ? - 25 : floor( $decoded->mobile - 16 ) );
-			$decoded          = json_encode( $decoded );
-		}
+		$decoded = hestia_calculate_fs_value( $body_fs_old, 12 );
 		set_theme_mod( 'hestia_section_content_fs', $decoded );
 		set_theme_mod( 'hestia_post_page_content_fs', $decoded );
 	}
-	update_option( 'hestia_sync_new_fs2', true );
+	update_option( 'hestia_sync_font_sizes', true );
 
 }
-
 add_action( 'after_setup_theme', 'hestia_sync_new_fs' );
 
 /**
- * [Posts and Pages] Title font size.
+ * Calculate new value for the new font size control based on the old control.
  *
- * This function changes the font size for:
- * pages/posts titles
- * Slider/Big title title/subtitle
- *
- * @param string $value Font value.
+ * @param string $old_value Value from the old control.
+ * @param int    $decrease_rate Value to substract from the old value.
  */
-function hestia_get_header_titles_style( $value, $dimension = 'desktop' ) {
-	$custom_css = '';
-	switch ( $dimension ) {
-		case 'desktop':
-			$v1 = ( 67 + (int) $value ) > 0 ? ( 67 + (int) $value ) : 0;
-			$v2 = ( 18 + (int) $value ) > 0 ? ( 18 + (int) $value ) : 0;
-			$v3 = ( 42 + (int) $value ) > 0 ? ( 42 + (int) $value ) : 0;
-			break;
-		case 'tablet':
-		case 'mobile':
-			$v1 = ( 42 + (int) $value ) > 0 ? ( 42 + (int) $value ) : 0;
-			$v2 = ( 18 + (int) $value ) > 0 ? ( 18 + (int) $value ) : 0;
-			$v3 = ( 42 + (int) $value ) > 0 ? ( 42 + (int) $value ) : 0;
-			break;
+function hestia_calculate_fs_value( $old_value, $decrease_rate ) {
+	$decoded = json_decode( $old_value );
+	if ( ! hestia_is_json( $old_value ) ) {
+		$tmp_array = array(
+			'desktop' => floor( $decoded - $decrease_rate ) > 25 ? 25 : ( floor( $decoded - $decrease_rate ) < - 25 ? - 25 : floor( $decoded - $decrease_rate ) ),
+			'mobile'  => 0,
+			'tablet'  => 0,
+		);
+		$decoded   = json_encode( $tmp_array );
+	} else {
+		$decoded->desktop = floor( $decoded->desktop - $decrease_rate ) > 25 ? 25 : ( floor( $decoded->desktop - $decrease_rate ) < - 25 ? - 25 : floor( $decoded->desktop - $decrease_rate ) );
+		$decoded->tablet  = floor( $decoded->tablet - $decrease_rate ) > 25 ? 25 : ( floor( $decoded->tablet - $decrease_rate ) < - 25 ? - 25 : floor( $decoded->tablet - $decrease_rate ) );
+		$decoded->mobile  = floor( $decoded->mobile - $decrease_rate ) > 25 ? 25 : ( floor( $decoded->mobile - $decrease_rate ) < - 25 ? - 25 : floor( $decoded->mobile - $decrease_rate ) );
+		$decoded          = json_encode( $decoded );
 	}
-	$custom_css .= '
-	.page-header.header-small .hestia-title,
-	.page-header.header-small .title {
-		font-size: ' . $v3 . 'px;
-	}';
-
-	$custom_css = hestia_add_media_query( $dimension, $custom_css );
-
-	return $custom_css;
+	return $decoded;
 }
 
+
 /**
- * Add media queries
+ * This function is called by each function that adds css if the control have media queries enabled.
  *
  * @param string $dimension Query dimension.
  * @param string $custom_css Css.
@@ -898,6 +1121,10 @@ function hestia_get_header_titles_style( $value, $dimension = 'desktop' ) {
  */
 function hestia_add_media_query( $dimension, $custom_css ) {
 	switch ( $dimension ) {
+		case 'desktop':
+			$custom_css = '@media (min-width: 769px){' . $custom_css . '}';
+			break;
+			break;
 		case 'tablet':
 			$custom_css = '@media (max-width: 768px){' . $custom_css . '}';
 			break;

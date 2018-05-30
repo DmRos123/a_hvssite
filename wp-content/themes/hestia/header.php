@@ -20,20 +20,22 @@
 </head>
 
 <body <?php body_class(); ?>>
-	<div 
-	<?php
-	if ( ! is_single() ) {
-		echo 'class="wrapper"';
-	} else {
-		post_class( 'wrapper' );
-	}
 
+	<?php
+	$wrapper_div_classes = 'wrapper ';
+	if ( is_single() ) {
+		$wrapper_div_classes .= join( ' ', get_post_class() );
+	}
+	?>
+
+	<div class="<?php echo esc_attr( $wrapper_div_classes ); ?>">
+
+	<?php
 	$header_class = '';
 	$hide_top_bar = get_theme_mod( 'hestia_top_bar_hide', true );
 	if ( (bool) $hide_top_bar === false ) {
 		$header_class .= 'header-with-topbar';
 	}
-?>
->
+	?>
 		<header class="header <?php echo esc_attr( $header_class ); ?>">
 			<?php do_action( 'hestia_do_header' ); ?>

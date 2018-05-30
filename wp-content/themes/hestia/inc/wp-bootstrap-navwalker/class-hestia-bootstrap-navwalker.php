@@ -124,15 +124,15 @@ class Hestia_Bootstrap_Navwalker extends Walker_Nav_Menu {
 			$is_wpml_item = ! empty( $item->type ) && $item->type === 'wpml_ls_menu_item';
 
 			/*
-             * Glyphicons
-             * ===========
-             * Since the the menu item is NOT a Divider or Header we check the see
-             * if there is a value in the attr_title property. If the attr_title
-             * property is NOT null we apply it as the class name for the glyphicon.
-             */
+			 * Glyphicons
+			 * ===========
+			 * Since the the menu item is NOT a Divider or Header we check the see
+			 * if there is a value in the attr_title property. If the attr_title
+			 * property is NOT null we apply it as the class name for the glyphicon.
+			 */
 
 			if ( ! empty( $item->attr_title ) && ! $is_wpml_item ) {
-				$item_output .= '<a' . $attributes . '><i class="fa ' . esc_attr( $item->attr_title ) . ' "></i>&nbsp;';
+				$item_output .= '<a' . $attributes . '>';
 			} elseif ( in_array( 'hestia-mm-heading', $item->classes ) && ( $item->url === '#' ) ) {
 				$item_output .= '<span class="mm-heading-wrapper">';
 			} elseif ( in_array( 'hestia-mm-heading', $item->classes ) ) {
@@ -141,10 +141,10 @@ class Hestia_Bootstrap_Navwalker extends Walker_Nav_Menu {
 				$item_output .= '<a' . $attributes . '>';
 			}
 			$item_output .= $args->link_before . apply_filters( 'the_title', $item->title, $item->ID ) . $args->link_after;
-			$item_output .= ( $args->has_children ) ? ' <span class="caret"></span></a>' : '</a></li>';
+			$item_output .= ( $args->has_children ) ? ' <span class="caret"></span></a>' : '</a>';
 
 			if ( ! empty( $item->description ) && ( $item->description !== ' ' ) && $depth >= 1 ) {
-				$item_output .= '<li class="hestia-mm-description">' . $item->description;
+				$item_output .= '<span class="hestia-mm-description">' . $item->description . '</span>';
 			}
 
 			$item_output .= $args->after;

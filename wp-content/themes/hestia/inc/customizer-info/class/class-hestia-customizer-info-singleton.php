@@ -74,7 +74,7 @@ final class Hestia_Customizer_Info_Singleton {
 			return;
 		}
 
-		if ( ! class_exists( 'woocommerce' ) ) {
+		if ( ! hestia_woocommerce_check() ) {
 			$manager->add_section(
 				new Hestia_Customizer_Info(
 					$manager, 'hestia_info_woocommerce', array(

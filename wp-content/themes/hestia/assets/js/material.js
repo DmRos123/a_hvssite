@@ -148,7 +148,9 @@ jQuery( document ).ready(
 						// Pirate Forms compatibility
 						if ($formGroup.length === 0 && $input.attr( 'type' ) !== 'hidden' && ! $input.attr( 'hidden' ) && $input.parents( '.pirate_forms' ).length ) {
 							var $labelControl = $input.prev();
-
+							if( $input.attr('type') === 'checkbox' ) {
+								$labelControl = $input.next();
+							}
 							$input.add( $labelControl ).wrapAll( '<div class="form-group label-floating"></div>' );
 							$formGroup = $input.closest( '.form-group' );
 						}

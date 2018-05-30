@@ -15,59 +15,81 @@ if ( ! function_exists( 'hestia_slider' ) ) :
 	 */
 	function hestia_slider( $is_callback = false ) {
 
+		$hestia_slider_alignment = get_theme_mod( 'hestia_slider_alignment', 'center' );
+
 		if ( ! $is_callback ) {
 			hestia_before_big_title_section_trigger(); ?>
-			<div id="carousel-hestia-generic" class="carousel slide" data-ride="carousel">
+			<div id="carousel-hestia-generic" class="carousel slide slide-alignment-<?php echo esc_attr( $hestia_slider_alignment ); ?>" data-ride="carousel">
 			<?php
 		}
 		?>
 		<div class="carousel slide" data-ride="carousel">
-			<?php
-			if ( has_header_video() ) {
-				the_custom_header_markup();
-			}
-			?>
 			<div class="carousel-inner">
-				<?php
-				$hestia_slider_alignment = get_theme_mod( 'hestia_slider_alignment', 'center' );
-				$class_to_add            = ( ! empty( $hestia_slider_alignment ) ? 'text-' . $hestia_slider_alignment : 'text-center' );
-				$slider_default          = hestia_get_slider_default();
-				$hestia_slider_content   = get_theme_mod( 'hestia_slider_content', json_encode( $slider_default ) );
-				$i                       = 0;
-				if ( ! empty( $hestia_slider_content ) ) :
-					$hestia_slider_content = json_decode( $hestia_slider_content );
-					if ( ! empty( $hestia_slider_content ) ) {
-						foreach ( $hestia_slider_content as $slider_item ) :
-							$title    = ! empty( $slider_item->title ) ? apply_filters( 'hestia_translate_single_string', $slider_item->title, 'Slider section' ) : '';
-							$subtitle = ! empty( $slider_item->subtitle ) ? apply_filters( 'hestia_translate_single_string', $slider_item->subtitle, 'Slider section' ) : '';
-							$button   = ! empty( $slider_item->text ) ? apply_filters( 'hestia_translate_single_string', $slider_item->text, 'Slider section' ) : '';
-							$link     = ! empty( $slider_item->link ) ? apply_filters( 'hestia_translate_single_string', $slider_item->link, 'Slider section' ) : '';
-							$button2  = ! empty( $slider_item->text2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->text2, 'Slider section' ) : '';
-							$link2    = ! empty( $slider_item->link2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->link2, 'Slider section' ) : '';
-							$image    = ! empty( $slider_item->image_url ) && ! has_header_video() ? apply_filters( 'hestia_translate_single_string', $slider_item->image_url, 'Slider section' ) : '';
-							$color    = ! empty( $slider_item->color ) ? apply_filters( 'hestia_translate_single_string', $slider_item->color, 'Slider section' ) : '';
-							$color2   = ! empty( $slider_item->color2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->color2, 'Slider section' ) : '';
+			<?php
+				$hestia_slider_type = get_theme_mod( 'hestia_slider_type', 'video' );
+				$is_parallax        = false;
+			if ( $hestia_slider_type === 'video' ) {
+				if ( has_header_video() ) {
+					the_custom_header_markup();
+				}
+			} else {
+				$is_parallax = hestia_display_parallax();
+			}
 
-							echo '<div class="item';
-							$i ++;
-							if ( $i == 1 ) {
-								echo ' active ';
-							}
-							echo ' item-' . esc_attr( $i ) . '">';
+			$slider_default        = hestia_get_slider_default();
+			$hestia_slider_content = get_theme_mod( 'hestia_slider_content', json_encode( $slider_default ) );
+			$i                     = 0;
+			if ( ! empty( $hestia_slider_content ) ) :
+				$hestia_slider_content = json_decode( $hestia_slider_content );
+				if ( ! empty( $hestia_slider_content ) ) {
+					foreach ( $hestia_slider_content as $slider_item ) :
 
-							echo hestia_set_button_style( $color, $color2, $i );
+						$title    = ! empty( $slider_item->title ) ? apply_filters( 'hestia_translate_single_string', $slider_item->title, 'Slider section' ) : '';
+						$subtitle = ! empty( $slider_item->subtitle ) ? apply_filters( 'hestia_translate_single_string', $slider_item->subtitle, 'Slider section' ) : '';
+						$button   = ! empty( $slider_item->text ) ? apply_filters( 'hestia_translate_single_string', $slider_item->text, 'Slider section' ) : '';
+						$link     = ! empty( $slider_item->link ) ? apply_filters( 'hestia_translate_single_string', $slider_item->link, 'Slider section' ) : '';
+						$button2  = ! empty( $slider_item->text2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->text2, 'Slider section' ) : '';
+						$link2    = ! empty( $slider_item->link2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->link2, 'Slider section' ) : '';
+						$image    = ! empty( $slider_item->image_url ) && ! has_header_video() ? apply_filters( 'hestia_translate_single_string', $slider_item->image_url, 'Slider section' ) : '';
+						$color    = ! empty( $slider_item->color ) ? apply_filters( 'hestia_translate_single_string', $slider_item->color, 'Slider section' ) : '';
+						$color2   = ! empty( $slider_item->color2 ) ? apply_filters( 'hestia_translate_single_string', $slider_item->color2, 'Slider section' ) : '';
+
+						echo '<div class="item';
+						$i ++;
+						if ( $i === 1 ) {
+							echo ' active ';
+						}
+						echo ' item-' . esc_attr( $i ) . '">';
+
+						$slider_elements_classes = hestia_get_slider_elements_class( $hestia_slider_alignment );
+
+						echo hestia_set_button_style( $color, $color2, $i );
+						?>
+							<div class="page-header 
+							<?php
+							if ( $i === 1 && is_active_sidebar( 'sidebar-big-title' ) && $hestia_slider_alignment !== 'center' ) {
+								echo 'slide-has-widgets'; }
 							?>
-								<div class="page-header">
-										<?php hestia_before_big_title_section_content_trigger(); ?>
-										<div class="container">
-										<?php hestia_top_big_title_section_content_trigger(); ?>
-											<div class="row">
-												<div class="col-md-8 col-md-offset-2 <?php echo esc_attr( $class_to_add ); ?>">
-													<?php
-													if ( ! empty( $title ) ) :
-														$title = html_entity_decode( $title );
-														?>
-														<h1 class="hestia-title"><?php echo wp_kses_post( $title ); ?></h1>
+							">
+									<?php hestia_before_big_title_section_content_trigger(); ?>
+									<div class="container">
+									<?php hestia_top_big_title_section_content_trigger(); ?>
+										<div class="row">
+											<?php
+											if ( $i === 1 && $hestia_slider_alignment === 'right' ) {
+												?>
+												<div class="big-title-sidebar-wrapper <?php echo esc_attr( $slider_elements_classes['widget'] ); ?>">
+													<?php dynamic_sidebar( 'sidebar-big-title' ); ?>
+												</div>
+												<?php
+											}
+											?>
+											<div class="<?php echo esc_attr( $slider_elements_classes['slide'] ); ?>">
+												<?php
+												if ( ! empty( $title ) ) :
+													$title = html_entity_decode( $title );
+													?>
+													<h1 class="hestia-title"><?php echo wp_kses_post( $title ); ?></h1>
 													<?php endif; ?>
 													<?php
 													if ( ! empty( $subtitle ) ) :
@@ -78,20 +100,42 @@ if ( ! function_exists( 'hestia_slider' ) ) :
 													<?php if ( ! empty( $link ) || ! empty( $button ) || ! empty( $link2 ) || ! empty( $button2 ) ) : ?>
 														<div class="buttons">
 															<?php
+															$allowed_tags_in_buttons_text = array(
+																'i' => array(
+																	'class' => array(),
+																),
+																'span' => array(
+																	'class' => array(),
+																),
+																'br' => array(),
+																'em' => array(),
+																'strong' => array(),
+															);
 															if ( ! empty( $link ) || ! empty( $button ) ) {
-																echo '<a href="' . esc_url( $link ) . '" style="background-color:' . $color . '" title="' . esc_html( $button ) . '" class="btn btn-primary btn-lg btn-left no-js-color" ' . hestia_is_external_url( $link ) . '>' . esc_html( $button ) . '</a>';
+																$button = html_entity_decode( $button );
+																echo '<a href="' . esc_url( $link ) . '" style="background-color:' . $color . '" title="' . esc_html( $button ) . '" class="btn btn-primary btn-lg btn-left no-js-color" ' . hestia_is_external_url( $link ) . '>' . wp_kses( $button, $allowed_tags_in_buttons_text ) . '</a>';
 															}
 															if ( ! empty( $link2 ) || ! empty( $button2 ) ) {
-																echo '<a href="' . esc_url( $link2 ) . '" style="background-color:' . $color2 . '" title="' . esc_html( $button2 ) . '" class="btn btn-primary btn-lg btn-right no-js-color" ' . hestia_is_external_url( $link2 ) . '>' . esc_html( $button2 ) . '</a>';
+																$button2 = html_entity_decode( $button2 );
+																echo '<a href="' . esc_url( $link2 ) . '" style="background-color:' . $color2 . '" title="' . esc_html( $button2 ) . '" class="btn btn-primary btn-lg btn-right no-js-color" ' . hestia_is_external_url( $link2 ) . '>' . wp_kses( $button2, $allowed_tags_in_buttons_text ) . '</a>';
 															}
 															?>
 														</div>
 													<?php endif; ?>
 												</div>
+												<?php
+												if ( $i === 1 && $hestia_slider_alignment === 'left' ) {
+													?>
+													<div class="big-title-sidebar-wrapper <?php echo esc_attr( $slider_elements_classes['widget'] ); ?>">
+														<?php dynamic_sidebar( 'sidebar-big-title' ); ?>
+													</div>
+													<?php
+												}
+												?>
 											</div>
 											<?php hestia_bottom_big_title_section_content_trigger(); ?>
 										</div>
-										<?php if ( ! empty( $image ) ) { ?>
+										<?php if ( ! empty( $image ) && ( ! $is_parallax ) ) { ?>
 										<div class="header-filter" style="background-image: url('<?php echo esc_url( $image ); ?>');"></div>
 										<?php } else { ?>
 										<div class="header-filter"></div>
@@ -101,9 +145,9 @@ if ( ! function_exists( 'hestia_slider' ) ) :
 								</div>
 								<?php
 						endforeach;
-					}// End if().
+				}// End if().
 				endif;
-				?>
+			?>
 				</div>
 				<?php if ( $i >= 2 ) : ?>
 					<a class="left carousel-control" href="#carousel-hestia-generic" data-slide="prev"> <i
@@ -114,7 +158,7 @@ if ( ! function_exists( 'hestia_slider' ) ) :
 			</div>
 		<?php
 		if ( ! $is_callback ) {
-		?>
+			?>
 			</div>
 			<?php
 			hestia_after_big_title_section_trigger();

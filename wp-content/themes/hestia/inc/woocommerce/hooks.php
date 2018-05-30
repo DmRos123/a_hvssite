@@ -90,7 +90,7 @@ add_filter( 'woocommerce_add_to_cart_fragments', 'hestia_cart_link_fragment' );
  * Reposition Cross Sells after Cart Totals
  */
 remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display' );
-add_action( 'woocommerce_after_cart_table', 'woocommerce_cross_sell_display' );
+add_action( 'woocommerce_after_cart', 'woocommerce_cross_sell_display' );
 
 /**
  * Add before and after cart totals code for card.

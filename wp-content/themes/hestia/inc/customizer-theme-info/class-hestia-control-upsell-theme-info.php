@@ -93,7 +93,7 @@ if ( $define_classs ) :
 		 * Control content
 		 */
 		public function content_template() {
-	?>
+			?>
 			<div class="themeisle-upsell">
 				<# if ( data.options ) { #>
 					<ul class="themeisle-upsell-features">
@@ -118,7 +118,7 @@ if ( $define_classs ) :
 									</ul>
 									<# } #>
 			</div>
-		<?php
+			<?php
 		}
 	}
 endif;

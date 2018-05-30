@@ -14,38 +14,68 @@ var hestia_customize_control_tabs = function ( $ ) {
 
 	$(
 		function () {
-				var customize = wp.customize;
+			var customize = wp.customize;
 
-				// Switch tab based on customizer partial edit links.
-				customize.previewer.bind(
-					'tab-previewer-edit', function( data ) {
-						$( data.selector ).trigger( 'click' );
-					}
-				);
+			// Switch tab based on customizer partial edit links.
+			customize.previewer.bind(
+				'tab-previewer-edit', function( data ) {
+					$( data.selector ).trigger( 'click' );
+				}
+			);
 
-				// Hide all controls
-				$( '.hestia-tabs-control' ).each(
-					function () {
-						var customizerSection = $( this ).closest( '.accordion-section' );
-						// Hide all controls in section.
-						hideAllExceptCurrent( customizerSection );
+			customize.previewer.bind(
+				'focus-control',  function( data ) {
+                    /**
+					 * This timeout is here because in firefox this happens before customizer animation of changing panels.
+					 * After it change panels with the input focused, the customizer was moved to right 12px. We have to make sure
+					 * that the customizer animation of changing panels in customizer is done before focusing the input.
+                     */
+                    setTimeout( function(){
+                    	var control = wp.customize.control(data);
+                    	if( typeof control !== 'undefined'){
+                        	wp.customize.control(data).focus();
+						}
+                        } , 100 );
+				}
+			);
 
-						// Show controls under first radio button.
-						var shownCtrls = $( this ).find( '.hestia-customizer-tab > input:checked' ).data( 'controls' );
-						showControls( customizerSection, shownCtrls );
-					}
-				);
+            customize.previewer.bind(
+                'focus-section',  function( data ) {
+                    /**
+                     * This timeout is here because in firefox this happens before customizer animation of changing panels.
+                     * After it change panels with the input focused, the customizer was moved to right 12px. We have to make sure
+                     * that the customizer animation of changing panels in customizer is done before focusing the input.
+                     */
+                    setTimeout( function(){
+                        wp.customize.section(data).focus();
+                    } , 100 );
+                }
+            );
 
-				$( '.hestia-customizer-tab > label' ).on(
-					'click', function () {
-						var customizerSection = $( this ).closest( '.accordion-section' );
-						var controls          = $( this ).prev().data( 'controls' );
 
-						// Hide all controls in section
-						hideAllExceptCurrent( customizerSection );
-						showControls( customizerSection, controls );
-					}
-				);
+            // Hide all controls
+			$( '.hestia-tabs-control' ).each(
+				function () {
+					var customizerSection = $( this ).closest( '.accordion-section' );
+					// Hide all controls in section.
+					hideAllExceptCurrent( customizerSection );
+
+					// Show controls under first radio button.
+					var shownCtrls = $( this ).find( '.hestia-customizer-tab > input:checked' ).data( 'controls' );
+					showControls( customizerSection, shownCtrls );
+				}
+			);
+
+			$( '.hestia-customizer-tab > label' ).on(
+				'click', function () {
+					var customizerSection = $( this ).closest( '.accordion-section' );
+					var controls          = $( this ).prev().data( 'controls' );
+
+					// Hide all controls in section
+					hideAllExceptCurrent( customizerSection );
+					showControls( customizerSection, controls );
+				}
+			);
 		}
 	);
 };

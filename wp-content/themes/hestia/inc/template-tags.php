@@ -10,31 +10,55 @@
 
 if ( ! function_exists( 'hestia_layout' ) ) :
 	/**
-	 * Return class based on the layout.
+	 * Returns class names used for the main page/post content div
+	 * Based on the Boxed Layout and Header Layout customizer options
 	 *
 	 * @since Hestia 1.0
-	 * @modified 1.1.24
+	 * @modified 1.1.64
 	 */
 	function hestia_layout() {
 
+		/**
+		 * For the Page Builder Full Width template don't add any extra classes (except main)
+		 */
 		if ( is_page_template( 'page-templates/template-pagebuilder-full-width.php' ) ) {
 			return 'main';
 		}
 
+		$layout_class = 'main ';
+
 		$hestia_general_layout = get_theme_mod( 'hestia_general_layout', 1 );
-		if ( isset( $hestia_general_layout ) && $hestia_general_layout != 1 ) {
-			$layout = 'main';
-		} else {
-			$layout = 'main main-raised';
+
+		/**
+		 * Add main-raised class when the Boxed Layout option is enabled
+		 */
+		if ( isset( $hestia_general_layout ) && $hestia_general_layout == 1 ) {
+			$layout_class .= ' main-raised ';
 		}
 
-		return $layout;
+		/**
+		 * For WooCommerce pages don't add any extra classes (except main or main-raised)
+		 */
+		if ( hestia_woocommerce_check() && ( is_product() || is_cart() || is_checkout() ) ) {
+			return $layout_class;
+		}
+
+		$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+
+		/**
+		 * For other internal posts/pages or static frontpage add extra clsses based on the header layout
+		 * Possible cases: default, no-content or classic-blog
+		 */
+		$layout_class .= ! is_singular() || ( is_front_page() && ! is_page_template() ) ? '' : $hestia_header_layout;
+
+		return $layout_class;
 	}
 endif;
 
 if ( ! function_exists( 'hestia_boxed_layout_header' ) ) :
 	/**
-	 * Return class based on the layout.
+	 * Returns the boxed-layout-header class name, used for the header element
+	 * Based on the Boxed Layout customizer option
 	 *
 	 * @since Hestia 1.0
 	 * @modified 1.1.24
@@ -46,6 +70,7 @@ if ( ! function_exists( 'hestia_boxed_layout_header' ) ) :
 		if ( isset( $hestia_general_layout ) && $hestia_general_layout == 1 ) {
 			$header_class = 'boxed-layout-header';
 		}
+
 		return $header_class;
 	}
 endif;
@@ -57,50 +82,46 @@ if ( ! function_exists( 'hestia_featured_header' ) ) :
 	 * @since Hestia 1.0
 	 */
 	function hestia_featured_header() {
-
 		// Default header image
-		$thumbnail = get_header_image();
-		$shop_id   = get_option( 'woocommerce_shop_page_id' );
+		$thumbnail                 = get_header_image();
+		$use_header_image_sitewide = get_theme_mod( 'hestia_header_image_sitewide', false );
 
-		if ( class_exists( 'WooCommerce' ) && is_woocommerce() ) {
+		// If the option to use Header Image Sitewide is enabled, return header image and exit function.
+		if ( (bool) $use_header_image_sitewide === true ) {
+			return esc_url( apply_filters( 'hestia_header_image_filter', $thumbnail ) );
+		}
+
+		/** Handle Pages and Posts Header.
+		 *  Single Product: Product Category Image > Header Image > Gradient
+		 *  Product Category: Product Category Image > Header Image > Gradient
+		 *  Shop Page: Shop Page Featured Image > Header Image > Gradient
+		 *  Blog Page: Page Featured Image > Header Image > Gradient
+		 *  Single Post: Featured Image > Gradient
+		 */
+		$shop_id = get_option( 'woocommerce_shop_page_id' );
+		if ( hestia_woocommerce_check() && is_woocommerce() ) {
 
 			// Single product page
 			if ( is_product() ) {
-
 				$terms = get_the_terms( get_queried_object_id(), 'product_cat' );
-
-				// Product has categories
+				// If product has categories
 				if ( ! empty( $terms ) ) {
-
 					foreach ( $terms as $term ) {
-
 						if ( ! empty( $term->term_id ) ) {
 							$category_thumbnail = get_woocommerce_term_meta( $term->term_id, 'thumbnail_id', true );
 						}
-
 						// Get product category's image
 						if ( ! empty( $category_thumbnail ) ) {
 							$thumb_tmp = wp_get_attachment_url( $category_thumbnail );
 						} // End if().
-						else {
-							$thumb_tmp = get_the_post_thumbnail_url();
-						}
 					}
-				} else {
-					// Get product featured image
-					$thumb_tmp = get_the_post_thumbnail_url();
 				}
-			} // End if().
-			elseif ( is_product_category() ) {
-
+			} elseif ( is_product_category() ) {
 				global $wp_query;
-
 				$category = $wp_query->get_queried_object();
-
 				if ( ! empty( $category->term_id ) ) {
 					$thumbnail_id = get_woocommerce_term_meta( $category->term_id, 'thumbnail_id', true );
 				}
-
 				if ( ! empty( $thumbnail_id ) ) {
 					// Get category featured image
 					$thumb_tmp = wp_get_attachment_url( $thumbnail_id );
@@ -114,7 +135,6 @@ if ( ! function_exists( 'hestia_featured_header' ) ) :
 					}
 				}
 			} else {
-
 				// Shop page
 				if ( ! empty( $shop_id ) ) {
 					// Get shop page featured image
@@ -137,44 +157,7 @@ if ( ! function_exists( 'hestia_featured_header' ) ) :
 			$thumbnail = $thumb_tmp;
 		}
 
-		return esc_url( $thumbnail );
-	}
-endif;
-
-if ( ! function_exists( 'hestia_output_wrapper_header_background' ) ) :
-	/**
-	 * Echoes The Header Background
-	 * Case 1 - header image
-	 * Case 2 - gradient, header image and background image not set
-	 * Case 3 - background image
-	 *
-	 * @since Hestia 1.0
-	 */
-	function hestia_output_wrapper_header_background( $uses_default_header_image = true ) {
-		if ( $uses_default_header_image == true ) {
-			$background_image = get_header_image();
-		} else {
-			$background_image = hestia_featured_header();
-		} ?>
-
-		<?php
-		$customizer_background_image = get_background_image();
-
-		$header_filter_div = '<div data-parallax="active" class="header-filter';
-
-			/* Header Image */
-		if ( ! empty( $background_image ) ) {
-			$header_filter_div .= '" style="background-image: url(' . esc_url( $background_image ) . ');"';
-			/* Gradient Color */
-		} elseif ( empty( $customizer_background_image ) ) {
-			$header_filter_div .= ' header-filter-gradient"';
-			/* Background Image */
-		} else {
-			$header_filter_div .= '"';
-		}
-		$header_filter_div .= '></div>';
-
-		echo apply_filters( 'hestia_header_wrapper_background_filter', $header_filter_div );
+		return esc_url( apply_filters( 'hestia_header_image_filter', $thumbnail ) );
 	}
 endif;
 
@@ -186,11 +169,16 @@ if ( ! function_exists( 'hestia_logo' ) ) :
 	 */
 	function hestia_logo() {
 		if ( get_theme_mod( 'custom_logo' ) ) {
-			$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
-			$logo = '<img src="' . esc_url( $logo[0] ) . '">';
+			$logo          = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
+			$alt_attribute = get_post_meta( get_theme_mod( 'custom_logo' ), '_wp_attachment_image_alt', true );
+			if ( empty( $alt_attribute ) ) {
+				$alt_attribute = get_bloginfo( 'name' );
+			}
+			$logo = '<img src="' . esc_url( $logo[0] ) . '" alt="' . esc_attr( $alt_attribute ) . '">';
 		} else {
 			$logo = '<p>' . get_bloginfo( 'name' ) . '</p>';
 		}
+
 		return $logo;
 	}
 endif;
@@ -356,7 +344,7 @@ if ( ! function_exists( 'hestia_comments_list' ) ) :
 						if ( $args['avatar_size'] != 0 ) {
 							echo get_avatar( $comment, 64 );
 						}
-?>
+						?>
 					</div>
 				</a>
 			<?php endif; ?>
@@ -410,10 +398,10 @@ if ( ! function_exists( 'hestia_comments_template' ) ) :
 		$req      = get_option( 'require_name_email' );
 		$aria_req = ( $req ? " aria-required='true'" : '' );
 		$args     = array(
-			'class_form'         => 'form',
+			'class_form'         => 'form media-body',
 			'class_submit'       => 'btn btn-primary pull-right',
 			'title_reply_before' => '<h3 class="hestia-title text-center">',
-			'title_reply_after'  => '</h3> <span class="pull-left author"> <div class="avatar">' . $current_user . '</div> </span> <div class="media-body">',
+			'title_reply_after'  => '</h3> <span class="pull-left author"> <div class="avatar">' . $current_user . '</div> </span>',
 			'must_log_in'        => '<p class="must-log-in">' .
 									sprintf(
 										wp_kses(
@@ -424,7 +412,7 @@ if ( ! function_exists( 'hestia_comments_template' ) ) :
 												),
 											)
 										), esc_url( wp_login_url( apply_filters( 'the_permalink', get_permalink() ) ) )
-									) . '</p> </div>',
+									) . '</p>',
 			'fields'             => apply_filters(
 				'comment_form_default_fields', array(
 					'author' => '<div class="row"> <div class="col-md-4"> <div class="form-group label-floating is-empty"> <label class="control-label">' . esc_html__( 'Name', 'hestia' ) . ( $req ? ' <span class="required">*</span>' : '' ) . '</label><input id="author" name="author" class="form-control" type="text"' . $aria_req . ' /> <span class="hestia-input"></span> </div> </div>',
@@ -432,7 +420,7 @@ if ( ! function_exists( 'hestia_comments_template' ) ) :
 					'url'    => '<div class="col-md-4"> <div class="form-group label-floating is-empty"> <label class="control-label">' . esc_html__( 'Website', 'hestia' ) . '</label><input id="url" name="url" class="form-control" type="url"' . $aria_req . ' /> <span class="hestia-input"></span> </div> </div> </div>',
 				)
 			),
-			'comment_field'      => '<div class="form-group label-floating is-empty"> <label class="control-label">' . esc_html__( 'What\'s on your mind?', 'hestia' ) . '</label><textarea id="comment" name="comment" class="form-control" rows="6" aria-required="true"></textarea><span class="hestia-input"></span> </div> </div>',
+			'comment_field'      => '<div class="form-group label-floating is-empty"> <label class="control-label">' . esc_html__( 'What\'s on your mind?', 'hestia' ) . '</label><textarea id="comment" name="comment" class="form-control" rows="6" aria-required="true"></textarea><span class="hestia-input"></span> </div>',
 		);
 
 		return $args;
@@ -504,7 +492,7 @@ if ( ! function_exists( 'hestia_related_posts' ) ) :
 								<?php
 								while ( $loop->have_posts() ) :
 									$loop->the_post();
-?>
+									?>
 									<div class="col-md-4">
 										<div class="card card-blog">
 											<?php if ( has_post_thumbnail() ) : ?>
@@ -570,17 +558,17 @@ if ( ! function_exists( 'hestia_social_icons' ) ) :
 			$social_links = ' <div class="col-md-6">
 			<div class="entry-social">
 				<a target="_blank" rel="tooltip"
-				   data-original-title="' . esc_attr( 'Share on Facebook', 'hestia-pro' ) . '"
+				   data-original-title="' . esc_attr__( 'Share on Facebook', 'hestia' ) . '"
 				   class="btn btn-just-icon btn-round btn-facebook"
 				   href="https://www.facebook.com/sharer/sharer.php?u=' . esc_url( $post_link ) . '"><i
 							class="fa fa-facebook"></i></a>
 				<a target="_blank" rel="tooltip"
-				   data-original-title="' . esc_attr( 'Share on Twitter', 'hestia-pro' ) . '"
+				   data-original-title="' . esc_attr__( 'Share on Twitter', 'hestia' ) . '"
 				   class="btn btn-just-icon btn-round btn-twitter"
 				   href="https://twitter.com/home?status=' . wp_strip_all_tags( $post_title ) . ' - ' . esc_url( $post_link ) . '"><i
 							class="fa fa-twitter"></i></a>
 				<a target="_blank" rel="tooltip"
-				   data-original-title=" ' . esc_attr( 'Share on Google+', 'hestia-pro' ) . '"
+				   data-original-title=" ' . esc_attr__( 'Share on Google+', 'hestia' ) . '"
 				   class="btn btn-just-icon btn-round btn-google"
 				   href="https://plus.google.com/share?url=' . esc_url( $post_link ) . '"><i class="fa fa-google"></i></a>
 			</div></div>';
@@ -677,7 +665,12 @@ if ( ! function_exists( 'hestia_the_footer_content' ) ) :
 		/**
 		 * Array holding all registered footer widgets areas
 		 */
-		$hestia_footer_widgets_ids = array( 'footer-one-widgets', 'footer-two-widgets', 'footer-three-widgets', 'footer-four-widgets' );
+		$hestia_footer_widgets_ids = array(
+			'footer-one-widgets',
+			'footer-two-widgets',
+			'footer-three-widgets',
+			'footer-four-widgets',
+		);
 		$hestia_footer_class       = 'col-md-4';
 		$footer_has_widgets        = false;
 		$hestia_nr_footer_widgets  = get_theme_mod( 'hestia_nr_footer_widgets', '3' );
@@ -685,12 +678,16 @@ if ( ! function_exists( 'hestia_the_footer_content' ) ) :
 		/**
 		 *  Enabling alternative footer style
 		 */
-		$footer_style = '';
-		$footer_style = get_theme_mod( 'hestia_alternative_footer_style', 0 );
-		if ( isset( $footer_style ) && $footer_style == 0 ) {
-			$footer_style = 'footer-black';
-		} else {
-			$footer_style = '';
+		$footer_style = get_theme_mod( 'hestia_alternative_footer_style', 'black_footer' );
+		switch ( $footer_style ) {
+			case 'black_footer':
+				$footer_class = 'footer-black';
+				break;
+			case 'white_footer':
+				$footer_class = '';
+				break;
+			default:
+				$footer_class = 'footer-black';
 		}
 
 		/**
@@ -727,12 +724,12 @@ if ( ! function_exists( 'hestia_the_footer_content' ) ) :
 
 		hestia_before_footer_trigger();
 		?>
-		<footer class="footer <?php echo esc_attr( $footer_style ); ?> footer-big">
+		<footer class="footer <?php echo esc_attr( $footer_class ); ?> footer-big">
 			<?php hestia_before_footer_content_trigger(); ?>
 			<div class="container">
 				<?php
 				if ( $footer_has_widgets ) {
-				?>
+					?>
 					<div class="content">
 						<div class="row">
 							<?php
@@ -740,7 +737,7 @@ if ( ! function_exists( 'hestia_the_footer_content' ) ) :
 								foreach ( $hestia_footer_widgets_ids as $hestia_footer_widget_item ) {
 									if ( is_active_sidebar( $hestia_footer_widget_item ) ) {
 										echo '<div class="' . $hestia_footer_class . '">';
-											dynamic_sidebar( $hestia_footer_widget_item );
+										dynamic_sidebar( $hestia_footer_widget_item );
 										echo '</div>';
 									}
 								}
@@ -777,7 +774,7 @@ if ( ! function_exists( 'hesta_bottom_footer_content' ) ) :
 	 */
 	function hesta_bottom_footer_content( $is_callback = false ) {
 		if ( ! $is_callback ) {
-		?>
+			?>
 			<div class="hestia-bottom-footer-content">
 			<?php
 		}
@@ -819,7 +816,7 @@ if ( ! function_exists( 'hesta_bottom_footer_content' ) ) :
 				'menu_class'     => 'footer-menu ' . esc_attr( $menu_class ),
 			)
 		);
-			?>
+		?>
 		<?php if ( ! empty( $hestia_general_credits ) || is_customize_preview() ) : ?>
 			<div class="copyright <?php echo esc_attr( $copyright_class ); ?>">
 				<?php echo wp_kses_post( $hestia_general_credits ); ?>
@@ -827,7 +824,7 @@ if ( ! function_exists( 'hesta_bottom_footer_content' ) ) :
 		<?php endif; ?>
 		<?php
 		if ( ! $is_callback ) {
-		?>
+			?>
 			</div>
 			<?php
 		}
@@ -839,7 +836,9 @@ if ( ! function_exists( 'hestia_the_header_top_bar' ) ) :
 	 * Function to display header top bar.
 	 *
 	 * @since 1.1.40
+	 *
 	 * @param bool $is_callback Check if we need to add hestia-top-bar div.
+	 *
 	 * @access public
 	 */
 	function hestia_the_header_top_bar( $is_callback = false ) {
@@ -847,6 +846,17 @@ if ( ! function_exists( 'hestia_the_header_top_bar' ) ) :
 		$hide_top_bar = get_theme_mod( 'hestia_top_bar_hide', true );
 		if ( (bool) $hide_top_bar === true ) {
 			return;
+		}
+
+		$top_bar_class   = array( 'hestia-top-bar' );
+		$has_placeholder =
+			is_customize_preview() &&
+			current_user_can( 'manage_options' ) &&
+			! has_nav_menu( 'top-bar-menu' ) &&
+			! is_active_sidebar( 'sidebar-top-bar' );
+
+		if ( $has_placeholder ) {
+			array_push( $top_bar_class, 'placeholder' );
 		}
 
 		$hestia_top_bar_alignment = get_theme_mod( 'hestia_top_bar_alignment', apply_filters( 'hestia_top_bar_alignment_default', 'right' ) );
@@ -860,58 +870,79 @@ if ( ! function_exists( 'hestia_the_header_top_bar' ) ) :
 
 		<?php
 		if ( $is_callback !== true ) {
-		?>
-			<div class="hestia-top-bar">
+			$top_bar_class = implode( ' ', $top_bar_class );
+			?>
+			<div class="<?php echo esc_attr( $top_bar_class ); ?>">
 			<?php
 		}
 		?>
-			<div class="container">
-				<div class="row">
-					<?php
-					/**
-					 * Call for sidebar
-					 */
-					if ( is_active_sidebar( 'sidebar-top-bar' ) ) {
-						$sidebar_class .= ' col-md-6';
-						if ( ! has_nav_menu( 'top-bar-menu' ) && ! current_user_can( 'manage_options' ) ) {
-							$sidebar_class .= ' col-md-12';
-						}
+		<div class="container">
+			<div class="row">
+				<?php
+				/**
+				 * Call for sidebar
+				 */
+
+				$sidebar_class .= ' col-md-6 ';
+				if ( ! has_nav_menu( 'top-bar-menu' ) && ! current_user_can( 'manage_options' ) ) {
+					$sidebar_class .= ' col-md-12 ';
+				}
+				?>
+
+
+				<?php
+				if ( is_active_sidebar( 'sidebar-top-bar' ) ) {
 					?>
 					<div class="<?php echo esc_attr( $sidebar_class ); ?>">
 						<?php dynamic_sidebar( 'sidebar-top-bar' ); ?>
 					</div>
 					<?php
-					}
-					if ( is_active_sidebar( 'sidebar-top-bar' ) ) {
-						$menu_class .= ' col-md-6';
-					} else {
-						$menu_class .= ' col-md-12';
-					}
+				} elseif ( $has_placeholder ) {
+					$sidebar_class .= ' top-widgets-placeholder '
 					?>
-					<div class="
-					<?php echo esc_attr( $menu_class ); ?>">
+					<div class="<?php echo esc_attr( $sidebar_class ); ?>">
 						<?php
-						/**
-						 * Call for the menu
-						 */
-						wp_nav_menu(
-							array(
-								'theme_location' => 'top-bar-menu',
-								'depth'          => 1,
-								'container'      => 'div',
-								'container_id'   => 'top-bar-navigation',
-								'menu_class'     => 'nav top-bar-nav',
-								'fallback_cb'    => 'hestia_bootstrap_navwalker::fallback',
-								'walker'         => new hestia_bootstrap_navwalker(),
-							)
-						);
+						hestia_display_customizer_shortcut( 'hestia-top-bar-widget' );
+						echo esc_html__( 'This sidebar is active but empty. In order to use this layout, please add widgets in the sidebar', 'hestia' );
 						?>
+
 					</div>
+					<?php
+				}
+				?>
+
+				<?php
+
+				if ( is_active_sidebar( 'sidebar-top-bar' ) || $has_placeholder ) {
+					$menu_class .= ' col-md-6';
+				} else {
+					$menu_class .= ' col-md-12';
+				}
+				?>
+				<div class="
+					<?php echo esc_attr( $menu_class ); ?>">
+					<?php
+					/**
+					 * Call for the menu
+					 */
+					wp_nav_menu(
+						array(
+							'theme_location' => 'top-bar-menu',
+							'depth'          => 1,
+							'container'      => 'div',
+							'container_id'   => 'top-bar-navigation',
+							'menu_class'     => 'nav top-bar-nav',
+							'fallback_cb'    => 'hestia_bootstrap_navwalker::fallback',
+							'walker'         => new hestia_bootstrap_navwalker(),
+						)
+					);
+					?>
 				</div>
 			</div>
+		</div>
 		<?php
 		if ( $is_callback !== true ) {
-		?>
+			?>
 			</div>
 			<?php
 		}
@@ -930,7 +961,8 @@ if ( ! function_exists( 'hestia_the_header_content' ) ) :
 	function hestia_the_header_content() {
 		$navbar_class = '';
 
-		if ( get_option( 'show_on_front' ) === 'page' && is_front_page() && ! is_page_template() ) {
+		$hestia_navbar_transparent = get_theme_mod( 'hestia_navbar_transparent', true );
+		if ( get_option( 'show_on_front' ) === 'page' && is_front_page() && ! is_page_template() && $hestia_navbar_transparent ) {
 			$navbar_class = 'navbar-color-on-scroll navbar-transparent';
 		}
 
@@ -968,14 +1000,14 @@ if ( ! function_exists( 'hestia_the_header_content' ) ) :
 				<?php
 				if ( $hestia_header_alignment === 'right' && is_active_sidebar( 'header-sidebar' ) ) {
 					?>
-				<div class="header-sidebar-wrapper">
-					<div class="header-widgets-wrapper">
-				<?php
-					dynamic_sidebar( 'header-sidebar' );
-					?>
+					<div class="header-sidebar-wrapper">
+						<div class="header-widgets-wrapper">
+							<?php
+							dynamic_sidebar( 'header-sidebar' );
+							?>
+						</div>
 					</div>
-				</div>
-				<?php
+					<?php
 				} elseif ( $hestia_header_alignment === 'right' && is_customize_preview() ) {
 					hestia_sidebar_placeholder( 'hestia-sidebar-header', 'header-sidebar', 'no-variable-width' );
 				}
@@ -992,16 +1024,20 @@ if ( ! function_exists( 'hestia_the_header_content' ) ) :
 						'items_wrap'      => ( function_exists( 'hestia_after_primary_navigation' ) ) ? hestia_after_primary_navigation() : '<ul id="%1$s" class="%2$s">%3$s</ul>',
 					)
 				);
-				?>
-				<?php if ( has_nav_menu( 'primary' ) || current_user_can( 'manage_options' ) ) : ?>
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navigation">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="sr-only"><?php esc_html_e( 'Toggle Navigation', 'hestia' ); ?></span>
-				</button>
-				<?php endif; ?>
-		</div>
+					hestia_before_navbar_toggle_trigger();
+
+		if ( has_nav_menu( 'primary' ) || current_user_can( 'manage_options' ) ) :
+			?>
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navigation">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="sr-only"><?php esc_html_e( 'Toggle Navigation', 'hestia' ); ?></span>
+					</button>
+				<?php
+				endif;
+		?>
+			</div>
 
 			<?php hestia_after_header_content_trigger(); ?>
 		</nav>
@@ -1026,20 +1062,21 @@ if ( ! function_exists( 'hestia_sidebar_placeholder' ) ) :
 		$content = apply_filters( 'hestia_sidebar_placeholder_content', esc_html__( 'This sidebar is active but empty. In order to use this layout, please add widgets in the sidebar', 'hestia' ) );
 		?>
 		<div class="<?php echo esc_attr( $bootstrap_class ); ?> blog-sidebar-wrapper">
-		<aside id="secondary" class="blog-sidebar <?php echo esc_attr( $class_to_add ); ?>" role="complementary">
-			<div class="hestia-widget-placeholder
+			<aside id="secondary" class="blog-sidebar <?php echo esc_attr( $class_to_add ); ?>" role="complementary">
+				<div class="hestia-widget-placeholder
 			<?php
 			if ( ! empty( $sidebar_id ) ) {
-				echo esc_attr( $sidebar_id ); }
+				echo esc_attr( $sidebar_id );
+			}
 			?>
 			">
-				<?php
-				the_widget( 'WP_Widget_Text', 'text=' . $content );
-				?>
+					<?php
+					the_widget( 'WP_Widget_Text', 'text=' . $content );
+					?>
 				</div>
-				</aside><!-- .sidebar .widget-area -->
-			</div>
-			<?php
+			</aside><!-- .sidebar .widget-area -->
+		</div>
+		<?php
 	}
 endif;
 
@@ -1062,7 +1099,7 @@ if ( ! function_exists( 'hestia_get_content_classes' ) ) :
 	 * @return string
 	 */
 	function hestia_get_content_classes( $layout, $sidebar_name, $args ) {
-		if ( class_exists( 'WooCommerce' ) && ( is_product() || is_cart() || is_checkout() || is_account_page() ) ) {
+		if ( ( hestia_woocommerce_check() && ( is_product() || is_cart() || is_checkout() || is_account_page() ) ) || is_singular( 'elementor_library' ) ) {
 			return 'col-md-12';
 		}
 		$class_to_add = ! empty( $args['full-width'] ) ? $args['full-width'] : 'col-md-12';
@@ -1093,10 +1130,10 @@ if ( ! function_exists( 'hestia_get_sidebar' ) ) :
 	 * Function to display the proper sidebar depending on the page ( WooCommerce sidebar or normal sidebar )
 	 */
 	function hestia_get_sidebar() {
-		if ( class_exists( 'WooCommerce' ) && ( is_cart() || is_checkout() || is_account_page() ) ) {
+		if ( hestia_woocommerce_check() && ( is_cart() || is_checkout() || is_account_page() ) ) {
 			return;
 		}
-		if ( class_exists( 'WooCommerce' ) && is_shop() ) {
+		if ( hestia_woocommerce_check() && is_shop() ) {
 			get_sidebar( 'woocommerce' );
 		} else {
 			get_sidebar();
@@ -1118,6 +1155,7 @@ if ( ! function_exists( 'hestia_hidden_sidebars' ) ) :
 				dynamic_sidebar( 'sidebar-top-bar' );
 				dynamic_sidebar( 'header-sidebar' );
 				dynamic_sidebar( 'subscribe-widgets' );
+				dynamic_sidebar( 'sidebar-big-title' );
 			}
 			?>
 		</div>
@@ -1133,7 +1171,7 @@ add_action( 'hestia_do_footer', 'hestia_hidden_sidebars' );
  * @since Hestia 1.0
  */
 add_filter(
-	'pirate_forms_public_controls', function( $elements ) {
+	'pirate_forms_public_controls', function ( $elements ) {
 
 		foreach ( $elements as $key => $element ) {
 			// Name field
@@ -1190,5 +1228,474 @@ if ( ! function_exists( 'hestia_scroll_to_top' ) ) :
 		</button>
 		<?php
 	}
+
 	add_action( 'wp_footer', 'hestia_scroll_to_top' );
 endif;
+
+/**
+ * After changing the controls (alternative blog layout and footer alternative style) from checkbox which returns true
+ * or false to radio control, we need to update them to the new values.
+ *
+ * @since 1.1.59
+ */
+function hestia_migrate_checkboxes_to_radio_images() {
+
+	$execute = get_option( 'hestia_sync_checkboxes_to_radio_once' );
+	if ( $execute !== false ) {
+		return;
+	}
+	/**
+	 * If the control was checked we update it to blog_alternative_layout else to blog_normal_layout
+	 */
+	$hestia_alternative_blog_layout = get_theme_mod( 'hestia_alternative_blog_layout' );
+	if ( $hestia_alternative_blog_layout === true ) {
+		set_theme_mod( 'hestia_alternative_blog_layout', 'blog_alternative_layout' );
+	} elseif ( $hestia_alternative_blog_layout === false ) {
+		set_theme_mod( 'hestia_alternative_blog_layout', 'blog_normal_layout' );
+	}
+
+	/**
+	 * If the control was checked we update it to white_footer else to black_footer
+	 */
+	$hestia_alternative_footer_style = get_theme_mod( 'hestia_alternative_footer_style' );
+	if ( $hestia_alternative_footer_style === true ) {
+		set_theme_mod( 'hestia_alternative_footer_style', 'white_footer' );
+	} elseif ( $hestia_alternative_blog_layout === false ) {
+		set_theme_mod( 'hestia_alternative_footer_style', 'black_footer' );
+	}
+
+	update_option( 'hestia_sync_checkboxes_to_radio_once', true );
+}
+add_action( 'after_setup_theme', 'hestia_migrate_checkboxes_to_radio_images' );
+
+
+if ( ! function_exists( 'hestia_display_page_header' ) ) {
+	/**
+	 * Display page header on single page and on full width page template.
+	 */
+	function hestia_display_page_header( $type = 'page' ) {
+		$hestia_header_layout = get_theme_mod( 'hestia_header_layout', 'default' );
+		?>
+		<div id="primary" class="<?php echo hestia_boxed_layout_header(); ?> page-header header-small" data-parallax="active" >
+			<?php
+			if ( ( $hestia_header_layout !== 'no-content' ) && ! ( hestia_woocommerce_check() && ( is_product() || is_cart() || is_checkout() ) ) ) {
+				hestia_show_header_content( $type, $hestia_header_layout );
+				?>
+				<?php
+			}
+			hestia_output_wrapper_header_background( false );
+			?>
+		</div>
+		<?php
+	}
+}
+
+
+if ( ! function_exists( 'hestia_show_header_content' ) ) {
+	/**
+	 * Display header content based on header layout and post type.
+	 *
+	 * @param string $type Post type.
+	 * @param string $layout Page layout.
+	 */
+	function hestia_show_header_content( $type = 'post', $layout = 'default' ) {
+		if ( $layout === 'default' ) {
+			?>
+			<div class="container">
+			<div class="row">
+			<?php
+		}
+		?>
+
+				<?php
+				if ( $layout === 'default' ) {
+					?>
+				<div class="col-md-10 col-md-offset-1 text-center">
+					<?php
+				}
+				?>
+					<h1 class="hestia-title 
+					<?php
+					if ( $layout !== 'default' ) {
+						echo 'title-in-content';}
+					?>
+"><?php single_post_title(); ?></h1>
+					<?php
+					if ( $type === 'post' ) {
+						if ( $layout === 'default' ) {
+							?>
+							<h4 class="author">
+							<?php
+						} else {
+							?>
+							<p class="author meta-in-content">
+							<?php
+						}
+							echo apply_filters(
+								'hestia_single_post_meta', sprintf(
+									/* translators: %1$s is Author name wrapped, %2$s is Date*/
+									esc_html__( 'Published by %1$s on %2$s', 'hestia' ),
+									/* translators: %1$s is Author name, %2$s is Author link*/
+									sprintf(
+										'<a href="%2$s" class="vcard author"><strong class="fn">%1$s</strong></a>',
+										esc_html( hestia_get_author( 'display_name' ) ),
+										esc_url( get_author_posts_url( hestia_get_author( 'ID' ) ) )
+									),
+									/* translators: %s is Date */
+									sprintf(
+										'<time class="date updated published" datetime="%2$s">%1$s</time>',
+										esc_html( get_the_time( get_option( 'date_format' ) ) ), esc_html( get_the_date( DATE_W3C ) )
+									)
+								)
+							);
+						if ( $layout === 'default' ) {
+							?>
+							</h4>
+							<?php
+						} else {
+							?>
+							</p>
+							<?php
+						}
+					}
+					if ( $layout === 'classic-blog' ) {
+						the_post_thumbnail();
+					}
+					if ( $layout === 'default' ) {
+						?>
+				</div>
+						<?php
+					}
+
+					if ( $layout === 'default' ) {
+						?>
+									</div>
+									</div>
+									<?php
+					}
+	}
+}
+
+
+if ( ! function_exists( 'hestia_output_wrapper_header_background' ) ) :
+	/**
+	 * Echoes The Header Background
+	 * Case 1 - header image
+	 * Case 2 - gradient, header image and background image not set
+	 * Case 3 - background image
+	 *
+	 * @since Hestia 1.0
+	 */
+	function hestia_output_wrapper_header_background( $uses_default_header_image = true ) {
+		if ( $uses_default_header_image == true ) {
+			$background_image = get_header_image();
+		} else {
+			$background_image = hestia_featured_header();
+		}
+		?>
+
+		<?php
+		$customizer_background_image = get_background_image();
+
+		$header_filter_div = '<div class="header-filter';
+
+		/* Header Image */
+		if ( ! empty( $background_image ) ) {
+			$header_filter_div .= '" style="background-image: url(' . esc_url( $background_image ) . ');"';
+			/* Gradient Color */
+		} elseif ( empty( $customizer_background_image ) ) {
+			$header_filter_div .= ' header-filter-gradient"';
+			/* Background Image */
+		} else {
+			$header_filter_div .= '"';
+		}
+		$header_filter_div .= '></div>';
+
+		echo apply_filters( 'hestia_header_wrapper_background_filter', $header_filter_div );
+	}
+endif;
+
+
+/**
+ * Display pagination on single page and single portfolio.
+ */
+function hestia_single_pagination() {
+
+	?>
+	<div class="section section-blog-info">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="row">
+					<div class="col-md-12">
+						<?php
+						hestia_wp_link_pages(
+							array(
+								'before'      => '<div class="text-center"> <ul class="nav pagination pagination-primary">',
+								'after'       => '</ul> </div>',
+								'link_before' => '<li>',
+								'link_after'  => '</li>',
+							)
+						);
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+}
+
+if ( ! function_exists( 'hestia_blog_featured_posts' ) ) {
+
+	/**
+	 * Display the latest 3 posts on top of the blog page.
+	 */
+	function hestia_blog_featured_posts() {
+
+		/**
+		 * Check if section is enabled. If it isn't, exit.
+		 */
+		$hestia_featured_posts_category = get_theme_mod( 'hestia_featured_posts_category', apply_filters( 'hestia_featured_posts_category_default', 0 ) );
+		if ( empty( $hestia_featured_posts_category ) || ( count( $hestia_featured_posts_category ) === 1 && empty( $hestia_featured_posts_category[0] ) ) ) {
+			return;
+		}
+
+		/**
+		 * Return posts that were displayed in order to avoid display them on main loop too.
+		 */
+		$posts_to_skip = array();
+
+		/**
+		 * By default, we will show only the last 3 posts but the number of posts can be changed in a child theme.
+		 */
+		$number_of_posts = apply_filters( 'hestia_blog_featured_posts_number', 3 );
+
+		$post = new WP_Query(
+			array(
+				'post_type'           => 'post',
+				'posts_per_page'      => ! empty( $number_of_posts ) ? absint( $number_of_posts ) : 3,
+				'order'               => 'DESC',
+				'ignore_sticky_posts' => true,
+				'category__in'        => $hestia_featured_posts_category,
+			)
+		);
+
+		/**
+		 * Exit if there aren't any posts to display.
+		 */
+		if ( ! $post->have_posts() ) {
+			return;
+		}
+
+		/**
+		 * Index of the current post that is showed in loop.
+		 */
+		$item_index = 0;
+
+		/**
+		 * The total number of posts.
+		 */
+		$category    = get_category( $hestia_featured_posts_category[0] );
+		$total_posts = $category->category_count;
+
+		echo '<div class="hestia-blog-featured-posts"><div class="row">';
+		while ( $post->have_posts() ) {
+			$post->the_post();
+
+			$item_index++;
+
+			/**
+			 * Based on the post index, decide if the post should display full width or just 50% of the page. If it's
+			 * the only post, display it as full width.
+			 */
+			$card_class = hestia_get_blog_featured_posts_card_class( $item_index, $total_posts );
+
+			$card_inner_class = 'card card-raised';
+
+			/**
+			 * If the post has a thumbnail, we add the class card-background which adds overlay on the image, center
+			 * the content and change the color of the text.
+			 */
+			$thumb_style = '';
+			if ( has_post_thumbnail() ) {
+				$card_inner_class .= ' card-background';
+				$thumb_url         = get_the_post_thumbnail_url();
+				$thumb_style       = 'style="background-image:url(' . esc_url( $thumb_url ) . ')"';
+			}
+
+			/**
+			 * Get the data (title, category, content) and display the post.
+			 */
+			$pid = get_the_ID();
+			array_push( $posts_to_skip, $pid );
+			$categories = get_the_category( $pid );
+			$cat_name   = $categories[0]->name;
+			$cat_id     = $categories[0]->term_id;
+			$cat_link   = get_category_link( $cat_id );
+			$post_url   = get_permalink();
+			$title      = get_the_title();
+			$content    = get_the_excerpt();
+			$content    = preg_replace( '/<a class="moretag" (.*?)>(.*?)<\/a>/i', '...', $content );
+			echo '<article class="hestia-blog-featured-card ' . esc_attr( $card_class ) . '">';
+			echo '<div class="' . esc_attr( $card_inner_class ) . '" ' . $thumb_style . '>';
+			echo '<div class="card-body">';
+			echo '<h6 class="category text-info"><a href="' . esc_url( $cat_link ) . '">' . wp_kses_post( $cat_name ) . '</a></h6>';
+
+			if ( ! empty( $title ) ) {
+				echo '<a href="' . esc_url( $post_url ) . '">';
+				echo '<h2 class="card-title">' . wp_kses_post( $title ) . '</h2>';
+				echo '</a>';
+			}
+
+			if ( ! empty( $content ) ) {
+				echo '<p class="card-description">';
+				echo wp_kses_post( $content );
+				echo '</p>';
+			}
+
+			echo '<a href="' . esc_url( $post_url ) . '" class="btn btn-round">';
+			echo apply_filters( 'hestia_features_blog_posts_button_text', esc_html__( 'Read more', 'hestia' ) );
+			echo '</a>';
+
+			echo '</div>';
+			echo '</div>';
+			echo '</article>';
+		}
+		wp_reset_postdata();
+		echo '</div></div>';
+
+		return $posts_to_skip;
+	}
+}
+
+/**
+ * Based on the post index, decide if the post should display full width or just 50% of the page.
+ *
+ * @param int $index Post  index.
+ * @param int $total_posts Number of posts in category.
+ *
+ * @return string
+ */
+function hestia_get_blog_featured_posts_card_class( $index, $total_posts ) {
+
+	$default_blog_layout        = hestia_sidebar_on_single_post_get_default();
+	$hestia_blog_sidebar_layout = get_theme_mod( 'hestia_blog_sidebar_layout', $default_blog_layout );
+	if ( $hestia_blog_sidebar_layout === 'full-width' || ( ! is_active_sidebar( 'sidebar-1' ) && ! is_customize_preview() ) ) {
+		$md_class     = 10;
+		$offset_class = 1;
+	} else {
+		$md_class     = 12;
+		$offset_class = 0;
+	}
+
+	if ( $total_posts > 1 ) {
+		/**
+		 * First card should have half of full width card.
+		 */
+		if ( $index % 3 === 1 ) {
+			$md_class = $md_class / 2;
+		}
+		/**
+		 * Second card should have half of full width card but not the offset.
+		 */
+		if ( $index % 3 === 2 ) {
+			$md_class     = $md_class / 2;
+			$offset_class = 0;
+		}
+	}
+	$class = 'col-md-' . $md_class;
+	if ( $offset_class > 0 ) {
+		$class .= ' col-md-offset-' . $offset_class;
+	}
+	return $class;
+}
+
+
+if ( ! function_exists( 'hestia_filter_archive_title' ) ) {
+
+	/**
+	 * Remove "Category:", "Tag:", "Author:" from the archive title.
+	 *
+	 * @param string $title Archive title.
+	 */
+	function hestia_filter_archive_title( $title ) {
+		if ( $title === 'Archives' || is_tax( 'post_format' ) ) {
+			return $title;
+		}
+
+		return preg_replace( '/.*: /', '', $title, 1 );
+	}
+}
+
+if ( function_exists( 'hestia_filter_archive_title' ) ) {
+	add_filter( 'get_the_archive_title', 'hestia_filter_archive_title' );
+}
+
+/**
+ * Function to move a sidebar section to another panel and then move controls to this sidebar section.
+ *
+ * @param array  $settings Necessary settings to move the sidebar.
+ * @param object $wp_customize Customizer object.
+ */
+function hestia_move_customizer_sidebar( $settings, $wp_customize ) {
+
+	if ( empty( $settings ) ) {
+		return;
+	}
+
+	if ( empty( $settings['section_id'] ) ) {
+		return;
+	}
+
+	$sidebar_section = $wp_customize->get_section( $settings['section_id'] );
+
+	if ( ! empty( $sidebar_section ) ) {
+		if ( ! empty( $settings['panel'] ) ) {
+			$sidebar_section->panel = $settings['panel'];
+		}
+
+		if ( ! empty( $settings['priority'] ) ) {
+			$sidebar_section->priority = $settings['priority'];
+		}
+
+		if ( ! empty( $settings['controls_to_move'] ) ) {
+			foreach ( $settings['controls_to_move'] as $control_id ) {
+				$control = $wp_customize->get_control( $control_id );
+				if ( ! empty( $control ) ) {
+					$control->section  = $settings['section_id'];
+					$control->priority = -3;
+				}
+			}
+		}
+	}
+}
+
+
+/**
+ * Determine the classes that should be on widgets and slider content.
+ *
+ * @param string $hestia_slider_alignment Slider alignment.
+ *
+ * @return array
+ */
+function hestia_get_slider_elements_class( $hestia_slider_alignment ) {
+	$result_array = array(
+		'slide'  => ' big-title-slider-content text-' . $hestia_slider_alignment,
+		'widget' => ' col-md-5 ',
+	);
+
+	switch ( $hestia_slider_alignment ) {
+		case 'left':
+			$result_array['slide']  .= ' col-md-7 ';
+			$result_array['widget'] .= ' hestia-slider-alignment-left ';
+			break;
+		case 'center':
+			$result_array['slide'] .= ' col-sm-8 col-sm-offset-2 ';
+			break;
+		case 'right':
+			$result_array['slide']  .= ' col-md-7 margin-left-auto ';
+			$result_array['widget'] .= ' hestia-slider-alignment-right ';
+			break;
+	}
+	return $result_array;
+}

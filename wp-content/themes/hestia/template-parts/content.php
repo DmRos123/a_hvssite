@@ -15,7 +15,7 @@
 		<?php
 		$post_thumbnail_url = get_the_post_thumbnail( get_the_ID(), 'hestia-blog' );
 		if ( ! empty( $post_thumbnail_url ) ) :
-		?>
+			?>
 		<div class="col-ms-5 col-sm-5">
 			<div class="card-image">
 				<a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>">
@@ -39,7 +39,7 @@
 						)
 					), '</a></h2>'
 				);
-					?>
+				?>
 				<div class="card-description">
 					<p>
 						<?php
@@ -54,25 +54,27 @@
 				</div>
 				<div class="author">
 					<?php
-					printf(
-						/* translators: %1$s is Author name wrapped, %2$s is Time */
-						esc_html__( 'By %1$s, %2$s', 'hestia' ),
-						/* translators: %1$s is Author name, %2$s is author link */
-						sprintf(
-							'<a href="%2$s" title="%1$s" class="vcard author"><strong class="fn">%1$s</strong></a>',
-							esc_html( get_the_author() ),
-							esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) )
-						),
-						sprintf(
-							/* translators: %1$s is Time since post, %2$s is author Close tag */
-							esc_html__( '%1$s ago %2$s', 'hestia' ),
+					echo apply_filters(
+						'hestia_blog_post_meta', sprintf(
+							/* translators: %1$s is Author name wrapped, %2$s is Time */
+							esc_html__( 'By %1$s, %2$s', 'hestia' ),
+							/* translators: %1$s is Author name, %2$s is author link */
 							sprintf(
-								/* translators: %1$s is Time since, %2$s is Link to post */
-								'<a href="%2$s"><time>%1$s</time>',
-								esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ),
-								esc_url( get_permalink() )
+								'<a href="%2$s" title="%1$s" class="vcard author"><strong class="fn">%1$s</strong></a>',
+								esc_html( get_the_author() ),
+								esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) )
 							),
-							'</a>'
+							sprintf(
+								/* translators: %1$s is Time since post, %2$s is author Close tag */
+								esc_html__( '%1$s ago %2$s', 'hestia' ),
+								sprintf(
+									/* translators: %1$s is Time since, %2$s is Link to post */
+									'<a href="%2$s"><time>%1$s</time>',
+									esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ),
+									esc_url( get_permalink() )
+								),
+								'</a>'
+							)
 						)
 					);
 					?>
