@@ -1165,7 +1165,10 @@ img.alignright,
 	float: right;
 	text-align: right;
 	width: 800px;
+	color: #fff;
+	font-weight: 500;
 }
+
 
 
 /* # Site Navigation
