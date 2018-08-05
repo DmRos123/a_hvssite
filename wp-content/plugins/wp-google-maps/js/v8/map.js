@@ -45,18 +45,18 @@
 	{
 		switch(WPGMZA.settings.engine)
 		{
-			case "google-maps":
-				if(WPGMZA.isProVersion())
-					return WPGMZA.GoogleProMap;
-				
-				return WPGMZA.GoogleMap;
-				break;
-				
-			default:
+			case "open-layers":
 				if(WPGMZA.isProVersion())
 					return WPGMZA.OLProMap;
 				
 				return WPGMZA.OLMap;
+				break;
+			
+			default:
+				if(WPGMZA.isProVersion())
+					return WPGMZA.GoogleProMap;
+				
+				return WPGMZA.GoogleMap;
 				break;
 		}
 	}
@@ -74,8 +74,21 @@
 	WPGMZA.Map.prototype.loadSettings = function()
 	{
 		var settings = new WPGMZA.MapSettings(this.element);
-		this.settings = $.extend({}, WPGMZA.settings, settings);
+		var other_settings = settings.other_settings;
+		
+		delete settings.other_settings;
+		
+		this.settings = $.extend({}, WPGMZA.settings, settings, other_settings);
 	}
+	
+	/**
+	 * This override should automatically dispatch a .wpgmza scoped event on the element
+	 * TODO: Implement
+	 */
+	/*WPGMZA.Map.prototype.trigger = function(event)
+	{
+		
+	}*/
 	
 	/**
 	 * Sets options in bulk on map

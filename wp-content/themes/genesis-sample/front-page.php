@@ -58,4 +58,7 @@ function display_front_page_3_widget() {
 	) );
 
 }
+
+
+
 genesis();

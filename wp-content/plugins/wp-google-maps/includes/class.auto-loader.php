@@ -2,6 +2,8 @@
 
 namespace WPGMZA;
 
+//var_dump("Autoloader included");
+
 class AutoLoader
 {
 	protected $filenamesByClass;
@@ -13,6 +15,19 @@ class AutoLoader
 		 $this->filenamesByClass = array();
 	}
 	
+	protected function updateCache()
+	{
+		// TODO: Not yet implemented
+		
+		/*$dst = plugin_dir_path(__FILE__) . 'classes.json';
+		
+		$json = json_encode((object)array(
+			'filenamesByClass' => $this->filenamesByClass
+		));
+		
+		file_put_contents($dst, $json);*/
+	}
+	
 	/**
 	 * Gets all the defined classes in a file
 	 * @return string The fully qualified class
@@ -20,20 +35,28 @@ class AutoLoader
 	 */
 	public function getClassesInFile($file)
 	{
-		// var_dump("Getting classes in $file");
-		
 		$fp = fopen($file, 'r');
 		$class = $namespace = $buffer = '';
 		$i = 0;
 		$results = array();
 		
-		while (!$class) {
-			if (feof($fp)) break;
+		$buffer = file_get_contents($file);
+		
+		if(!function_exists('token_get_all'))
+		{
+			// Regex fallback for users without token_get_all
 			
-			$buffer .= fread($fp, 512);
+			if(preg_match('/^\s*namespace\s+(.+);/m', $buffer, $m))
+				$namespace = '\\' . trim($m[1]);
+			
+			if(preg_match('/^(abstract)?\s*class\s+(\w+)/m', $buffer, $m))
+				$class = trim($m[2]);
+			
+			$result = $namespace . '\\' . $class;
+		}
+		else
+		{
 			$tokens = @token_get_all($buffer);
-
-			if (strpos($buffer, '{') === false) continue;
 
 			for (;$i<count($tokens);$i++) {
 				if ($tokens[$i][0] === T_NAMESPACE) {
@@ -53,13 +76,18 @@ class AutoLoader
 						}
 					}
 				}
+				
+				if(!empty($class))
+					break;
 			}
+			
+			$result = $namespace . '\\' . $class;
 		}
 		
-		if(!$class)
+		if(empty($class))
 			return null;
 		
-		return $namespace . '\\' . $class;
+		return $result;
 	}
 	
 	public function getClassesInPathByFilename($path)
@@ -95,6 +123,8 @@ class AutoLoader
 			if(!empty($class))
 				$this->filenamesByClass[$class] = $file;
 		}
+		
+		$this->updateCache();
 	}
 	
 	public function callback($class)

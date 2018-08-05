@@ -27,6 +27,12 @@ class GoogleMapsAPILoader
 			global $wpgmza;
 			GoogleMapsAPILoader::$settings = (array)$wpgmza->settings;
 		}
+		
+		if(!$this->isIncludeAllowed($status))
+		{
+			echo "<script>var wpgmza_google_api_status = " . json_encode($status) . "</script>";
+			return '';
+		}
 	}
 	
 	public static function _createInstance()
@@ -112,7 +118,7 @@ class GoogleMapsAPILoader
 		
 		$suffix = $params['suffix'];
 		unset($params['suffix']);
-		
+
 		$url = '//maps.google' . $suffix . '/maps/api/js?' . http_build_query($params);
 		
 		wp_register_script('wpgmza_api_call', $url);
@@ -128,7 +134,8 @@ class GoogleMapsAPILoader
 		GoogleMapsAPILoader::$googleAPILoadCalled = true;
 		
 		// Block other plugins from including the API
-		add_filter('script_loader_tag', array($this, 'preventOtherGoogleMapsTag'), 9999999, 3);
+		if(!empty($settings['wpgmza_prevent_other_plugins_and_theme_loading_api']))
+			add_filter('script_loader_tag', array($this, 'preventOtherGoogleMapsTag'), 9999999, 3);
 	}
 	
 	public function enqueueGoogleMaps()
@@ -185,6 +192,10 @@ class GoogleMapsAPILoader
 		
 		$settings = (array)$wpgmza->settings;
 		
+		// Correction for Pro <= 7.10.04
+		if(!empty($settings['wpgmza_maps_engine']) && $settings['wpgmza_maps_engine'] == 'open-street-map')
+			$settings['wpgmza_maps_engine'] = 'open-layers';
+		
 		if(!empty($settings['wpgmza_settings_remove_api']))
 		{
 			$status->message = 'Remove API checked in settings';
@@ -193,13 +204,16 @@ class GoogleMapsAPILoader
 			return false;
 		}
 		
-		/*if(!empty($settings['wpgmza_gdpr_require_consent_before_load']) && !isset($_COOKIE['wpgmza-api-consent-given']))
+		if(!is_admin() && 
+			!empty($settings['wpgmza_gdpr_enabled']) &&
+			!empty($settings['wpgmza_gdpr_require_consent_before_load']) && 
+			!isset($_COOKIE['wpgmza-api-consent-given']))
 		{
 			$status->message = 'User consent not given';
 			$status->code = GoogleMapsAPILoader::USER_CONSENT_NOT_GIVEN;
 			
 			return false;
-		}*/
+		}
 		
 		if(!empty($settings['wpgmza_maps_engine']) && $settings['wpgmza_maps_engine'] == 'open-layers')
 		{
@@ -267,12 +281,9 @@ class GoogleMapsAPILoader
 		if(preg_match('/maps\.google/i', $src))
 		{
 			if(!$this->isIncludeAllowed($status))
-			{
-				echo "<script>var wpgmza_google_api_status = " . json_encode($status) . "</script>";
 				return '';
-			}
 			
-			else if($handle != 'wpgmza_api_call')
+			if($handle != 'wpgmza_api_call')
 				return '';
 			
 			if(!preg_match('/\?.+$/', $src))

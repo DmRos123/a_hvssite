@@ -49,6 +49,26 @@
 	$("#wpgmza_addmarker").data("original-text", $("#wpgmza_addmarker").val());
 	$("#wpgmza_addmarker_loading").hide();
 	
+	function enableEditMarkerButton(enable)
+	{
+		var button = $("#wpgmza_editmarker");
+		button.prop("disabled", (enable ? false : "disabled"));
+		button.val(enable ? button.data("original-text") : "Saving...");
+		
+		if(enable)
+		{
+			button.parent().show();
+			$("#wpgmza_editmarker_loading").hide();
+		}
+		else
+		{
+			button.parent().hide();
+			$("#wpgmza_editmarker_loading").show();
+		}
+	}
+	$("#wpgmza_editmarker").data("original-text", $("#wpgmza_editmarker").val());
+	$("#wpgmza_editmarker_loading").hide();
+	
 	function setMarkerAdded(added)
 	{
 		var button = $("#wpgmza_addmarker");
@@ -76,6 +96,11 @@
 	function unbindSaveReminder()
 	{
 		window.removeEventListener("beforeunload", onBeforeUnload);
+	}
+	
+	window.wpgmzaUnbindSaveReminder = function()
+	{
+		unbindSaveReminder();
 	}
 	
 	function wpgmza_select_all_markers()
@@ -164,7 +189,7 @@
             wpgmza_table_length = jQuery(this).val();
         })
 
-		if (/*WPGMZA.isGoogleAutocompleteSupported()*/ window.google && google.maps && google.maps.places && google.maps.places.Autocomplete)
+		if (/*WPGMZA.isGoogleAutocompleteSupported()*/ window.google && google.maps && google.maps.places && google.maps.places.Autocomplete && WPGMZA.settings.engine == "google-maps")
 		{
 			if(document.getElementById('wpgmza_add_address'))
 			{
@@ -462,8 +487,8 @@
                     if (status == WPGMZA.Geocoder.SUCCESS) {
 
 						result = results[0];
-						wpgm_lat = result.lat;
-						wpgm_lng = result.lng;
+						wpgm_lat = result.latLng.lat;
+						wpgm_lng = result.latLng.lng;
 
                         var data = {
                             action: 'add_marker',
@@ -543,7 +568,7 @@
             if (do_geocode === true) {
 
             geocoder.geocode( { 'address': wpgm_address}, function(results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
+                if (status == WPGMZA.Geocoder.SUCCESS) {
                     wpgm_gps = String(results[0].geometry.location);
                     var wpgm_lat = parseFloat(results[0].geometry.location.lat);
                     var wpgm_lng = parseFloat(results[0].geometry.location.lng);
@@ -589,6 +614,7 @@
 
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
+					enableEditMarkerButton(true);
                 }
             });
             } else {

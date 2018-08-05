@@ -307,9 +307,6 @@ class ScriptLoader
 		
 		wp_enqueue_style('remodal', plugin_dir_url(__DIR__) . 'lib/remodal.css');
 		wp_enqueue_style('remodal-default-theme', plugin_dir_url(__DIR__) . 'lib/remodal-default-theme.css');
-
-		wp_register_style('fontawesome', plugin_dir_url(__DIR__) . 'css/font-awesome.min.css');
-		wp_enqueue_style('fontawesome');
 	}
 	
 	public function enqueueScripts()
@@ -369,17 +366,40 @@ class ScriptLoader
 			$this->scripts = (array)json_decode(file_get_contents($this->scriptsFileLocation));
 		}
 		
+		// FontAwesome?
+		$version = (empty($wpgmza->settings->use_fontawesome) ? '4.*' : $wpgmza->settings->use_fontawesome);
+		
+		switch($version)
+		{
+			case 'none':
+				break;
+				
+			case '5.*':
+				wp_enqueue_style('fontawesome', 'https://use.fontawesome.com/releases/v5.0.9/css/all.css');
+				
+				if(!is_admin())
+					break;
+				
+			default:
+				wp_enqueue_style('fontawesome', plugin_dir_url(__DIR__) . 'css/font-awesome.min.css');
+				break;
+		}
+		
 		// Give the core script library dependencies
 		$dependencies = array_keys($libraries);
 		$dependencies[] = 'wpgmza_api_call';
 		
 		$this->scripts['wpgmza']->dependencies = $dependencies;
 		
+		$version_string = $wpgmza->getBasicVersion();
+		if(method_exists($wpgmza, 'getProVersion'))
+			$version_string .= '+pro-' . $wpgmza->getProVersion();
+		
 		// Enqueue other scripts
 		foreach($this->scripts as $handle => $script)
 		{
 			$fullpath = plugin_dir_url(($script->pro ? WPGMZA_PRO_FILE : __DIR__)) . $script->src;
-			wp_enqueue_script($handle, $fullpath, $script->dependencies);
+			wp_enqueue_script($handle, $fullpath, $script->dependencies, $version_string);
 		}
 		
 		// Enqueue localized data

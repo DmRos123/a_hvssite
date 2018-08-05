@@ -3,7 +3,8 @@ Contributors: WPGMaps, NickDuncan, CodeCabin_, DylanAuty, PerryRylance
 Donate link: http://www.wpgmaps.com
 Tags: google maps, maps, map, map markers, google map, google maps plugin, wp google maps, wp google map, map plugin, directions, google map plugin, map widget
 Requires at least: 3.5
-Tested up to: 4.9.6
+Tested up to: 4.9.7
+Requires PHP: 5.3
 Stable tag: trunk
 License: GPLv2
 
@@ -214,6 +215,91 @@ We no longer support timthumb and we have opted to remove it from WP Google Maps
 Please upgrade your version of WP Google Maps to version 6.0.27 as it includes multiple security improvements.
 
 == Changelog ==
+
+= 7.10.23 :- 2018-07-23 :- Medium priority =
+* Fixed REST API endpoint URL incorrect for installations in subfolders
+* Added PHP version requirement 5.3 to readme.txt
+
+= 7.10.22 :- 2018-07-18 :- Medium priority =
+* Added filter wpgmza_localized_strings
+* Added beginnings for REST API
+* Added scroll animation when edit marker is clicked
+* Fixed UTF-8 characters not being decoded into PHPs native charset before passing them to loadHTML in GDPR compliance module
+* Fixed edit marker button not re-enabled following unsuccessful geocode
+
+= 7.10.21 :- 2018-07-09 :- Medium priority =
+* Added MySQL version check and dropped ST_ function prefixes for versions < 8.0
+* Fixed markers not appearing front end and back end marker table empty for servers running old MySQL versions
+
+= 7.10.20 :- 2018-07-05 :- Low priority =
+* Added hook for new GDPR tab content
+* Added JavaScript for VGM GDPR controls
+* Fixed WPGMZA\DOMDocument::saveInnerBody not saving text nodes
+
+= 7.10.19 - 2018-07-05 :- Medium Priority =
+* Added new event "userlocationfound" dispatched from WPGMZA.events
+* Added fall back to convert UTF-8 to HTML entities on installations without multibyte functions available
+* Changed GDPR settings UI, removed redundant compliance setting, added default notice
+* Fixed media="1" attribute not validating
+* Fixed nominatim geocoder not giving expected response to callback
+* Fixed ScriptLoader module always enqueuing FontAwesome 4.*
+* Fixed debug code breaking WP Migrate DB integration
+* Fixed custom fields blank in marker listing
+* Replaced deprecated MySQL functions with ST_ functions
+* Replaced deprecated jQuery(window).load functions
+* Removed Google autocomplete when using OpenLayers
+* Removed protocol from marker icons / fixed marker icons disappear after switching to https://
+
+= 7.10.18 - 2018-07-02 :- Medium Priority =
+* Fixed GDPR back end warning appearing when GDPR compliance is enabled
+
+= 7.10.17 - 2018-06-29 :- Medium Priority =
+* Fixed country restriction broken in store locator
+* Added dismissable admin GDPR warning when GDPR compliance has been switched off
+* Fixed GDPR settings blank by default on some installations
+
+= 7.10.16 - 2018-06-21 :- Medium priority =
+* Fixed global settings lost
+* Fixed whitespace matched in version variable
+
+= 7.10.15 - 2018-06-14 :- Medium priority =
+* Fixed GDPR consent notice bypassed when "prevent other plugins and theme enqueueing maps API" is not set
+
+= 7.10.14 - 2018-06-14 :- Medium priority =
+* Fixed incompatibilities with UGM
+
+= 7.10.13 - 2018-06-13 :- Low priority =
+* Fixed can't save Modern Store Locator
+* Fixed store locator reset not working
+* Fixed disabling map controls not working
+* Fixed store locator radio button
+
+= 7.10.12 - 2018-06-12 :- Low priority =
+* Handed FontAwesome loading over to ScriptLoader module
+* Deprecated global function wpgmza_enqueue_fontawesome
+* Fixed circles and rectangles only working on map ID 1
+ 
+= 7.10.11 - 2018-06-08 :- Low priority =
+* Fixed JS error when passing non-string value to document.write
+* Temporary workaround for "Unexpected token % in JSON"
+* API consent no longer required on back-end
+
+= 7.10.10 - 2018-06-01 :- Medium Priority =
+* Adding setting "Prevent other plugins and theme loading API"
+
+= 7.10.09 - 2018-06-01 :- Medium Priority =
+* Fixed unterminated comment warning
+* Fixed map edit page creating Google places autocomplete when engine is set to OpenLayers
+* Fixed icon not draggable in edit marker location page
+
+= 7.10.08 - 2018-05-31 :- Medium Priority =
+* Fixed cannot edit marker in Basic only
+
+= 7.10.07 - 2018-05-31 :- Medium Priority =
+* Fixed issue where map engine was different on back end
+
+= 7.10.06 - 2018-05-31 :- Medium Priority =
+* Added "require consent before API load" to GDPR settings
 
 = 7.10.05 - 2018-05-30  :- Low Priority =
 * Fixed Using $this when not in object context when using older PHP version
