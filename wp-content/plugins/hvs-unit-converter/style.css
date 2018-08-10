@@ -37,6 +37,16 @@ main {
 #conversion-form p {
     margin-bottom: 5px;
 }
+#hvs_unit_converter_widget-2 .widget-wrap {
+    padding: 10px;
+    border: 1px solid #007bff;
+    border-radius: 8px;
+}
+
+#hvs_unit_converter_widget-2 .widgettitle:after {
+    content:" -- calculate flowrate, leakrate, pressure or volume.";
+    font-size: .8em;
+}
 #conversion-form {
     padding: 20px 20px 24px;
     background: white;
@@ -68,7 +78,7 @@ main {
 }
 #conversion-form #show-input-option {
     /*display: inline;*/
-    display: none;
+    display: none; 
 /*    color: silver;*/
 }
 #conversion-form .convert-list-options {
@@ -108,7 +118,8 @@ main {
     margin-right: 0px;
     line-height: 20px;
     padding: 5px 20px;
-    background: white;
+    background: #007bff;
+    color: white;
     outline: none;
     border: 1px solid #d9d9d9;
     border-radius: 5px;
@@ -263,12 +274,14 @@ main {
 }
 .hvs_unit_converter_widget #conversion-form #list-options {
     margin-bottom: -1px;
+    /*display: none; */
 }
 .hvs_unit_converter_widget #conversion-units .from-div,
 .hvs_unit_converter_widget #conversion-units .to-div {
     float: none;
     width: 100%;
     margin: 0;
+    padding: 0;
 }
 .hvs_unit_converter_widget #conversion-units .from-div {
     /*margin-bottom: 1em;*/
@@ -296,6 +309,7 @@ main {
                 float: none;
                 width: 100%;
                 margin: 0;
+                padding: 0;
             }
             .singular #conversion-units .from-div {
                 /*margin-bottom: 1em;*/

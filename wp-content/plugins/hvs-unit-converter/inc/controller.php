@@ -28,7 +28,7 @@ require_once( 'functions-5.5.php' );
  *  Set defaults
  */
 // Set default lists and checkboxes
-$convert_this = 'pressure';  // Unit type select dropdown
+$convert_this = 'flowrate';  // Unit type select dropdown
 $list_choice = 'default';               // List button choice
 $show_all_units = '';                   // Checkbox to show ALL units
 /* Possible later feature */
