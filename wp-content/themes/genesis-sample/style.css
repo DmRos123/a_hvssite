@@ -967,6 +967,14 @@ img.alignright,
 	text-align: center;
 }
 
+#text-5 .widget-wrap {
+	padding: 20px;
+	border: 1px solid #ccc;
+  box-shadow: 3px 3px 3px 3px #ccc;
+  border-radius: 4px;
+  margin: 2%
+}
+
 /* ## Featured Content
 --------------------------------------------- */
 

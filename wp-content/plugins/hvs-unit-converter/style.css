@@ -38,9 +38,11 @@ main {
     margin-bottom: 5px;
 }
 #hvs_unit_converter_widget-2 .widget-wrap {
-    padding: 10px;
-    border: 1px solid #007bff;
-    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px 3px #ccc;
+    border-radius: 4px;
+    margin: 2%
 }
 
 #hvs_unit_converter_widget-2 .widgettitle:after {
