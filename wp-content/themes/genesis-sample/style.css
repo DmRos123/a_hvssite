@@ -1486,8 +1486,10 @@ p.entry-meta {
     flex-flow: column;
     flex: 1 auto;
     border: 1px solid #ccc;
-    box-shadow: 5px 5px 5px 5px #ccc;
-    margin: 2%;                
+    box-shadow: 3px 3px 3px 3px #ccc;
+    border-radius: 4px;
+    margin: 2%;    
+    padding: 5px;            
 }   
         
 .product-card > ul {

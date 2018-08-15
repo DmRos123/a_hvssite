@@ -2,6 +2,7 @@
 
 /* Template Name: Section Landing Children */
 function tl_show_page_children(){
+    ?><div class="product-card-group"><?php
     // get the child pages
     global $post;
     $args = array(
@@ -14,15 +15,17 @@ function tl_show_page_children(){
     foreach ($child_pages as $p){
         $post = $p;
         setup_postdata( $post ); 
-        ?><div class="pcard"><?php
-        the_post_thumbnail($size = 'post-thumbnail', $attr = '');
+        ?><div class="product-card">
+            <a href="<?php the_permalink(); ?>"><?php
+        the_post_thumbnail($size = 'thumbnail', array( 'class' => 'aligncenter' ));
         ?>
  
-        <br /><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a><?php
+        <br /><h1><?php the_title(); ?></a></h1><?php
         
-        the_excerpt(); 
+
         ?></div><?php
     }
+     ?></div><?php
 }
 
 add_action('genesis_loop', 'tl_show_page_children', 100);
