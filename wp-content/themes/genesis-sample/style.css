@@ -967,7 +967,9 @@ img.alignright,
 	text-align: center;
 }
 
-#text-5 .widget-wrap {
+#text-5 .widget-wrap,
+#custom_html-7 .widget-wrap
+ {
 	padding: 20px;
 	border: 1px solid #ccc;
   box-shadow: 3px 3px 3px 3px #ccc;
@@ -1319,7 +1321,7 @@ img.alignright,
 
 .entry {
 	background-color: #fff;
-	padding: 70px 80px;
+	padding: 40px 80px;
 }
 
 .entry-content ol,
@@ -1489,7 +1491,8 @@ p.entry-meta {
     box-shadow: 3px 3px 3px 3px #ccc;
     border-radius: 4px;
     margin: 2%;    
-    padding: 5px;            
+    padding: 5px;  
+    min-width: 250px;          
 }   
         
 .product-card > ul {
@@ -1583,7 +1586,7 @@ p.entry-meta {
 
 .sidebar .widget {
 	background-color: #fff;
-	padding: 40px;
+	padding: 5px 40px;
 }
 
 
@@ -2129,4 +2132,9 @@ font: normal 20px/1 'dashicons';
 .dashicons-search {
 	font-size: 30px;
 	float: left;
+}
+
+.dashicons-phone {
+	font-size: 15px;
+	margin-top: 6px;
 }
