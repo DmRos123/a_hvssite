@@ -1490,8 +1490,7 @@ p.entry-meta {
     border: 1px solid #ccc;
     box-shadow: 3px 3px 3px 3px #ccc;
     border-radius: 4px;
-    margin: 2%;    
-    padding: 5px;  
+    margin: 2%;     
     min-width: 250px;          
 }   
         
@@ -1531,18 +1530,19 @@ p.entry-meta {
 /* #Info Box
 ----------------------------------------------------------------------------------------------------*/
 .info-box {
-    margin-bottom: 2rem;
+    margin: 0 60px 2rem;
     padding: 0 2rem 2rem;
-    border: #1a7bb9 2px solid;
-    border-radius: 2px;
+    border: #ccc 1px solid;
+    box-shadow: 1px 1px 10px 1px #ccc;
+    border-radius: 4px;
 }
 .info-box h1 {
     margin-left: -2rem;
     margin-right: -2rem;
     padding: .5rem 2rem;  
     font-size: 2.5rem;
-    background: #1a7bb9;
-    color: #fff;
+		border-bottom: 2px solid #ccc;
+
 }        
 
 .info-box img {
