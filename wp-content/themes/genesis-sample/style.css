@@ -600,6 +600,7 @@ th:first-child {
 .site-inner {
 	clear: both;
 	word-wrap: break-word;
+	min-height: 900px;
 }
 
 .landing-page .site-inner {
@@ -996,17 +997,80 @@ img.alignright,
 /* ## Front Page Widgets
 --------------------------------------------- */
 .front-page-1-widget {
-    background-color:#ccc;
- 
+  min-height: 450px;
+  color: #fff;
+  text-align: center;
 }
+
+.front-page-1-widget .bg-image {
+  position: absolute;
+  background: #333 url('http://localhost/a_hvssite/wp-content/uploads/2018/09/meat_test_chambers_freeze_dryer_hero.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 450px;
+  z-index: -1;
+  opacity: .4;
+}
+
+.front-page-1-widget  h1 {
+  padding-top: 100px;
+  padding-bottom: 0;
+}
+
+.front-page-1-widget .wrap {
+  margin: 0;
+  max-width: 100%;
+
+}
+.front-page-1-widget div.content-wrap {
+  padding: 0 1.5em;
+
+}
+
+a.btn.btn-borrow {
+  display: inline-block;
+  background: #1a7bb9;
+  color: #fff;
+  text-decoration: none;
+  padding: 1em 2em;
+  border: 1px solid #666;
+  margin: 1em 0;
+}
+
+a.btn.btn-borrow:hover {
+  background: #eaeaea;
+  color: #333;
+}
+
+
 
 .front-page-2-widget {
-    background-color:#ccc;
-
+  padding: 2em 1em 1em;
 }
 
+.front-page-2-widget ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.front-page-2-widget li {
+  margin-bottom: 1em;
+  background: #fff;
+  color:#333;
+}
+
+.card-content {
+  padding: 1.5em;
+}
+
+
+
+
 .front-page-3-widget {
-    background-color:#ccc;
+    background-color:#fff;
 
 }
 
@@ -1499,7 +1563,7 @@ p.entry-meta {
     list-style: none;              
     color: #333;
     font-style: italic;
-    font-size: .9rem; 
+    font-size: 1rem; 
     margin: 0;
 }
 
@@ -1513,6 +1577,16 @@ p.entry-meta {
     background-color: #045992;
     color: #fff; 
     margin: 0;
+    text-align: center;
+}
+
+.product-card p > a {
+	    color: #fff; 
+}
+
+.product-card p > a:hover {
+      color: #fff;
+      font-style: oblique;
 }
 
 .product-card > h1 {
@@ -1906,6 +1980,7 @@ p.entry-meta {
 	}
 }
 
+
 @media only screen and (max-width: 860px) {
 
 	body,
@@ -1963,10 +2038,13 @@ p.entry-meta {
 		width: 100%;
 	}
 
-	
 
+
+@media only screen and (max-width: 620px) {
+	.entry-title {
+		font-size: 2.8rem;
+	}
 }
-
 
 /* # Print Styles
 ---------------------------------------------------------------------------------------------------- */

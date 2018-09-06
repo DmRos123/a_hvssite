@@ -21,9 +21,9 @@ function tl_show_page_children(){
         ?>
  
         <br /><h1><?php the_title(); ?></a></h1><?php
-        
+        the_excerpt();
 
-        ?></div><?php
+        ?><p><a href="<?php the_permalink(); ?>">View Details</a></p></div><?php
     }
      ?></div><?php
 }

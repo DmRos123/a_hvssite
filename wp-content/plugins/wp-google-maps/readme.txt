@@ -216,6 +216,9 @@ Please upgrade your version of WP Google Maps to version 6.0.27 as it includes m
 
 == Changelog ==
 
+= 7.10.32 :- 2018-08-31 :- Medium priority =
+* Fixed redundant setting wpgmza_gdpr_enabled causing "user consent not given" to be flagged erroneously
+
 = 7.10.31 :- 2018-08-30 :- Medium priority =
 * Fixed NaN zoom level causing Google Maps to hang
 

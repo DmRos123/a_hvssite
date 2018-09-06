@@ -22,13 +22,13 @@ function my_homepage_setup() {
     if ( $home_sidebars['front_page_2']  )  {
 
 		 //* Add front page 2 widget
-		add_action( 'genesis_before_content_sidebar_wrap', 'display_front_page_2_widget' );
+		add_action( 'genesis_after_header', 'display_front_page_2_widget' );
 
 	}
     if ( $home_sidebars['front_page_3']  )  {
 
 		 //* Add front page 3 widget
-		add_action( 'genesis_after_entry', 'display_front_page_3_widget' );
+		add_action( 'genesis_before_footer', 'display_front_page_3_widget', 5 );
 
 	}
 }
@@ -45,7 +45,7 @@ function display_front_page_1_widget() {
 function display_front_page_2_widget() {
 
 	genesis_widget_area( 'front-page-2', array(
-		'before' => '<div class="front-page-2-widget"><div class="wrap">',
+		'before' => '<div class="front-page-2-widget grid"><div class="wrap">',
 		'after'  => '</div></div>',
 	) );
 

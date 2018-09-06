@@ -124,6 +124,11 @@ add_image_size( 'dmr-full-bleed', 2000, 1200, true );
 // Rename primary and secondary navigation menus.
 add_theme_support( 'genesis-menus', array( 'primary' => __( 'After Header Menu', 'genesis-sample' ), 'secondary' => __( 'Footer Menu', 'genesis-sample' ) ) );
 
+//Add post type support add page excerpts
+
+add_post_type_support( "page", "excerpt" );
+
+
 // Reposition the secondary navigation menu.
 remove_action( 'genesis_after_header', 'genesis_do_subnav' );
 add_action( 'genesis_footer', 'genesis_do_subnav', 5 );
@@ -175,7 +180,7 @@ function my_credits (){
 genesis_register_sidebar( array(
 	'id'          => 'front-page-1',
 	'name'        => __( 'Front Page 1', 'genesis-sample' ),
-	'description' => __( 'This is a widget that goes on the front page after the header.', 'genesis-sample' ),
+	'description' => __( 'This is a widget that goes on the front page after the header and nav. It is the Hero panel.', 'genesis-sample' ),
 ) );
 
 // Register Front Page widget areas.
