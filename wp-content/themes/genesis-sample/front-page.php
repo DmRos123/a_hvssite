@@ -45,7 +45,7 @@ function display_front_page_1_widget() {
 function display_front_page_2_widget() {
 
 	genesis_widget_area( 'front-page-2', array(
-		'before' => '<div class="front-page-2-widget grid"><div class="wrap">',
+		'before' => '<div class="front-page-2-widget"><div class="wrap">',
 		'after'  => '</div></div>',
 	) );
 

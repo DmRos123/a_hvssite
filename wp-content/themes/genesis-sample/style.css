@@ -998,13 +998,13 @@ img.alignright,
 --------------------------------------------- */
 .front-page-1-widget {
   min-height: 450px;
-  color: #fff;
+  color: #000;
   text-align: center;
 }
 
 .front-page-1-widget .bg-image {
   position: absolute;
-  background: #333 url('http://localhost/a_hvssite/wp-content/uploads/2018/09/meat_test_chambers_freeze_dryer_hero.jpg');
+  background: #333 url('http://localhost/a_hvssite/wp-content/uploads/2018/09/test_hero.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -1029,7 +1029,7 @@ img.alignright,
 
 }
 
-a.btn.btn-borrow {
+a.btn-borrow {
   display: inline-block;
   background: #1a7bb9;
   color: #fff;
@@ -1039,7 +1039,7 @@ a.btn.btn-borrow {
   margin: 1em 0;
 }
 
-a.btn.btn-borrow:hover {
+a.btn-borrow:hover {
   background: #eaeaea;
   color: #333;
 }
@@ -1050,7 +1050,23 @@ a.btn.btn-borrow:hover {
   padding: 2em 1em 1em;
 }
 
-.front-page-2-widget ul {
+.front-page-2-widget .wrap {
+  margin: 0;
+  max-width: 100%;
+
+}
+#text-4.widget.widget_text {
+	padding:0 60px;
+}
+ul.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  align-items: stretch;
+}
+
+.grid ul {
+  grid-column: 1/3;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1060,12 +1076,17 @@ a.btn.btn-borrow:hover {
   margin-bottom: 1em;
   background: #fff;
   color:#333;
+
 }
 
 .card-content {
   padding: 1.5em;
 }
 
+.card {
+	max-height:100%;
+
+}
 
 
 
@@ -1599,6 +1620,16 @@ p.entry-meta {
 .product-card a:hover {
 	color: #333;
 	text-decoration: none;
+}
+
+.product-card p.dummy {
+	background: #fff;
+	color: #000;
+}
+#front.product-card-group {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-around;
 }
 
 /* #Info Box
