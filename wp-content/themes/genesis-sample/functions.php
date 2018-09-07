@@ -147,6 +147,14 @@ function genesis_sample_secondary_menu_args( $args ) {
 
 }
 
+//Use dashicon for search button
+
+add_filter( 'genesis_search_button_text', 'dmr_search_button_dashicon' );
+function dmr_search_button_dashicon( $text ) {
+	return esc_attr( '&#xf179;');
+}
+
+
 // Modify size of the Gravatar in the author box.
 add_filter( 'genesis_author_box_gravatar_size', 'genesis_sample_author_box_gravatar' );
 function genesis_sample_author_box_gravatar( $size ) {

@@ -784,9 +784,11 @@ th:first-child {
 --------------------------------------------- */
 
 .search-form {
-	overflow: hidden;
+	position: relative;
 	
 }
+
+
 
 .entry-content .search-form,
 .site-header .search-form {
@@ -819,6 +821,26 @@ th:first-child {
 input[type="search"] {
 	height: 30px;
 }
+
+.search-form > input {
+    padding-left: 40px;
+}
+
+.search-form input[type="submit"] {
+    background: none !important;
+    border: none;
+    clip: inherit;
+    color: #4a545a;
+    display: inline-block;
+    font: 28px/1 'dashicons';
+    height: 38px;
+    padding: 0 10px 0 12px;
+    position: absolute;
+    left: 2px;
+    vertical-align: top;
+    width: 38px;
+}
+
 
 /* ## Titles
 --------------------------------------------- */
@@ -1092,6 +1114,20 @@ ul.grid {
 
 .front-page-3-widget {
     background-color:#fff;
+
+}
+.front-page-3-widget .wrap {
+  margin: 0;
+  max-width: 100%;
+
+}
+#text-6.widget.widget_text {
+	margin-bottom: -25px;
+}
+
+.textwidget >.jumbotron {
+	background-color: #1a7bb9;
+	color: white;
 
 }
 
@@ -1621,6 +1657,8 @@ p.entry-meta {
 	color: #333;
 	text-decoration: none;
 }
+/* #Product Cards on Front Page
+----------------------------------------------------------------------------------------------------*/
 
 .product-card p.dummy {
 	background: #fff;
@@ -1630,6 +1668,10 @@ p.entry-meta {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: space-around;
+}
+
+#front >.product-card {
+	padding: 10px;
 }
 
 /* #Info Box
@@ -1731,7 +1773,7 @@ p.entry-meta {
 	background-color: #000;
 	border-top: 1px solid #eee;
 	font-size: 16px;
-	font-size: 1.6rem;
+	font-size: 1rem;
 	line-height: 1;
 	padding: 60px 0;
 	text-align: center;
